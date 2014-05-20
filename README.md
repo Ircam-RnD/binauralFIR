@@ -60,6 +60,26 @@ Method | Description
 
 ## Tests
 
+If grunt is not installed
+
+```bash
+$ npm install -g grunt-cli
+```
+
+Install all depencies in the module folder
+
+```bash
+$ npm install
+```
+
+Run the server on 9001 port (you can change the port in the Grunfile.js)
+
+```bash
+$ grunt test
+```
+
+Run the test via the web browser on `http://localhost:9001/tests`
+
 ## License
 
 This module is released under the [BSD-3-Clause license](http://opensource.org/licenses/BSD-3-Clause).
