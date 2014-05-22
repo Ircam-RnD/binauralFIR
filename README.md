@@ -86,3 +86,4 @@ This module is released under the [BSD-3-Clause license](http://opensource.org/l
 
 ## Acknowledgments
 
+This code has been developed from both Acoustic And Cognitive Spaces (http://recherche.ircam.fr/equipes/salles/) and Analysis of Musical Practises IRCAM research teams. It is also part of the WAVE project (http://wave.ircam.fr), funded by ANR (The French National Research Agency), ContInt program, 2012-2015.
