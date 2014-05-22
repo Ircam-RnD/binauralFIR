@@ -2,23 +2,6 @@
 
 > Processing node/library which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
-The `binauralFIR` object provides several methods:
-
-- `connect()`
-- `disconnect()`
-- `loadHRTF(hrtfData)`
-- `setPosition(azimuth, elevation, distance, optImmediate)`
-- `getPosition()`
-- `isCrossfading()`
-- `getTimeBeforeCrossfadingEnd()`
-- `setCrossfadeDuration(duration)`
-- `getCrossfadeDuration()`
-- `getMetaDataAboutCurrentHRTF(metadataName)`
-
-
-## Requirements
-
-- 
 
 ## Example
 
@@ -31,14 +14,15 @@ Load binauralFIR.js, for instance in your html file by using:
 ```js
   // we need an audio context
   var audioContext = new AudioContext();
+  var targetNode = audioContext.destination;
 
   // create one virtual source and pass the HRTF set
   var binauralFIRNode = createBinauralFIR(hrtfData);
   player.connect(binauralFIRNode.input);
-  binauralFIRNode.connect(node);
+  binauralFIRNode.connect(targetNode);
   //set the position of the virtual source
   binauralFIRNode.setPosition(0, 0, 1);
- 
+
 ```
 
 ## API
@@ -47,6 +31,8 @@ The `binauralFIR` object exposes the following API:
 
 Method | Description
 --- | ---
+`binauralFIR.connect()` | Connects the binauralFIRNode to the Web Audio graph
+`binauralFIR.disconnect()` | Disconnect the binauralFIRNode from the Web Audio graph
 `binauralFIR.loadHRTF(hrtfData)` | Set hrtf set buffer to be used and update the current position with the new HRTF.
 `binauralFIR.setPosition(azimuth, elevation, distance, optImmediate)` | Set position of the virtual source.
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
@@ -86,4 +72,4 @@ This module is released under the [BSD-3-Clause license](http://opensource.org/l
 
 ## Acknowledgments
 
-This code has been developed from both Acoustic And Cognitive Spaces (http://recherche.ircam.fr/equipes/salles/) and Analysis of Musical Practises IRCAM research teams. It is also part of the WAVE project (http://wave.ircam.fr), funded by ANR (The French National Research Agency), ContInt program, 2012-2015.
+This code has been developed from both [Acoustic And Cognitive Spaces](http://recherche.ircam.fr/equipes/salles/) and [Analysis of Musical Practises](http://apm.ircam.fr) IRCAM research teams. It is also part of the WAVE project (http://wave.ircam.fr), funded by ANR (The French National Research Agency), ContInt program, 2012-2015.
