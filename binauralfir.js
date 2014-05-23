@@ -1,18 +1,20 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.createBinauralFIR=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /**
  * @fileOverview
- * Audio Library for Binaural audio playing
- * Comments...
- * @author Arnau Julià
- * @version 0.1.0
+ * Javascript binaural audio library
+ * @author Arnau Julià, Samuel Goldszmidt
+ * @version 0.1.1
  */
-
+var kdt = _dereq_('kdt');
 /**
  * Function invocation pattern for a binaural node.
  * @public
  */
 var createBinauralFIR = function createBinauralFIR(hrtf) {
   'use strict';
+
+  // Ensure global availability of an "audioContext" instance of web audio AudioContext.
+  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
   /**
    * BinauralFIR object as an ECMAScript5 properties object.
@@ -21,32 +23,30 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
   var binauralFIRObject = {
 
     // Private properties
-    context: {
-      writable: true
-    },
     hrtfData: {
-      writable: true
-    },
-    convNode: {
       writable: true,
       value: []
     },
-    gainNode: {
+    hrtfDataset: {
       writable: true,
       value: []
     },
-    outputNode: {
-      writable: true
+    hrtfDatasetLength: {
+      writable: true,
+      value: 0
     },
-    oscillatorNode: {
-      writable: true
+    tree: {
+      writable: true,
+      value: -1
     },
-    gainOscillatorNode: {
-      writable: true
+
+    position: {
+      writable: true,
+      value: {azimuth: 0, elevation: 0, distance: 1}
     },
     nextPosition: {
       writable: true,
-      value: []
+      value: {}
     },
     currentHRTFBufferIndex: {
       writable: true,
@@ -67,10 +67,6 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       writable: true,
       value: 20/1000
     },
-    position: {
-      writable: true,
-      value: []
-    },
     immediate: {
       writable: true,
       value: false
@@ -83,28 +79,14 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       writable: true,
       value: 0
     },
-    startedAtTime: {
-      writable: true,
-      value: 0
-    },
-    convNodeActive: {
-      writable: true,
-      value: 0
-    },
-    convNodeInactive: {
-      writable: true,
-      value: 1
-    },
     input: {
       writable: true,
     },
-    number: {
-      writable: true,
-      value: 0
+    mainConvolver: {
+      writable: true
     },
-    id: {
-      writable: true,
-      value: false
+    secondaryConvolver: {
+      writable: true
     },
 
     /**
@@ -115,44 +97,24 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     init: {
       enumerable: true,
       value: function(hrtf) {
+        //this.setBuffer(hrtf);
+        this.input = audioContext.createGain();
 
-        this.context = window.audioContext;
-        this.setBuffer(hrtf);
+        // Two sub audio graphs creation:
+        // - mainConvolver which represents the current state
+        // - and secondaryConvolver which represents the potential target state
+        //   when moving sound to a new position
 
-        //Creations
-        this.input = this.context.createGain();
-        this.gainNode[0] = this.context.createGain();
-        this.gainNode[1] = this.context.createGain();
-        this.convNode[0] = this.context.createConvolver();
-        this.convNode[1] = this.context.createConvolver();
-        this.convNode[0].normalize = false;
-        this.convNode[1].normalize = false;
-  
-        //to mantain the audioParam active when the source is not active
-        this.oscillatorNode = this.context.createOscillator();
-        this.gainOscillatorNode = this.context.createGain();
-  
-        //Connections
-        this.oscillatorNode.connect(this.gainOscillatorNode);
-        this.gainOscillatorNode.connect(this.gainNode[0]);
-        this.gainOscillatorNode.connect(this.gainNode[1]);
-        this.input.connect(this.gainNode[0]);
-        this.input.connect(this.gainNode[1]);
-        this.gainNode[0].connect(this.convNode[0]);
-        this.gainNode[1].connect(this.convNode[1]);
-  
-        //Value
-        this.gainNode[0].gain.value = 1;
-        this.gainNode[1].gain.value = 0;
-        this.gainOscillatorNode.gain.value = 0;
-        //If they are set through getPosition method, it's not set immediately
-        // this.convNode[0].buffer = this.hrtfData[0];
-        // this.convNode[1].buffer = this.hrtfData[0];
-        this.oscillatorNode.start(0);
-        this.position[0] = 0;
-        this.position[1] = 0;
-        this.position[2] = 1;
-  
+        this.mainConvolver = Object.create({}, convolverAudioGraph);
+        this.mainConvolver.init();
+        this.mainConvolver.gain.value = 1;
+        this.input.connect(this.mainConvolver.input);
+
+        this.secondaryConvolver = Object.create({}, convolverAudioGraph);
+        this.secondaryConvolver.init();
+        this.secondaryConvolver.gain.value = 0;
+        this.input.connect(this.secondaryConvolver.input);
+
         return this;  // for chainability
       }
     },
@@ -165,8 +127,8 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     connect: {
       enumerable: true,
       value: function(node) {
-        this.convNode[0].connect(node);
-        this.convNode[1].connect(node);
+        this.mainConvolver.connect(node);
+        this.secondaryConvolver.connect(node);
         return this;  // for chainability
       }
     },
@@ -179,8 +141,8 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     disconnect: {
       enumerable: true,
       value: function(output) {
-        this.convNode[0].disconnect(output);
-        this.convNode[1].disconnect(output);
+        this.mainConvolver.disconnect(node);
+        this.secondaryConvolver.disconnect(node);
         return this; // for chainability
       }
     },
@@ -190,18 +152,56 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
      * @public
      * @chainable
      */
+     /*
     loadHRTF: {
       enumerable: true,
       value: function(buffer) {
         if (buffer) {
-          //save the new HRTF set
+          // Save the new HRTF set
           this.setBuffer(buffer);
-          //update the current position with the new HRTF
-          this.setPosition(this.getPosition()[0], this.getPosition()[1], this.getPosition()[2]);
+          // Update the current position with the new HRTF
+          this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
           return this; // for chainability
         } else {
           throw "HRTF setting error";
         }
+      }
+    },
+    */
+    HRTFDataset: {
+      enumerable : true,
+      configurable : true,
+      set: function(hrtfDataset){
+        // TODO: test if hrtfDataset in the appropriate format
+        // at least: [{azimuth:, elevation: , distance:, buffer: } ..]
+        this.hrtfDataset = hrtfDataset;
+
+        this.hrtfDatasetLength = this.hrtfDataset.length;
+        // Functionnal programming should be cleaner
+        for(var i=0; i<this.hrtfDatasetLength; i++){
+          var hrtf = this.hrtfDataset[i];
+          hrtf.x = hrtf.distance*Math.sin(hrtf.elevation)*Math.cos(hrtf.azimuth);
+          hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
+          hrtf.z = hrtf.distance*Math.cos(hrtf.elevation);
+          console.log(hrtf.x, hrtf.y, hrtf.z);
+        }
+        console.log(kdt.createKdTree, "okok", this.distance, this.hrtfDataset);
+        var t = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
+        console.log(t);
+        this.tree = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
+        console.log("this.tree");
+        // Here we should have the azimuth and elevation steps of our HRTF files
+        this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
+      },
+      get: function(){
+        return this.hrtfDataset;
+      }
+    },
+
+    distance: {
+      value: function(a, b){
+        // No need to compute square root here for distance comparison, this is more eficient.
+        return Math.pow(a.x - b.x, 2) +  Math.pow(a.y - b.y, 2) +  Math.pow(a.z - b.z, 2);
       }
     },
 
@@ -215,42 +215,43 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: true,
       value: function(azimuth, elevation, distance, optImmediate) {
         if (arguments.length === 3 || arguments.length === 4 ) {
-          //Derive the value of the next buffer
+          // Derive the value of the next buffer
           var bufferIndex = this.getBufferValue(azimuth, elevation, distance);
-          
-          //Check if it is necessary to change the active buffer.
+
+          // Check if it is necessary to change the active buffer.
+          // I guess we could do: this.position != {azimuth: ,elevation: ,distance: }
           if (bufferIndex !== this.currentHRTFBufferIndex) {
-                        
-            //Check if the crossfading is active           
-            if (this.isCrossfading() === true) {              
-              //Check it there are a value waiting to be set
+
+            // Check if the crossfading is active
+            if (this.isCrossfading() === true) {
+              // Check it there are a value waiting to be set
               if (this.changeWhenFinishCrossfading === true ) {
-                //Stop the past setInterval event.
+                // Stop the past setInterval event.
                 clearInterval(this.intervalID);
               } else {
                 this.changeWhenFinishCrossfading = true;
               }
-              //save the position
-              this.nextPosition[0] = azimuth;
-              this.nextPosition[1] = elevation;
-              this.nextPosition[2] = distance;
+              // Save the position
+              this.nextPosition.azimuth = azimuth;
+              this.nextPosition.elevation = elevation;
+              this.nextPosition.distance = distance;
               this.nextImmediate = optImmediate || false;
-              
-              //start the setInterval: wait until the crossfading is finished.
+
+              // Start the setInterval: wait until the crossfading is finished.
               this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
             } else {
-              this.nextPosition[0] = azimuth;
-              this.nextPosition[1] = elevation;
-              this.nextPosition[2] = distance;
+              this.nextPosition.azimuth = azimuth;
+              this.nextPosition.elevation = elevation;
+              this.nextPosition.distance = distance;
               this.reallyStartPosition();
-            }  
-   
+            }
+
           } else {
-              //Although it is not necessary to update the HRTF buffer, we save the current position.
-              this.position[0] = azimuth;
-              this.position[1] = elevation;
-              this.position[2] = distance;
-              //optImmediate not implemented
+              // Although it is not necessary to update the HRTF buffer, we save the current position.
+              this.position.azimuth = azimuth;
+              this.position.elevation = elevation;
+              this.position.distance = distance;
+              // optImmediate not implemented
               this.immediate = optImmediate || false;
           }
 
@@ -268,8 +269,8 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     isCrossfading: {
       enumerable: true,
       value: function() {
-        //The ramps are not finished, the crossfading is not finished
-        if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0) {
+        // The ramps are not finished, the crossfading is not finished
+        if(this.mainConvolver.gain.value !== 1){
           return true;
         }else{
           return false;
@@ -285,23 +286,23 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: false,
       value: function() {
 
-        //Save the current position (maybe better in an object?)
-        this.position[0] = this.nextPosition[0];
-        this.position[1] = this.nextPosition[1];
-        this.position[2] = this.nextPosition[2];
+        // Save the current position
+        this.position.azimuth = this.nextPosition.azimuth;
+        this.position.elevation = this.nextPosition.elevation;
+        this.position.distance = this.nextPosition.distance;
 
-        var bufferIndex = this.getBufferValue(this.position[0], this.position[1], this.position[2]);
-
-        //Load the new position in the convolver not active
-        this.convNode[this.convNodeInactive].buffer = this.hrtfData[bufferIndex];
-        //Do the crossfading between convNodeInactive and convNodeActive
+        //var bufferIndex = this.getBufferValue(this.position.azimuth, this.position.elevation, this.position.distance);
+        // Load the new position in the convolver not active
+        //this.secondaryConvolver.buffer = this.hrtfData[bufferIndex];
+        this.secondaryConvolver.buffer = this.getHRTF(this.position.azimuth, this.position.elevation, this.position.distance);
+        // Do the crossfading between convNodeInactive and convNodeActive
         this.crossfading();
-        //Update the value of the current HRTF Position
+        // Update the value of the current HRTF Position
         this.currentHRTFBufferIndex = bufferIndex;
 
-        //Update the memories
+        // Update the memories
         this.updateMemories();
-        if(this.changeWhenFinishCrossfading){   
+        if(this.changeWhenFinishCrossfading){
           this.changeWhenFinishCrossfading = false;
           clearInterval(this.intervalID);
         }
@@ -315,11 +316,11 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     getTimeBeforeCrossfadingEnd: {
       enumerable: true,
       value: function() {
-        //if it is crossfading, return the time until finish the crossfading
+        // If it is crossfading, return the time until finish the crossfading
         if(this.isCrossfading()){
-          return this.finishCrossfadeTime - this.context.currentTime;
+          return this.finishCrossfadeTime - audioContext.currentTime;
         }else{
-        //if it is not crossfading, return 0
+          // If it is not crossfading, return 0
           return 0;
         }
       }
@@ -334,7 +335,7 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: true,
       value: function(duration) {
         if (duration) {
-          //ms to s
+          // ms to s
           this.crossfadeDuration = duration/1000;
           return this; // for chainability
         } else {
@@ -350,7 +351,7 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     getCrossfadeDuration: {
       enumerable: true,
       value: function(){
-        //s to ms
+        // s to ms
         return this.crossfadeDuration*1000;
       }
     },
@@ -364,7 +365,7 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: true,
       value: function(metadataName){
         if (metadataName) {
-          return "info of the metadata: nonimplemented"
+          return "info of the metadata: nonimplemented";
         } else {
           throw "metadata getting error";
         }
@@ -378,9 +379,6 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     getPosition: {
       enumerable: true,
       value: function() {
-        //position[0] = azimuth;
-        //position[1] = elevation;
-        //position[2] = distance;
         return this.position;
       }
     },
@@ -392,23 +390,24 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     crossfading: {
       enumerable: false,
       value: function() {
-        
+
         if(this.isCrossfading() === true)
         {
           console.log(audioContext.currentTime, "problem!!");
         }
-        if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0){
+        //if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0){
+        if(this.mainConvolver.gain.value !== 1){
           console.log(audioContext.currentTime, "problem!!");
         }
 
-        //save when the crossfading will be finish
-        this.finishCrossfadeTime = this.context.currentTime+this.crossfadeDuration+0.02;
-        //Do crossfading
-        this.gainNode[this.convNodeActive].gain.setValueAtTime(1, this.context.currentTime+0.02);
-        this.gainNode[this.convNodeActive].gain.linearRampToValueAtTime(0, this.context.currentTime+0.02+this.crossfadeDuration);
-        
-        this.gainNode[this.convNodeInactive].gain.setValueAtTime(0, this.context.currentTime+0.02);
-        this.gainNode[this.convNodeInactive].gain.linearRampToValueAtTime(1, this.context.currentTime+0.02+this.crossfadeDuration);
+        // Save when the crossfading will be finish
+        this.finishCrossfadeTime = audioContext.currentTime+this.crossfadeDuration+0.02;
+        // Do the crossfading
+        this.mainConvolver.gain.setValueAtTime(1, audioContext.currentTime+0.02);
+        this.mainConvolver.gain.linearRampToValueAtTime(0, audioContext.currentTime+0.02+this.crossfadeDuration);
+
+        this.secondaryConvolver.gain.setValueAtTime(0, audioContext.currentTime+0.02);
+        this.secondaryConvolver.gain.linearRampToValueAtTime(1, audioContext.currentTime+0.02+this.crossfadeDuration);
       }
     },
 
@@ -419,16 +418,17 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     updateMemories: {
       enumerable: false,
       value: function() {
-        var aactive = this.convNodeActive;
-        this.convNodeActive = this.convNodeInactive;
-        this.convNodeInactive = aactive;
+        var active = this.mainConvolver;
+        this.mainConvolver = this.secondaryConvolver;
+        this.secondaryConvolver = active;
       }
     },
 
     /**
-     * Update the convolverNode active and inactive
+     *
      * @private
      */
+     /*
     setBuffer: {
       enumerable: false,
       value: function(buffer) {
@@ -439,6 +439,7 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         }
       }
     },
+    */
 
     /**
      * Get the index buffer value for one specified position (azimuth, elevation, distance)
@@ -448,12 +449,34 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     getBufferValue: {
       enumerable: false,
       value: function(azimuth, elevation, distance){
-        if (arguments.length===3) {
+        if (arguments.length === 3) {
           return parseInt(azimuth*this.hrtfData.length/360, 10);
         } else {
           throw "buffer getting error";
         }
       }
+    },
+
+    getHRTF: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        var x = distance*Math.sin(elevation)*Math.cos(azimuth);
+        var y = distance*Math.sin(elevation)*Math.sin(azimuth);
+        var z = distance*Math.cos(elevation);
+        var nearest = this.tree.nearest({ x: x, y: y, z: z}, 1)[0];
+        console.log(nearest);
+        /*
+        for(var i=0; i<this.hrtfDataset.length; i++){
+          if(this.hrtfDataset.azimuth == azimuth && this.hrtfDataset.elevation == elevation && this.hrtfDataset.distance == distance){
+            return this.hrtfDataset[i].buffer;
+          }
+        }
+        */
+      }
+    },
+
+    getHRTFIndex: {
+
     },
 
     /**
@@ -471,6 +494,86 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
   };
 
+  /**
+   * Convolver sub audio graph object as an ECMAScript5 properties object.
+   */
+
+  var convolverAudioGraph = {
+
+    // Private properties
+    convNode: {
+      writable: true
+    },
+    gainNode: {
+      writable: true
+    },
+    oscillatorNode: {
+      writable: true
+    },
+    gainOscillatorNode: {
+      writable: true
+    },
+
+    /**
+     * Mandatory initialization method.
+     * @public
+     * @chainable
+     */
+    init: {
+      enumerable: true,
+      value: function() {
+        this.gainNode = audioContext.createGain();
+        this.convNode = audioContext.createConvolver();
+        this.convNode.normalize = false;
+        this.gainNode.connect(this.convNode);
+
+        // Hack to force audioParam active when the source is not active
+        this.oscillatorNode = audioContext.createOscillator();
+        this.gainOscillatorNode = audioContext.createGain();
+        this.oscillatorNode.connect(this.gainOscillatorNode);
+        this.gainOscillatorNode.connect(this.gainNode);
+        this.gainOscillatorNode.gain.value = 0;
+        this.oscillatorNode.start(0);
+
+        return this;
+      }
+    },
+    input: {
+      enumerable : true,
+      get: function(){
+        return this.gainNode;
+      }
+    },
+    gain: {
+      enumerable : true,
+      get: function(){
+        return this.gainNode.gain;
+      }
+    },
+    buffer: {
+      enumerable : true,
+      configurable : true,
+      set: function(value){
+        this.convNode.buffer = value;
+      }
+    },
+    connect: {
+      enumerable: true,
+      value: function(node) {
+        this.convNode.connect(node);
+        return this;
+      }
+    },
+    disconnect: {
+      enumerable: true,
+      value: function(node){
+        this.convNode.disconnect(node);
+        return this;
+      }
+    }
+
+  };
+
   // Instantiate an object.
   var binauralFIR = Object.create({}, binauralFIRObject);
   return binauralFIR.init(hrtf);
@@ -478,6 +581,463 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
 // CommonJS function export
 module.exports = createBinauralFIR;
+
+},{"kdt":2}],2:[function(_dereq_,module,exports){
+/**
+ * AUTHOR OF INITIAL JS LIBRARY
+ * k-d Tree JavaScript - V 1.0
+ *
+ * https://github.com/ubilabs/kd-tree-javascript
+ *
+ * @author Mircea Pricop <pricop@ubilabs.net>, 2012
+ * @author Martin Kleppe <kleppe@ubilabs.net>, 2012
+ * @author Ubilabs http://ubilabs.net, 2012
+ * @license MIT License <http://www.opensource.org/licenses/mit-license.php>
+ */
+
+
+function Node(obj, dimension, parent) {
+  this.obj = obj;
+  this.left = null;
+  this.right = null;
+  this.parent = parent;
+  this.dimension = dimension;
+}
+
+function KdTree(points, metric, dimensions) {
+
+  var self = this;
+  
+  function buildTree(points, depth, parent) {
+    var dim = depth % dimensions.length,
+      median,
+      node;
+
+    if (points.length === 0) {
+      return null;
+    }
+    if (points.length === 1) {
+      return new Node(points[0], dim, parent);
+    }
+
+    points.sort(function (a, b) {
+      return a[dimensions[dim]] - b[dimensions[dim]];
+    });
+
+    median = Math.floor(points.length / 2);
+    node = new Node(points[median], dim, parent);
+    node.left = buildTree(points.slice(0, median), depth + 1, node);
+    node.right = buildTree(points.slice(median + 1), depth + 1, node);
+
+    return node;
+  }
+
+  this.root = buildTree(points, 0, null);
+
+  this.insert = function (point) {
+    function innerSearch(node, parent) {
+
+      if (node === null) {
+        return parent;
+      }
+
+      var dimension = dimensions[node.dimension];
+      if (point[dimension] < node.obj[dimension]) {
+        return innerSearch(node.left, node);
+      } else {
+        return innerSearch(node.right, node);
+      }
+    }
+
+    var insertPosition = innerSearch(this.root, null),
+      newNode,
+      dimension;
+
+    if (insertPosition === null) {
+      this.root = new Node(point, 0, null);
+      return;
+    }
+
+    newNode = new Node(point, (insertPosition.dimension + 1) % dimensions.length, insertPosition);
+    dimension = dimensions[insertPosition.dimension];
+
+    if (point[dimension] < insertPosition.obj[dimension]) {
+      insertPosition.left = newNode;
+    } else {
+      insertPosition.right = newNode;
+    }
+  };
+
+  this.remove = function (point) {
+    var node;
+
+    function nodeSearch(node) {
+      if (node === null) {
+        return null;
+      }
+
+      if (node.obj === point) {
+        return node;
+      }
+
+      var dimension = dimensions[node.dimension];
+
+      if (point[dimension] < node.obj[dimension]) {
+        return nodeSearch(node.left, node);
+      } else {
+        return nodeSearch(node.right, node);
+      }
+    }
+
+    function removeNode(node) {
+      var nextNode,
+        nextObj,
+        pDimension;
+
+      function findMax(node, dim) {
+        var dimension,
+          own,
+          left,
+          right,
+          max;
+
+        if (node === null) {
+          return null;
+        }
+
+        dimension = dimensions[dim];
+        if (node.dimension === dim) {
+          if (node.right !== null) {
+            return findMax(node.right, dim);
+          }
+          return node;
+        }
+
+        own = node.obj[dimension];
+        left = findMax(node.left, dim);
+        right = findMax(node.right, dim);
+        max = node;
+
+        if (left !== null && left.obj[dimension] > own) {
+          max = left;
+        }
+
+        if (right !== null && right.obj[dimension] > max.obj[dimension]) {
+          max = right;
+        }
+        return max;
+      }
+
+      function findMin(node, dim) {
+        var dimension,
+          own,
+          left,
+          right,
+          min;
+
+        if (node === null) {
+          return null;
+        }
+
+        dimension = dimensions[dim];
+
+        if (node.dimension === dim) {
+          if (node.left !== null) {
+            return findMin(node.left, dim);
+          }
+          return node;
+        }
+
+        own = node.obj[dimension];
+        left = findMin(node.left, dim);
+        right = findMin(node.right, dim);
+        min = node;
+
+        if (left !== null && left.obj[dimension] < own) {
+          min = left;
+        }
+        if (right !== null && right.obj[dimension] < min.obj[dimension]) {
+          min = right;
+        }
+        return min;
+      }
+
+      if (node.left === null && node.right === null) {
+        if (node.parent === null) {
+          self.root = null;
+          return;
+        }
+
+        pDimension = dimensions[node.parent.dimension];
+
+        if (node.obj[pDimension] < node.parent.obj[pDimension]) {
+          node.parent.left = null;
+        } else {
+          node.parent.right = null;
+        }
+        return;
+      }
+
+      if (node.left !== null) {
+        nextNode = findMax(node.left, node.dimension);
+      } else {
+        nextNode = findMin(node.right, node.dimension);
+      }
+
+      nextObj = nextNode.obj;
+      removeNode(nextNode);
+      node.obj = nextObj;
+
+    }
+
+    node = nodeSearch(self.root);
+
+    if (node === null) { return; }
+
+    removeNode(node);
+  };
+
+  this.nearest = function (point, maxNodes, maxDistance) {
+    var i,
+      result,
+      bestNodes;
+
+    bestNodes = new BinaryHeap(
+      function (e) { return -e[1]; }
+    );
+
+    function nearestSearch(node) {
+      var bestChild,
+        dimension = dimensions[node.dimension],
+        ownDistance = metric(point, node.obj),
+        linearPoint = {},
+        linearDistance,
+        otherChild,
+        i;
+
+      function saveNode(node, distance) {
+        bestNodes.push([node, distance]);
+        if (bestNodes.size() > maxNodes) {
+          bestNodes.pop();
+        }
+      }
+
+      for (i = 0; i < dimensions.length; i += 1) {
+        if (i === node.dimension) {
+          linearPoint[dimensions[i]] = point[dimensions[i]];
+        } else {
+          linearPoint[dimensions[i]] = node.obj[dimensions[i]];
+        }
+      }
+
+      linearDistance = metric(linearPoint, node.obj);
+
+      if (node.right === null && node.left === null) {
+        if (bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) {
+          saveNode(node, ownDistance);
+        }
+        return;
+      }
+
+      if (node.right === null) {
+        bestChild = node.left;
+      } else if (node.left === null) {
+        bestChild = node.right;
+      } else {
+        if (point[dimension] < node.obj[dimension]) {
+          bestChild = node.left;
+        } else {
+          bestChild = node.right;
+        }
+      }
+
+      nearestSearch(bestChild);
+
+      if (bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) {
+        saveNode(node, ownDistance);
+      }
+
+      if (bestNodes.size() < maxNodes || Math.abs(linearDistance) < bestNodes.peek()[1]) {
+        if (bestChild === node.left) {
+          otherChild = node.right;
+        } else {
+          otherChild = node.left;
+        }
+        if (otherChild !== null) {
+          nearestSearch(otherChild);
+        }
+      }
+    }
+
+    if (maxDistance) {
+      for (i = 0; i < maxNodes; i += 1) {
+        bestNodes.push([null, maxDistance]);
+      }
+    }
+
+    nearestSearch(self.root);
+
+    result = [];
+
+    for (i = 0; i < maxNodes; i += 1) {
+      if (bestNodes.content[i][0]) {
+        result.push([bestNodes.content[i][0].obj, bestNodes.content[i][1]]);
+      }
+    }
+    return result;
+  };
+
+  this.balanceFactor = function () {
+    function height(node) {
+      if (node === null) {
+        return 0;
+      }
+      return Math.max(height(node.left), height(node.right)) + 1;
+    }
+
+    function count(node) {
+      if (node === null) {
+        return 0;
+      }
+      return count(node.left) + count(node.right) + 1;
+    }
+
+    return height(self.root) / (Math.log(count(self.root)) / Math.log(2));
+  };
+}
+
+// Binary heap implementation from:
+// http://eloquentjavascript.net/appendix2.html
+
+function BinaryHeap(scoreFunction){
+  this.content = [];
+  this.scoreFunction = scoreFunction;
+}
+
+BinaryHeap.prototype = {
+  push: function(element) {
+    // Add the new element to the end of the array.
+    this.content.push(element);
+    // Allow it to bubble up.
+    this.bubbleUp(this.content.length - 1);
+  },
+
+  pop: function() {
+    // Store the first element so we can return it later.
+    var result = this.content[0];
+    // Get the element at the end of the array.
+    var end = this.content.pop();
+    // If there are any elements left, put the end element at the
+    // start, and let it sink down.
+    if (this.content.length > 0) {
+      this.content[0] = end;
+      this.sinkDown(0);
+    }
+    return result;
+  },
+
+  peek: function() {
+    return this.content[0];
+  },
+
+  remove: function(node) {
+    var len = this.content.length;
+    // To remove a value, we must search through the array to find
+    // it.
+    for (var i = 0; i < len; i++) {
+      if (this.content[i] == node) {
+        // When it is found, the process seen in 'pop' is repeated
+        // to fill up the hole.
+        var end = this.content.pop();
+        if (i != len - 1) {
+          this.content[i] = end;
+          if (this.scoreFunction(end) < this.scoreFunction(node))
+            this.bubbleUp(i);
+          else
+            this.sinkDown(i);
+        }
+        return;
+      }
+    }
+    throw new Error("Node not found.");
+  },
+
+  size: function() {
+    return this.content.length;
+  },
+
+  bubbleUp: function(n) {
+    // Fetch the element that has to be moved.
+    var element = this.content[n];
+    // When at 0, an element can not go up any further.
+    while (n > 0) {
+      // Compute the parent element's index, and fetch it.
+      var parentN = Math.floor((n + 1) / 2) - 1,
+          parent = this.content[parentN];
+      // Swap the elements if the parent is greater.
+      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+        this.content[parentN] = element;
+        this.content[n] = parent;
+        // Update 'n' to continue at the new position.
+        n = parentN;
+      }
+      // Found a parent that is less, no need to move it further.
+      else {
+        break;
+      }
+    }
+  },
+
+  sinkDown: function(n) {
+    // Look up the target element and its score.
+    var length = this.content.length,
+        element = this.content[n],
+        elemScore = this.scoreFunction(element);
+
+    while(true) {
+      // Compute the indices of the child elements.
+      var child2N = (n + 1) * 2, child1N = child2N - 1;
+      // This is used to store the new position of the element,
+      // if any.
+      var swap = null;
+      // If the first child exists (is inside the array)...
+      if (child1N < length) {
+        // Look it up and compute its score.
+        var child1 = this.content[child1N],
+            child1Score = this.scoreFunction(child1);
+        // If the score is less than our element's, we need to swap.
+        if (child1Score < elemScore)
+          swap = child1N;
+      }
+      // Do the same checks for the other child.
+      if (child2N < length) {
+        var child2 = this.content[child2N],
+            child2Score = this.scoreFunction(child2);
+        if (child2Score < (swap == null ? elemScore : child1Score)){
+          swap = child2N;
+        }
+      }
+
+      // If the element needs to be moved, swap it, and continue.
+      if (swap != null) {
+        this.content[n] = this.content[swap];
+        this.content[swap] = element;
+        n = swap;
+      }
+      // Otherwise, we are done.
+      else {
+        break;
+      }
+    }
+  }
+};
+
+module.exports = {
+  createKdTree: function (points, metric, dimensions) {
+    return new KdTree(points, metric, dimensions)
+  }
+}
+
 },{}]},{},[1])
 (1)
 });

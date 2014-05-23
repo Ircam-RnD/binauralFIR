@@ -24,7 +24,7 @@ describe("BinauralFIR tests", function() {
 
   var self = this;
   self.binauralFIR = createBinauralFIR(this.buffer);
-  self.binauralFIR.connect(targetNode); 
+  self.binauralFIR.connect(targetNode);
 
   it('should set buffer correctly', function(){
     self.binauralFIR.setBuffer(self.buffer);
@@ -62,6 +62,6 @@ describe("BinauralFIR tests", function() {
     self.binauralFIR.convNode[0].buffer = self.buffer;
     assert.equal(self.buffer, self.binauralFIR.convNode[0].buffer);
   });
-  
+
 
 });
