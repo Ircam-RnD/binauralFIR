@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>binauralFIR example</title>
+    <meta charset="utf-8"/>
+    <script src="/examples/js/q.js"></script>
+    <script src="/examples/js/buffer-loader.js"></script>
+    <script src="/examples/js/player.js"></script>
+    <script src="/binauralfir.js"></script>
+    <script>
+        var audioContext = new AudioContext();
+        var bufferLoader = createBufferLoader();
+        var targetNode = audioContext.destination;
+        var binauralFIRNode;
+
+        // HRTF files loading
+        var hrtfs = [];
+        var urls = [];
+        for(var i=0; i<72; i++){
+            var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
+            var obj = {
+                azimuth: Math.PI*i*5/180,
+                elevation: Math.PI*0/180,
+                distance: 1,
+                url: url
+            };
+            hrtfs.push(obj);
+            urls.push(url);
+        }
+
+        bufferLoader.load(urls).then(function(buffers){
+            binauralFIRNode = createBinauralFIR(buffers);
+            for(var i = 0; i<buffers.length; i = i+1){
+                hrtfs[i].buffer = buffers[i];
+            }
+            binauralFIRNode.HRTFDataset = hrtfs;
+            // hrtfs array should be used by the createBinauralFIR
+            bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+                var player = createPlayer(buffer);
+                player.connect(binauralFIRNode.input);
+                binauralFIRNode.connect(targetNode);
+                binauralFIRNode.setPosition(0, 0, 1);
+                //player.connect(targetNode);
+                player.start();
+            })
+        })
+    </script>
+</head>
+<body>
+
+    <input id="azimuth" type="range" min="0" max="355" range="5" value="0" />
+    <div id="output"></div>
+    <script>
+        var azimuth = document.getElementById("azimuth");
+        azimuth.addEventListener('input', function(event){
+            console.log(event.target.value);
+            binauralFIRNode.setPosition(event.target.value, 0, 1);
+        });
+    </script>
+
+</body>
+</html>
