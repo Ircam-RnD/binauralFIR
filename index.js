@@ -222,10 +222,10 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
     /**
      * Get if the gains are in a crossfading or not.
-     * @public
+     * @false
      */
     isCrossfading: {
-      enumerable: true,
+      enumerable: false,
       value: function() {
         // The ramps are not finished, the crossfading is not finished
         if(this.mainConvolver.gain.value !== 1){
@@ -265,10 +265,10 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
     /**
      * Get the time before crossfading end
-     * @public
+     * @false
      */
     getTimeBeforeCrossfadingEnd: {
-      enumerable: true,
+      enumerable: false,
       value: function() {
         // If it is crossfading, return the time until finish the crossfading
         if(this.isCrossfading()){

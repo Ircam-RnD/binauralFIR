@@ -186,14 +186,14 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         // We must be explicit too with the user: he must give us the right values in the adequate coordonate system
         // the one choosen in HRTFDataset
         if (arguments.length === 3 || arguments.length === 4 ) {
-          // Derive the value of the next buffer
-          var realCoordinates = this.getRealCoordinates(azimuth, elevation, distance);
-          // Check if it is necessary to change the active buffer.
+          // Calculate the nearest position for the input azimuth, elevation and distance
+          var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
+          // No need to change the current HRTF loaded if setted position equal current position
           // I guess we could do: this.position != {azimuth: ,elevation: ,distance: }
-          if (JSON.stringify(realCoordinates) !== JSON.stringify(this.position) ) {
+          if (JSON.stringify(nearestPosition) !== JSON.stringify(this.position) ) {
             // Check if the crossfading is active
             if (this.isCrossfading() === true) {
-              // Check it there are a value waiting to be set
+              // Check if there is a value waiting to be set
               if (this.changeWhenFinishCrossfading === true) {
                 // Stop the past setInterval event.
                 clearInterval(this.intervalID);
@@ -223,10 +223,10 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
     /**
      * Get if the gains are in a crossfading or not.
-     * @public
+     * @false
      */
     isCrossfading: {
-      enumerable: true,
+      enumerable: false,
       value: function() {
         // The ramps are not finished, the crossfading is not finished
         if(this.mainConvolver.gain.value !== 1){
@@ -266,10 +266,10 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
     /**
      * Get the time before crossfading end
-     * @public
+     * @false
      */
     getTimeBeforeCrossfadingEnd: {
-      enumerable: true,
+      enumerable: false,
       value: function() {
         // If it is crossfading, return the time until finish the crossfading
         if(this.isCrossfading()){
@@ -380,7 +380,6 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
         var nearest = this.tree.nearest(cartesianCoord, 1)[0];
         //return buffer of nearest position for the input values
-        console.log(nearest[0].url);
         return nearest[0].buffer;
       }
     },
