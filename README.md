@@ -25,6 +25,34 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```
 
+## HRTFSet input format example
+```js
+[
+  {
+    'azimuth': 0,
+    'distance': 1,
+    'elevation': 0,
+    'url': "/HRTF_0_0.wav",
+    'buffer': decodedBuffer_0_0
+  },
+  {
+    'azimuth': 5,
+    'distance': 1,
+    'elevation': 0,
+    'url': "/HRTF_5_0.wav",
+    'buffer': decodedBuffer_5_0
+
+  },
+  {
+    'azimuth': 5,
+    'distance': 1,
+    'elevation': 5,
+    'url': "/HRTF_5_5.wav",
+    'buffer': decodedBuffer_5_5
+  }
+]
+```
+
 ## API
 
 The `binauralFIR` object exposes the following API:
