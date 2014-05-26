@@ -26,6 +26,16 @@ Load binauralFIR.js, for instance in your html file by using:
 ```
 
 ## HRTFSet input format example
+
+Method | Description
+--- | ---
+`azimuth` | Azimuth in degrees: from 0 to -180 for source on your left, and from 0 to 180 for source on your right
+`distance` | Distance in meters
+`elevation` | Elevation in degrees: from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
+`url` | Where the audio file of the impulse response can be found.
+`buffer` | AudioBuffer representing the decoded audio data. It can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
+
+
 ```js
 [
   {
