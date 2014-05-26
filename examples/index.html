@@ -16,39 +16,52 @@
         // HRTF files loading
         var hrtfs = [];
         var urls = [];
-        for(var i=0; i<72; i++){
+        for(var i=0; i<37; i++){
             var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
             var obj = {
-                azimuth: Math.PI*i*5/180,
-                elevation: Math.PI*0/180,
+                azimuth: -i*5,
+                elevation: 0,
                 distance: 1,
                 url: url
             };
             hrtfs.push(obj);
             urls.push(url);
         }
+        var p = 1;
+        for(var i=71; i>36; i--){
+            var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
+            var obj = {
+                azimuth: p*5,
+                elevation: 0,
+                distance: 1,
+                url: url
+            };
+            hrtfs.push(obj);
+            urls.push(url);
+            p = p + 1;
+        }
 
         bufferLoader.load(urls).then(function(buffers){
-            binauralFIRNode = createBinauralFIR(buffers);
+            binauralFIRNode = createBinauralFIR();
             for(var i = 0; i<buffers.length; i = i+1){
                 hrtfs[i].buffer = buffers[i];
             }
             binauralFIRNode.HRTFDataset = hrtfs;
             // hrtfs array should be used by the createBinauralFIR
             bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-                var player = createPlayer(buffer);
+                player = createPlayer(buffer);
                 player.connect(binauralFIRNode.input);
                 binauralFIRNode.connect(targetNode);
                 binauralFIRNode.setPosition(0, 0, 1);
-                //player.connect(targetNode);
-                player.start();
+                player.enableLoop(true);
+                // player.start();
             })
         })
     </script>
 </head>
 <body>
 
-    <input id="azimuth" type="range" min="0" max="355" range="5" value="0" />
+    <input id="azimuth" type="range" min="-180" max="180" range="2" value="0" />
     <div id="output"></div>
     <script>
         var azimuth = document.getElementById("azimuth");

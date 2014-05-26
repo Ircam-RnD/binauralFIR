@@ -23,10 +23,6 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
   var binauralFIRObject = {
 
     // Private properties
-    hrtfData: {
-      writable: true,
-      value: []
-    },
     hrtfDataset: {
       writable: true,
       value: []
@@ -42,19 +38,11 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
     position: {
       writable: true,
-      value: {azimuth: 0, elevation: 0, distance: 1}
+      value: {azimuth: 0, elevation: 0, distance: 0}
     },
     nextPosition: {
       writable: true,
       value: {}
-    },
-    currentHRTFBufferIndex: {
-      writable: true,
-      value: -1
-    },
-    bufferIndex: {
-      writable: true,
-      value: 0
     },
     changeWhenFinishCrossfading: {
       writable: true,
@@ -147,33 +135,14 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       }
     },
 
-    /**
-     * Set a HRTF set and update the current position with the new HRTF.
-     * @public
-     * @chainable
-     */
-     /*
-    loadHRTF: {
-      enumerable: true,
-      value: function(buffer) {
-        if (buffer) {
-          // Save the new HRTF set
-          this.setBuffer(buffer);
-          // Update the current position with the new HRTF
-          this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
-          return this; // for chainability
-        } else {
-          throw "HRTF setting error";
-        }
-      }
-    },
-    */
     HRTFDataset: {
       enumerable : true,
       configurable : true,
       set: function(hrtfDataset){
         // TODO: test if hrtfDataset in the appropriate format
         // at least: [{azimuth:, elevation: , distance:, buffer: } ..]
+        // pb we need to know the spherical coordonate system.
+        // We need to be VERY explicit and clear on this question for the user: what do we expect from him.
         this.hrtfDataset = hrtfDataset;
 
         this.hrtfDatasetLength = this.hrtfDataset.length;
@@ -181,18 +150,17 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         // !!! Convert to good value (radian etc.)
         for(var i=0; i<this.hrtfDatasetLength; i++){
           var hrtf = this.hrtfDataset[i];
-          //hrtf.x = hrtf.distance*Math.sin(hrtf.elevation)*Math.cos(hrtf.azimuth);
-          //hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
-          //hrtf.z = hrtf.distance*Math.cos(hrtf.elevation);
-          hrtf.x = hrtf.distance*Math.cos(hrtf.elevation)*Math.sin(hrtf.azimuth);
-          hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
-          hrtf.z = hrtf.distance*Math.cos(hrtf.azimuth);
-          console.log(hrtf.x, hrtf.y, hrtf.z);
+          var azimuthRadians = hrtf.azimuth*Math.PI/180;
+          var elevationRadians = hrtf.elevation*Math.PI/180;
+          var catesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, hrtf.distance);
+          hrtf.x = catesianCoord.x;
+          hrtf.y = catesianCoord.y;
+          hrtf.z = catesianCoord.z;
         }
         this.tree = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
-        console.log("this.tree");
         // Here we should have the azimuth and elevation steps of our HRTF files
-        this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
+        // but no necessity to set the position
+        // this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
       },
       get: function(){
         return this.hrtfDataset;
@@ -215,50 +183,40 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     setPosition: {
       enumerable: true,
       value: function(azimuth, elevation, distance, optImmediate) {
+        // We must be explicit too with the user: he must give us the right values in the adequate coordonate system
+        // the one choosen in HRTFDataset
         if (arguments.length === 3 || arguments.length === 4 ) {
           // Derive the value of the next buffer
-          var bufferIndex = this.getBufferValue(azimuth, elevation, distance);
-
+          var realCoordinates = this.getRealCoordinates(azimuth, elevation, distance);
           // Check if it is necessary to change the active buffer.
           // I guess we could do: this.position != {azimuth: ,elevation: ,distance: }
-          if (bufferIndex !== this.currentHRTFBufferIndex) {
-
+          if (JSON.stringify(realCoordinates) !== JSON.stringify(this.position) ) {
             // Check if the crossfading is active
             if (this.isCrossfading() === true) {
               // Check it there are a value waiting to be set
-              if (this.changeWhenFinishCrossfading === true ) {
+              if (this.changeWhenFinishCrossfading === true) {
                 // Stop the past setInterval event.
                 clearInterval(this.intervalID);
               } else {
                 this.changeWhenFinishCrossfading = true;
               }
               // Save the position
-              this.nextPosition.azimuth = azimuth;
-              this.nextPosition.elevation = elevation;
-              this.nextPosition.distance = distance;
+              this.nextPosition.azimuth = realCoordinates.azimuth;
+              this.nextPosition.elevation = realCoordinates.elevation;
+              this.nextPosition.distance = realCoordinates.distance;
               this.nextImmediate = optImmediate || false;
 
               // Start the setInterval: wait until the crossfading is finished.
               this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
             } else {
-              this.nextPosition.azimuth = azimuth;
-              this.nextPosition.elevation = elevation;
-              this.nextPosition.distance = distance;
+              this.nextPosition.azimuth = realCoordinates.azimuth;
+              this.nextPosition.elevation = realCoordinates.elevation;
+              this.nextPosition.distance = realCoordinates.distance;
               this.reallyStartPosition();
             }
-
-          } else {
-              // Although it is not necessary to update the HRTF buffer, we save the current position.
-              this.position.azimuth = azimuth;
-              this.position.elevation = elevation;
-              this.position.distance = distance;
-              // optImmediate not implemented
-              this.immediate = optImmediate || false;
-          }
-
-          return this; // for chainability
-        } else {
-          throw "Position setting error";
+          
+            return this; // for chainability
+          } 
         }
       }
     },
@@ -291,18 +249,14 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         this.position.azimuth = this.nextPosition.azimuth;
         this.position.elevation = this.nextPosition.elevation;
         this.position.distance = this.nextPosition.distance;
-
-        //var bufferIndex = this.getBufferValue(this.position.azimuth, this.position.elevation, this.position.distance);
         // Load the new position in the convolver not active
-        //this.secondaryConvolver.buffer = this.hrtfData[bufferIndex];
         this.secondaryConvolver.buffer = this.getHRTF(this.position.azimuth, this.position.elevation, this.position.distance);
-        // Do the crossfading between convNodeInactive and convNodeActive
+        // Do the crossfading between mainConvolver and secondaryConvolver
         this.crossfading();
-        // Update the value of the current HRTF Position
-        this.currentHRTFBufferIndex = bufferIndex;
 
         // Update the memories
         this.updateMemories();
+
         if(this.changeWhenFinishCrossfading){
           this.changeWhenFinishCrossfading = false;
           clearInterval(this.intervalID);
@@ -392,15 +346,6 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: false,
       value: function() {
 
-        if(this.isCrossfading() === true)
-        {
-          console.log(audioContext.currentTime, "problem!!");
-        }
-        //if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0){
-        if(this.mainConvolver.gain.value !== 1){
-          console.log(audioContext.currentTime, "problem!!");
-        }
-
         // Save when the crossfading will be finish
         this.finishCrossfadeTime = audioContext.currentTime+this.crossfadeDuration+0.02;
         // Do the crossfading
@@ -425,58 +370,49 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       }
     },
 
-    /**
-     *
-     * @private
-     */
-     /*
-    setBuffer: {
-      enumerable: false,
-      value: function(buffer) {
-        if (buffer) {
-          this.hrtfData = buffer;
-        } else {
-          throw "buffer getting error";
-        }
-      }
-    },
-    */
-
-    /**
-     * Get the index buffer value for one specified position (azimuth, elevation, distance)
-     * @private
-     * @todo Have to be adapted to the new standard format
-     */
-    getBufferValue: {
-      enumerable: false,
-      value: function(azimuth, elevation, distance){
-        if (arguments.length === 3) {
-          return parseInt(azimuth*this.hrtfData.length/360, 10);
-        } else {
-          throw "buffer getting error";
-        }
-      }
-    },
-
     getHRTF: {
       enumerable: false,
       value: function(azimuth, elevation, distance){
-        var x = distance*Math.sin(elevation)*Math.cos(azimuth);
-        var y = distance*Math.sin(elevation)*Math.sin(azimuth);
-        var z = distance*Math.cos(elevation);
-        var nearest = this.tree.nearest({ x: x, y: y, z: z}, 1)[0];
-        console.log(nearest);
-        /*
-        for(var i=0; i<this.hrtfDataset.length; i++){
-          if(this.hrtfDataset.azimuth == azimuth && this.hrtfDataset.elevation == elevation && this.hrtfDataset.distance == distance){
-            return this.hrtfDataset[i].buffer;
-          }
-        }
-        */
+        //azimuth and elevation: degrees to radians
+        var azimuthRadians = azimuth*Math.PI/180;
+        var elevationRadians = elevation*Math.PI/180;
+        //convert spherical coordinates to cartesian 
+        var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
+        var nearest = this.tree.nearest(cartesianCoord, 1)[0];
+        //return buffer of nearest position for the input values
+        console.log(nearest[0].url);
+        return nearest[0].buffer;
       }
     },
 
-    getHRTFIndex: {
+    sphericalToCartesian: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        return {
+          x: distance*Math.sin(azimuth),
+          y: distance*Math.cos(azimuth),
+          z: distance*Math.sin(elevation)
+        }
+      }
+    },
+
+    getRealCoordinates: {
+      // don't think it's usefull.
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        //azimuth and elevation: degrees to radians
+        var azimuthRadians = azimuth*Math.PI/180;
+        var elevationRadians = elevation*Math.PI/180;
+        //convert spherical coordinates to cartesian
+        var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
+        var nearest = this.tree.nearest(cartesianCoord, 1)[0];
+        //return azimuth, elevation and distance of nearest position for the input values
+        return {
+          azimuth: nearest[0].azimuth,
+          elevation: nearest[0].elevation,
+          distance: nearest[0].distance
+        }
+      }
 
     },
 
