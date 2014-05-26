@@ -16,8 +16,11 @@ Load binauralFIR.js, for instance in your html file by using:
   var audioContext = new AudioContext();
   var targetNode = audioContext.destination;
 
-  // create one virtual source and pass the HRTF set
-  var binauralFIRNode = createBinauralFIR(hrtfData);
+  // create one virtual source
+  var binauralFIRNode = createBinauralFIR();
+  // load the HRTF set
+  binauralFIRNode.HRTFDataset = HRTFDataset;
+  // Connect Web Audio API nodes
   player.connect(binauralFIRNode.input);
   binauralFIRNode.connect(targetNode);
   //set the position of the virtual source
