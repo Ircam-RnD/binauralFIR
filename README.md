@@ -27,7 +27,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ## HRTFSet input format example
 
-Method | Description
+Data | Description
 --- | ---
 `azimuth` | Azimuth in degrees: from 0 to -180 for source on your left, and from 0 to 180 for source on your right
 `distance` | Distance in meters
