@@ -173,6 +173,8 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       set: function(hrtfDataset){
         // TODO: test if hrtfDataset in the appropriate format
         // at least: [{azimuth:, elevation: , distance:, buffer: } ..]
+        // pb we need to know the spherical coordonate system.
+        // We need to be VERY explicit and clear on this question for the user: what do we expect from him.
         this.hrtfDataset = hrtfDataset;
 
         this.hrtfDatasetLength = this.hrtfDataset.length;
@@ -180,15 +182,17 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
         // !!! Convert to good value (radian etc.)
         for(var i=0; i<this.hrtfDatasetLength; i++){
           var hrtf = this.hrtfDataset[i];
-          hrtf.x = hrtf.distance*Math.sin(hrtf.elevation)*Math.cos(hrtf.azimuth);
-          hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
-          hrtf.z = hrtf.distance*Math.cos(hrtf.elevation);
+          var catesianCoord = this.sphericalToCartesian(hrtf.azimuth, hrtf.elevation, hrtf.elevation);
+          hrtf.x = catesianCoord.x;
+          hrtf.y = catesianCoord.y;
+          hrtf.z = catesianCoord.z;
           console.log(hrtf.x, hrtf.y, hrtf.z);
         }
         this.tree = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
         console.log("this.tree");
         // Here we should have the azimuth and elevation steps of our HRTF files
-        this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
+        // but no necessity to set the position
+        // this.setPosition(this.position.azimuth, this.position.elevation, this.position.distance);
       },
       get: function(){
         return this.hrtfDataset;
@@ -211,6 +215,8 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     setPosition: {
       enumerable: true,
       value: function(azimuth, elevation, distance, optImmediate) {
+        // We must be explicit too with the user: he must give us the right values in the adequate coordonate system
+        // the one choosen in HRTFDataset
         if (arguments.length === 3 || arguments.length === 4 ) {
           // Derive the value of the next buffer
           var bufferIndex = this.getBufferValue(azimuth, elevation, distance);
@@ -222,7 +228,7 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
             // Check if the crossfading is active
             if (this.isCrossfading() === true) {
               // Check it there are a value waiting to be set
-              if (this.changeWhenFinishCrossfading === true ) {
+              if (this.changeWhenFinishCrossfading === true) {
                 // Stop the past setInterval event.
                 clearInterval(this.intervalID);
               } else {
@@ -457,10 +463,11 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     getHRTF: {
       enumerable: false,
       value: function(azimuth, elevation, distance){
-        var x = distance*Math.sin(elevation)*Math.cos(azimuth);
-        var y = distance*Math.sin(elevation)*Math.sin(azimuth);
-        var z = distance*Math.cos(elevation);
-        var nearest = this.tree.nearest({ x: x, y: y, z: z}, 1)[0];
+        //var x = distance*Math.sin(elevation)*Math.cos(azimuth);
+        //var y = distance*Math.sin(elevation)*Math.sin(azimuth);
+        //var z = distance*Math.cos(elevation);
+        var cartesianCoord = this.sphericalToCartesian(azimuth, elevation, distance);
+        var nearest = this.tree.nearest(cartesianCoord, 1)[0];
         console.log(nearest);
         /*
         for(var i=0; i<this.hrtfDataset.length; i++){
@@ -472,8 +479,19 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       }
     },
 
-    getHRTFIndex: {
+    sphericalToCartesian: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        return {
+          x: distance*Math.sin(elevation)*Math.cos(azimuth),
+          y: distance*Math.sin(elevation)*Math.sin(azimuth),
+          z:distance*Math.cos(elevation)
+        };
+      }
+    },
 
+    getHRTFIndex: {
+      // don't think it's usefull.
     },
 
     /**

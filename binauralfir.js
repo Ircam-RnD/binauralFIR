@@ -178,16 +178,17 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
         this.hrtfDatasetLength = this.hrtfDataset.length;
         // Functionnal programming should be cleaner
+        // !!! Convert to good value (radian etc.)
         for(var i=0; i<this.hrtfDatasetLength; i++){
           var hrtf = this.hrtfDataset[i];
-          hrtf.x = hrtf.distance*Math.sin(hrtf.elevation)*Math.cos(hrtf.azimuth);
+          //hrtf.x = hrtf.distance*Math.sin(hrtf.elevation)*Math.cos(hrtf.azimuth);
+          //hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
+          //hrtf.z = hrtf.distance*Math.cos(hrtf.elevation);
+          hrtf.x = hrtf.distance*Math.cos(hrtf.elevation)*Math.sin(hrtf.azimuth);
           hrtf.y = hrtf.distance*Math.sin(hrtf.elevation)*Math.sin(hrtf.azimuth);
-          hrtf.z = hrtf.distance*Math.cos(hrtf.elevation);
+          hrtf.z = hrtf.distance*Math.cos(hrtf.azimuth);
           console.log(hrtf.x, hrtf.y, hrtf.z);
         }
-        console.log(kdt.createKdTree, "okok", this.distance, this.hrtfDataset);
-        var t = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
-        console.log(t);
         this.tree = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
         console.log("this.tree");
         // Here we should have the azimuth and elevation steps of our HRTF files
