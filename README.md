@@ -28,7 +28,9 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```
 
-## HRTFSet input format example
+## HRTF Dataset input format example
+
+This library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset. If you want to use your dataset in the library, you have to follow the following format:
 
 Data | Description
 --- | ---
@@ -38,6 +40,7 @@ Data | Description
 `url` | Where the audio file of the impulse response can be found.
 `buffer` | AudioBuffer representing the decoded audio data. It can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
 
+This data must be provided inside an Array of Objects, like this example:
 
 ```js
 [
