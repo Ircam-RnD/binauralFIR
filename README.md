@@ -2,6 +2,7 @@
 
 > Processing node/library which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
+The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node inside the [Web Audio API](http://www.w3.org/TR/webaudio/). 
 
 ## Example
 
@@ -30,7 +31,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ## HRTF Dataset input format example
 
-This library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset. If you want to use your dataset in the library, you have to follow the following format:
+As this library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset, if you want to use your dataset in the library you have to follow the following format:
 
 Data | Description
 --- | ---
