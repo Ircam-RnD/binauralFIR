@@ -77,10 +77,8 @@ Method | Description
 `binauralFIR.loadHRTF(hrtfData)` | Set hrtf set buffer to be used and update the current position with the new HRTF.
 `binauralFIR.setPosition(azimuth, elevation, distance, optImmediate)` | Set position of the virtual source.
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
-`binauralFIR.isCrossfading()` | Get if the ramps are crossfading (`true`) or not (`false`).
 `binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
 `binauralFIR.getCrossfadeDuration()` | Get the duration of crossfading in miliseconds.
-`binauralFIR.getTimeBeforeCrossfadingEnd()` | If the ramps are crossfading, get the time before the crossfading finish.
 `binauralFIR.getMetaDataAboutCurrentHRTF(metadataName)` | Get metadata about the current HRTF set.
 
 
