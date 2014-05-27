@@ -201,17 +201,17 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
                 this.changeWhenFinishCrossfading = true;
               }
               // Save the position
-              this.nextPosition.azimuth = realCoordinates.azimuth;
-              this.nextPosition.elevation = realCoordinates.elevation;
-              this.nextPosition.distance = realCoordinates.distance;
+              this.nextPosition.azimuth = nearestPosition.azimuth;
+              this.nextPosition.elevation = nearestPosition.elevation;
+              this.nextPosition.distance = nearestPosition.distance;
               this.nextImmediate = optImmediate || false;
 
               // Start the setInterval: wait until the crossfading is finished.
               this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
             } else {
-              this.nextPosition.azimuth = realCoordinates.azimuth;
-              this.nextPosition.elevation = realCoordinates.elevation;
-              this.nextPosition.distance = realCoordinates.distance;
+              this.nextPosition.azimuth = nearestPosition.azimuth;
+              this.nextPosition.elevation = nearestPosition.elevation;
+              this.nextPosition.distance = nearestPosition.distance;
               this.reallyStartPosition();
             }
           
