@@ -39,7 +39,7 @@ var createBinauralFIR = function createBinauralFIR() {
 
     position: {
       writable: true,
-      value: {azimuth: 0, elevation: 0, distance: 1}
+      value: {}
     },
     nextPosition: {
       writable: true,
@@ -55,18 +55,6 @@ var createBinauralFIR = function createBinauralFIR() {
     crossfadeDuration: {
       writable: true,
       value: 20/1000
-    },
-    immediate: {
-      writable: true,
-      value: false
-    },
-    nextImmediate: {
-      writable: true,
-      value: false
-    },
-    finishCrossfadeTime: {
-      writable: true,
-      value: 0
     },
     input: {
       writable: true,
@@ -193,14 +181,13 @@ var createBinauralFIR = function createBinauralFIR() {
      */
     setPosition: {
       enumerable: true,
-      value: function(azimuth, elevation, distance, optImmediate) {
+      value: function(azimuth, elevation, distance) {
 
         if (arguments.length === 3 || arguments.length === 4 ) {
           // Calculate the nearest position for the input azimuth, elevation and distance
           var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
           // No need to change the current HRTF loaded if setted position equal current position
-          //Some better way to compare them?
-          if (JSON.stringify(nearestPosition) !== JSON.stringify(this.position) ) {
+          if (nearestPosition.azimuth !== this.position.azimuth && nearestPosition.elevation !== this.position.elevation && nearestPosition.distance !== this.position.distance ) {
             // Check if the crossfading is active
             if (this.isCrossfading() === true) {
               // Check if there is a value waiting to be set
@@ -214,7 +201,6 @@ var createBinauralFIR = function createBinauralFIR() {
               this.nextPosition.azimuth = nearestPosition.azimuth;
               this.nextPosition.elevation = nearestPosition.elevation;
               this.nextPosition.distance = nearestPosition.distance;
-              this.nextImmediate = optImmediate || false;
 
               // Start the setInterval: wait until the crossfading is finished.
               this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
@@ -265,28 +251,13 @@ var createBinauralFIR = function createBinauralFIR() {
         this.crossfading();
 
         // Change current mainConvolver
-        this.changeCurrentMainConvolver();
+        var active = this.mainConvolver;
+        this.mainConvolver = this.secondaryConvolver;
+        this.secondaryConvolver = active;
 
         if(this.changeWhenFinishCrossfading){
           this.changeWhenFinishCrossfading = false;
           clearInterval(this.intervalID);
-        }
-      }
-    },
-
-    /**
-     * Get the time before crossfading is finished
-     * @false
-     */
-    getTimeBeforeCrossfadingEnd: {
-      enumerable: false,
-      value: function() {
-        // If it is crossfading, return the time until finish the crossfading
-        if(this.isCrossfading()){
-          return this.finishCrossfadeTime - audioContext.currentTime;
-        }else{
-          // If it is not crossfading, return 0
-          return 0;
         }
       }
     },
@@ -323,23 +294,6 @@ var createBinauralFIR = function createBinauralFIR() {
     },
 
     /**
-     * Get metadata about the current HRTF set.
-     * @public
-     * param metadataName Name of the metadata you want to get.
-     * @todo Waiting for new standard format.
-     */
-    getMetaDataAboutCurrentHRTF: {
-      enumerable: true,
-      value: function(metadataName){
-        if (metadataName) {
-          return "info of the metadata: nonimplemented";
-        } else {
-          throw "metadata getting error";
-        }
-      }
-    },
-
-    /**
      * Get the current position of the virtual source.
      * @public
      */
@@ -357,28 +311,13 @@ var createBinauralFIR = function createBinauralFIR() {
     crossfading: {
       enumerable: false,
       value: function() {
+        // Do the crossfading between mainConvolver and secondaryConvolver
+        var guardInterval = 0.02;
+        this.mainConvolver.gain.setValueAtTime(1, audioContext.currentTime+guardInterval);
+        this.mainConvolver.gain.linearRampToValueAtTime(0, audioContext.currentTime+guardInterval+this.crossfadeDuration);
 
-        // Save when the crossfading will be finish
-        this.finishCrossfadeTime = audioContext.currentTime+this.crossfadeDuration+0.02;
-        // Do the crossfading betweem mainConvolver and secondaryConvolver
-        this.mainConvolver.gain.setValueAtTime(1, audioContext.currentTime+0.02);
-        this.mainConvolver.gain.linearRampToValueAtTime(0, audioContext.currentTime+0.02+this.crossfadeDuration);
-
-        this.secondaryConvolver.gain.setValueAtTime(0, audioContext.currentTime+0.02);
-        this.secondaryConvolver.gain.linearRampToValueAtTime(1, audioContext.currentTime+0.02+this.crossfadeDuration);
-      }
-    },
-
-    /**
-     * Change the current mainConvolver
-     * @private
-     */
-    changeCurrentMainConvolver: {
-      enumerable: false,
-      value: function() {
-        var active = this.mainConvolver;
-        this.mainConvolver = this.secondaryConvolver;
-        this.secondaryConvolver = active;
+        this.secondaryConvolver.gain.setValueAtTime(0, audioContext.currentTime+guardInterval);
+        this.secondaryConvolver.gain.linearRampToValueAtTime(1, audioContext.currentTime+guardInterval+this.crossfadeDuration);
       }
     },
 
