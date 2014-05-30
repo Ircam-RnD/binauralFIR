@@ -10,7 +10,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```html
     <script src="binuralfir.min.js"></script>
-    <!-- WAVE libraries:
+    <!-- WAVE libraries for load AudioBuffers and to play music:
     https://github.com/Ircam-RnD/buffer-loader
     https://github.com/Ircam-RnD/player -->
     <script src="buffer-loader.min.js"></script>
@@ -54,20 +54,20 @@ Load binauralFIR.js, for instance in your html file by using:
   
   //load the url to generate the AudioBuffers
   bufferLoader.load(urls).then(function(buffers){
-            binauralFIRNode = createBinauralFIR();
             for(var i = 0; i<buffers.length; i = i+1){
                 hrtfs[i].buffer = buffers[i];
             }
-            // load the HRTF set
+            // load the HRTF Dataset into the node
             binauralFIRNode.HRTFDataset = hrtfs;
-            // Connect Web Audio API nodes
-            binauralFIRNode.connect(targetNode);
+
              //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 0 - in front your head - .
             binauralFIRNode.setPosition(-45, 0, 1);
             //Load a file to be played
             bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
                 player = createPlayer(buffer);
+                // Connect Web Audio API nodes
                 player.connect(binauralFIRNode.input);
+                binauralFIRNode.connect(targetNode);
                 player.enableLoop(true);
                 player.start();
             })
