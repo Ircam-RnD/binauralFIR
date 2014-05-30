@@ -12,8 +12,7 @@ Load binauralFIR.js, for instance in your html file by using:
     <script src="binuralfir.min.js"></script>
     <!-- WAVE libraries:
     https://github.com/Ircam-RnD/buffer-loader
-    https://github.com/Ircam-RnD/player
-    -->
+    https://github.com/Ircam-RnD/player -->
     <script src="buffer-loader.min.js"></script>
     <script src="player.min.js"></script>
 ```
