@@ -1,6 +1,6 @@
-# BinauralFIR sound module
+# BinauralFIR node
 
-> Processing node/library which spatializes an incoming audio stream in three-dimensional space for binaural audio.
+> Processing node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
 The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node inside the [Web Audio API](http://www.w3.org/TR/webaudio/). 
 
@@ -10,22 +10,69 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```html
     <script src="binuralfir.min.js"></script>
+    <!-- WAVE libraries:
+    https://github.com/Ircam-RnD/buffer-loader
+    https://github.com/Ircam-RnD/player
+    -->
+    <script src="buffer-loader.min.js"></script>
+    <script src="player.min.js"></script>
 ```
 
 ```js
+  //first we generate the HRTF Dataset input format
+  var hrtfs = [];
+  var urls = [];
+  for(var i=0; i<37; i++){
+    var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
+    var obj = {
+      azimuth: -i*5,
+      elevation: 0,
+      distance: 1,
+      url: url
+    };
+    hrtfs.push(obj);
+    urls.push(url);
+  }
+  var p = 1;
+  for(var i=71; i>36; i--){
+    var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
+    var obj = {
+      azimuth: p*5,
+      elevation: 0,
+      distance: 1,
+      url: url
+    };
+    hrtfs.push(obj);
+    urls.push(url);
+    p = p + 1;
+  }
+  
   // we need an audio context
   var audioContext = new AudioContext();
   var targetNode = audioContext.destination;
-
   // create one virtual source
   var binauralFIRNode = createBinauralFIR();
-  // load the HRTF set
-  binauralFIRNode.HRTFDataset = HRTFDataset;
-  // Connect Web Audio API nodes
-  player.connect(binauralFIRNode.input);
-  binauralFIRNode.connect(targetNode);
-  //set the position of the virtual source
-  binauralFIRNode.setPosition(0, 0, 1);
+  
+  //load the url to generate the AudioBuffers
+  bufferLoader.load(urls).then(function(buffers){
+            binauralFIRNode = createBinauralFIR();
+            for(var i = 0; i<buffers.length; i = i+1){
+                hrtfs[i].buffer = buffers[i];
+            }
+            // load the HRTF set
+            binauralFIRNode.HRTFDataset = hrtfs;
+            // Connect Web Audio API nodes
+            binauralFIRNode.connect(targetNode);
+             //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 0 - in front your head - .
+            binauralFIRNode.setPosition(-45, 0, 1);
+            //Load a file to be played
+            bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+                player = createPlayer(buffer);
+                player.connect(binauralFIRNode.input);
+                player.enableLoop(true);
+                player.start();
+            })
+        })
 
 ```
 
@@ -50,14 +97,14 @@ This data must be provided inside an Array of Objects, like this example:
     'distance': 1,
     'elevation': 0,
     'url': "/HRTF_0_0.wav",
-    'buffer': decodedBuffer_0_0
+    'buffer': AudioBuffer
   },
   {
     'azimuth': 5,
     'distance': 1,
     'elevation': 0,
     'url': "/HRTF_5_0.wav",
-    'buffer': decodedBuffer_5_0
+    'buffer': AudioBuffer
 
   },
   {
@@ -65,7 +112,7 @@ This data must be provided inside an Array of Objects, like this example:
     'distance': 1,
     'elevation': 5,
     'url': "/HRTF_5_5.wav",
-    'buffer': decodedBuffer_5_5
+    'buffer': AudioBuffer
   }
 ]
 ```
@@ -78,7 +125,7 @@ Method | Description
 --- | ---
 `binauralFIR.connect()` | Connects the binauralFIRNode to the Web Audio graph
 `binauralFIR.disconnect()` | Disconnect the binauralFIRNode from the Web Audio graph
-`binauralFIR.loadHRTF(hrtfData)` | Set hrtf set buffer to be used and update the current position with the new HRTF.
+`binauralFIR.HRTFDataset` | Set HRTF Dataset to be used with the virtual source.
 `binauralFIR.setPosition(azimuth, elevation, distance, optImmediate)` | Set position of the virtual source.
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
 `binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
