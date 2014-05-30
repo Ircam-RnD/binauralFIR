@@ -15,9 +15,9 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```html
     <script src="binuralfir.min.js"></script>
-    <-- https://github.com/Ircam-RnD/buffer-loader  We need a way to load and decode the HRTF files, we use this lib -->
+    <!-- https://github.com/Ircam-RnD/buffer-loader  We need a way to load and decode the HRTF files, we use this lib -->
     <script src="buffer-loader.min.js"></script>
-    <-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
+    <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
     <script src="player.min.js"></script>
 ```
 These libraries can be find in the [IRCAM GitHub account](https://github.com/Ircam-RnD).
