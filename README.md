@@ -24,7 +24,7 @@ These libraries can be find in the [IRCAM GitHub account](https://github.com/Irc
 
 ```js
   // First we generate the HRTF Dataset input format.
-  // You can find the wav files in /examples/snd/HRIR/1066/ folder.
+  // You can find the wav files in the /examples/snd/HRIR/1066/ folder.
   // The naming of the files gives us information about the azimuth position.
   var hrtfs = [];
   var urls = [];
