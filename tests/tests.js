@@ -43,21 +43,22 @@ describe("BinauralFIR tests", function() {
     assert.equal(self.binauralFIR.HRTFDataset, self.hrtfs);
   });
 
-  // it('should set position correctly', function(){
-  //   self.binauralFIR.setPosition(10, 20, 30);
-  //   assert.equal(self.binauralFIR.getPosition()[0], 10);
-  //   assert.equal(self.binauralFIR.getPosition()[1], 20);
-  //   assert.equal(self.binauralFIR.getPosition()[2], 30);
-  // });
+  it('should detect that is crossfading', function(){
+    self.binauralFIR.setPosition(0, 0, 1);
+    assert.equal(self.binauralFIR.isCrossfading(), true);
+  });
+
+  it('should set position correctly', function(){
+    self.binauralFIR.setPosition(10, 20, 30);
+    var coord = self.binauralFIR.getRealCoordinates(10, 20, 30);
+    assert.equal(self.binauralFIR.getPosition().azimuth, coord.azimuth);
+    assert.equal(self.binauralFIR.getPosition().elevation, coord.elevation);
+    assert.equal(self.binauralFIR.getPosition().distance, coord.distance);
+  });
 
   it('should set crossfade duration correctly', function(){
     self.binauralFIR.setCrossfadeDuration(30);
     assert.equal(self.binauralFIR.getCrossfadeDuration(), 30);
-  });
-
-  it('should detect that is crossfading', function(){
-    self.binauralFIR.setPosition(0, 0, 1);
-    assert.equal(self.binauralFIR.isCrossfading(), true);
   });
 
 });
