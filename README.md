@@ -2,7 +2,12 @@
 
 > Processing node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
-The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node inside the [Web Audio API](http://www.w3.org/TR/webaudio/). 
+The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node - AudioNode - inside the [Web Audio API](http://www.w3.org/TR/webaudio/). You can connect the native nodes to the binauralFIR node by using the connect method to binauralFIR.input: 
+
+```js
+nativeNode.connect(binauralFIR.input);
+binauralFIR.connect(audioContext.destination);
+```
 
 ## Example
 
@@ -10,15 +15,17 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```html
     <script src="binuralfir.min.js"></script>
-    <!-- WAVE libraries for load AudioBuffers and to play music:
-    https://github.com/Ircam-RnD/buffer-loader
-    https://github.com/Ircam-RnD/player -->
+    <!-- https://github.com/Ircam-RnD/buffer-loader  We need a way to load and decode the HRTF files, so we use this lib -->
     <script src="buffer-loader.min.js"></script>
+    <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
     <script src="player.min.js"></script>
 ```
+These libraries can be find in the [IRCAM GitHub account](https://github.com/Ircam-RnD).
 
 ```js
-  //first we generate the HRTF Dataset input format
+  // First we generate the HRTF Dataset input format.
+  // You can find the wav files in the /examples/snd/HRIR/1066/ folder.
+  // The naming of the files gives us information about the azimuth position.
   var hrtfs = [];
   var urls = [];
   for(var i=0; i<37; i++){
@@ -49,8 +56,14 @@ Load binauralFIR.js, for instance in your html file by using:
   // we need an audio context
   var audioContext = new AudioContext();
   var targetNode = audioContext.destination;
+  
   // create one virtual source
+  var player = createPlayer();
   var binauralFIRNode = createBinauralFIR();
+  
+  // Audio Web API graph connection
+  player.connect(binauralFIRNode);
+  binauralFIRNode.connnect(targetNode);
   
   //load the url to generate the AudioBuffers
   bufferLoader.load(urls).then(function(buffers){
@@ -59,15 +72,11 @@ Load binauralFIR.js, for instance in your html file by using:
             }
             // load the HRTF Dataset into the node
             binauralFIRNode.HRTFDataset = hrtfs;
-
              //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 0 - in front your head - .
             binauralFIRNode.setPosition(-45, 0, 1);
             //Load a file to be played
             bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
                 player = createPlayer(buffer);
-                // Connect Web Audio API nodes
-                player.connect(binauralFIRNode.input);
-                binauralFIRNode.connect(targetNode);
                 player.enableLoop(true);
                 player.start();
             })
@@ -75,7 +84,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```
 
-## HRTF Dataset input format example
+## HRTF dataset format
 
 As this library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset, if you want to use your dataset in the library you have to follow the following format:
 
@@ -129,7 +138,6 @@ Method | Description
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
 `binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
 `binauralFIR.getCrossfadeDuration()` | Get the duration of crossfading in miliseconds.
-`binauralFIR.getMetaDataAboutCurrentHRTF(metadataName)` | Get metadata about the current HRTF set.
 
 
 
