@@ -27,6 +27,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```js
   // First we generate the HRTF Dataset input format.
+  //the hrtfs variable can be find in the complet_hrtfs.js file
   for(var i = 0; i < hrtfs.length; i++){
     var buffer = audioContext.createBuffer(2, 512, 44100);
     var bufferChannelLeft = buffer.getChannelData(0);
