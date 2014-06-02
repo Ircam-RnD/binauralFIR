@@ -188,7 +188,7 @@ var createBinauralFIR = function createBinauralFIR() {
           // Calculate the nearest position for the input azimuth, elevation and distance
           var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
           // No need to change the current HRTF loaded if setted position equal current position
-          if (nearestPosition.azimuth !== this.position.azimuth && nearestPosition.elevation !== this.position.elevation && nearestPosition.distance !== this.position.distance ) {
+          if (nearestPosition.azimuth !== this.position.azimuth || nearestPosition.elevation !== this.position.elevation || nearestPosition.distance !== this.position.distance ) {
             // Check if the crossfading is active
             if (this.isCrossfading() === true) {
               // Check if there is a value waiting to be set

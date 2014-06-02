@@ -4,7 +4,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
  * @author Karim Barkati
- * @version 0.2.0
+ * @version 0.2.2
  */
 
 var events = _dereq_('events');
@@ -13,8 +13,11 @@ var events = _dereq_('events');
  * Function invocation pattern for a simple player.
  * @public
  */
-var createPlayer = function createPlayer(audioBuffer) {
+var createPlayer = function createPlayer(optionalAudioBuffer) {
   'use strict';
+
+  // Ensure global availability of an "audioContext" instance of web audio AudioContext.
+  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
   var eventEmitter = new events.EventEmitter();
 
@@ -25,9 +28,6 @@ var createPlayer = function createPlayer(audioBuffer) {
   var playerObject = {
 
     // Private properties
-    context: {
-      writable: true
-    },
     source: {
       writable: true
     },
@@ -83,15 +83,17 @@ var createPlayer = function createPlayer(audioBuffer) {
      */
     init: {
       enumerable: true,
-      value: function(audioBuffer) {
+      value: function(optionalAudioBuffer) {
 
-        this.context = window.audioContext;
-        this.setBuffer(audioBuffer);
         this.status = this.IS_STOPPED;
 
+        if (optionalAudioBuffer) {
+          this.setBuffer(optionalAudioBuffer);
+        }
+
         // Create web audio nodes, relying on the given audio context.
-        this.gainNode = this.context.createGain();
-        this.outputNode = this.context.createGain(); // dummy node to provide a web audio-like output node
+        this.gainNode = audioContext.createGain();
+        this.outputNode = audioContext.createGain(); // dummy node to provide a web audio-like output node
 
         // this.on('ended', function() {
         //   console.log("Audio playing ended.");
@@ -109,7 +111,7 @@ var createPlayer = function createPlayer(audioBuffer) {
       enumerable: true,
       value: function(target) {
         this.outputNode = target;
-        this.gainNode.connect(this.outputNode || this.context.destination);
+        this.gainNode.connect(this.outputNode || audioContext.destination);
         return this; // for chainability
       }
     },
@@ -174,7 +176,7 @@ var createPlayer = function createPlayer(audioBuffer) {
       value: function(val) {
         if (val) {
           this.speed = val;
-          if(this.source)
+          if (this.source)
             this.source.playbackRate.value = this.speed;
           return this; // for chainability
         } else {
@@ -209,8 +211,8 @@ var createPlayer = function createPlayer(audioBuffer) {
         // Lock playing to avoid multiple sources creation.
         if (this.status !== this.IS_PLAYING) {
           // Configure a BufferSource.
-          this.startedAtTime = this.context.currentTime;
-          this.source = this.context.createBufferSource();
+          this.startedAtTime = audioContext.currentTime;
+          this.source = audioContext.createBufferSource();
           this.source.buffer = this.buffer;
           this.source.playbackRate.value = this.speed;
           this.source.loop = this.loop;
@@ -262,7 +264,8 @@ var createPlayer = function createPlayer(audioBuffer) {
           this.source.stop(0);
           // Measure how much time passed since the last pause.
           this.startPosition = this.startPosition + this.getElapsedDuration();
-          return this;
+
+          return this.startPosition;
         } else {
           console.log("Not playing.");
         }
@@ -324,7 +327,7 @@ var createPlayer = function createPlayer(audioBuffer) {
     getElapsedDuration: {
       enumerable: false,
       value: function() {
-        return this.context.currentTime - this.startedAtTime;
+        return audioContext.currentTime - this.startedAtTime;
       }
     },
 
@@ -346,9 +349,9 @@ var createPlayer = function createPlayer(audioBuffer) {
           console.log("Elapsed duration on \'ended\' event:",
             that.getElapsedDuration() + that.startPosition,
             "sec");
-          if ((that.status !== this.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
+          if ((that.status !== that.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
             if (!that.loop) {
-              that.status = this.IS_STOPPED;
+              that.status = that.IS_STOPPED;
               that.startPosition = 0;
             }
             that.emit("ended", that.startPosition);
@@ -361,13 +364,12 @@ var createPlayer = function createPlayer(audioBuffer) {
 
   // Instantiate an object.
   var player = Object.create({}, playerObject);
-  return player.init(audioBuffer);
+  return player.init(optionalAudioBuffer);
 };
 
 
 // CommonJS function export
 module.exports = createPlayer;
-
 },{"events":2}],2:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
