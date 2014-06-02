@@ -24,7 +24,6 @@ Load binauralFIR.js, for instance in your html file by using:
     <!-- You can find the file with the HRTF dataset in  /examples/snd/complet_hrtfs.js folder.-->
     <script src ="complet_hrtfs.js"></script>
 ```
-These libraries can be find in the [IRCAM GitHub account](https://github.com/Ircam-RnD).
 
 ```js
   // First we generate the HRTF Dataset input format.
