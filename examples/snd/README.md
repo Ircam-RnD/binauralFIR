@@ -1,0 +1,1 @@
+« IRCAM HRTF data are made public-domain for research and educational activities. For commercial use, please contact IRCAM ».
