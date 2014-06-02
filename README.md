@@ -27,7 +27,7 @@ Load binauralFIR.js, for instance in your html file by using:
 
 ```js
   // First we generate the HRTF Dataset input format.
-  //the hrtfs variable can be find in the complet_hrtfs.js file
+  // The hrtfs variable can be find in the complet_hrtfs.js file. It contains an Array of objects with the azimuth, elevation, distance information, and the coefficients of the left and right FIR filters.
   for(var i = 0; i < hrtfs.length; i++){
     var buffer = audioContext.createBuffer(2, 512, 44100);
     var bufferChannelLeft = buffer.getChannelData(0);
@@ -39,23 +39,23 @@ Load binauralFIR.js, for instance in your html file by using:
     hrtfs[i].buffer = buffer;
   }
 
-  // we need an audio context
+  // We need an audio context
   var audioContext = new AudioContext();
   var targetNode = audioContext.destination;
   //Create Audio Nodes
   var player = createPlayer();
   var binauralFIRNode = createBinauralFIR();
   
-  //Set HRTF dataset
+  // Set HRTF dataset
   binauralFIRNode.HRTFDataset = hrtfs;
   
-  //Connect Audio Nodes
+  // Connect Audio Nodes
   player.connect(binauralFIRNode.input);
   binauralFIRNode.connect(targetNode);
-  //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 10º
+  // Set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 10º
   binauralFIRNode.setPosition(-45, 10, 1);
 
-  //Load player file
+  // Load player file
   bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
     player.setBuffer(buffer);
     player.enableLoop(true);
