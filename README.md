@@ -21,15 +21,13 @@ Load binauralFIR.js, for instance in your html file by using:
     <script src="buffer-loader.min.js"></script>
     <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
     <script src="player.min.js"></script>
+    <!-- You can find the file with the HRTF dataset in  /examples/snd/complet_hrtfs.js folder.-->
     <script src ="complet_hrtfs.js"></script>
 ```
 These libraries can be find in the [IRCAM GitHub account](https://github.com/Ircam-RnD).
 
 ```js
   // First we generate the HRTF Dataset input format.
-  // You can find the file with the HRTF dataset in  /examples/snd/complet_hrtfs.js folder.
-  
-  // HRTF files loading
   for(var i = 0; i < hrtfs.length; i++){
     var buffer = audioContext.createBuffer(2, 512, 44100);
     var bufferChannelLeft = buffer.getChannelData(0);
