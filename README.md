@@ -9,6 +9,8 @@ nativeNode.connect(binauralFIR.input);
 binauralFIR.connect(audioContext.destination);
 ```
 
+We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in the /example/snd/ folder.
+
 ## Example
 
 Load binauralFIR.js, for instance in your html file by using:
@@ -19,69 +21,49 @@ Load binauralFIR.js, for instance in your html file by using:
     <script src="buffer-loader.min.js"></script>
     <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
     <script src="player.min.js"></script>
+    <script src ="complet_hrtfs.js"></script>
 ```
 These libraries can be find in the [IRCAM GitHub account](https://github.com/Ircam-RnD).
 
 ```js
   // First we generate the HRTF Dataset input format.
-  // You can find the wav files in the /examples/snd/HRIR/1066/ folder.
-  // The naming of the files gives us information about the azimuth position.
-  var hrtfs = [];
-  var urls = [];
-  for(var i=0; i<37; i++){
-    var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
-    var obj = {
-      azimuth: -i*5,
-      elevation: 0,
-      distance: 1,
-      url: url
-    };
-    hrtfs.push(obj);
-    urls.push(url);
-  }
-  var p = 1;
-  for(var i=71; i>36; i--){
-    var url = '/examples/snd/HRIR/1066/HRIR_1066_'+(i*5)+'.wav';
-    var obj = {
-      azimuth: p*5,
-      elevation: 0,
-      distance: 1,
-      url: url
-    };
-    hrtfs.push(obj);
-    urls.push(url);
-    p = p + 1;
-  }
+  // You can find the file with the HRTF dataset in  /examples/snd/complet_hrtfs.js folder.
   
+  // HRTF files loading
+  for(var i = 0; i < hrtfs.length; i++){
+    var buffer = audioContext.createBuffer(2, 512, 44100);
+    var bufferChannelLeft = buffer.getChannelData(0);
+    var bufferChannelRight = buffer.getChannelData(1);
+    for(var e = 0; e < hrtfs[i].fir_coeffs_left.length; e++){
+      bufferChannelLeft[e] = hrtfs[i].fir_coeffs_left[e];
+      bufferChannelRight[e] = hrtfs[i].fir_coeffs_right[e];
+    }
+    hrtfs[i].buffer = buffer;
+  }
+
   // we need an audio context
   var audioContext = new AudioContext();
   var targetNode = audioContext.destination;
-  
-  // create one virtual source
+  //Create Audio Nodes
   var player = createPlayer();
   var binauralFIRNode = createBinauralFIR();
   
-  // Audio Web API graph connection
-  player.connect(binauralFIRNode);
-  binauralFIRNode.connnect(targetNode);
+  //Set HRTF dataset
+  binauralFIRNode.HRTFDataset = hrtfs;
   
-  //load the url to generate the AudioBuffers
-  bufferLoader.load(urls).then(function(buffers){
-            for(var i = 0; i<buffers.length; i = i+1){
-                hrtfs[i].buffer = buffers[i];
-            }
-            // load the HRTF Dataset into the node
-            binauralFIRNode.HRTFDataset = hrtfs;
-             //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 0 - in front your head - .
-            binauralFIRNode.setPosition(-45, 0, 1);
-            //Load a file to be played
-            bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-                player = createPlayer(buffer);
-                player.enableLoop(true);
-                player.start();
-            })
-        })
+  //Connect Audio Nodes
+  player.connect(binauralFIRNode.input);
+  binauralFIRNode.connect(targetNode);
+  //set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 10º
+  binauralFIRNode.setPosition(-45, 10, 1);
 
+  //Load player file
+  bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+    player.setBuffer(buffer);
+    player.enableLoop(true);
+    player.start();
+  })
+  
 ```
 
 ## HRTF dataset format
@@ -93,7 +75,6 @@ Data | Description
 `azimuth` | Azimuth in degrees: from 0 to -180 for source on your left, and from 0 to 180 for source on your right
 `distance` | Distance in meters
 `elevation` | Elevation in degrees: from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
-`url` | Where the audio file of the impulse response can be found.
 `buffer` | AudioBuffer representing the decoded audio data. It can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
 
 This data must be provided inside an Array of Objects, like this example:
@@ -104,14 +85,12 @@ This data must be provided inside an Array of Objects, like this example:
     'azimuth': 0,
     'distance': 1,
     'elevation': 0,
-    'url': "/HRTF_0_0.wav",
     'buffer': AudioBuffer
   },
   {
     'azimuth': 5,
     'distance': 1,
     'elevation': 0,
-    'url': "/HRTF_5_0.wav",
     'buffer': AudioBuffer
 
   },
@@ -119,7 +98,6 @@ This data must be provided inside an Array of Objects, like this example:
     'azimuth': 5,
     'distance': 1,
     'elevation': 5,
-    'url': "/HRTF_5_5.wav",
     'buffer': AudioBuffer
   }
 ]
