@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>binauralFIR example</title>
+    <meta charset="utf-8"/>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/js/q.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/js/buffer-loader.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/js/player.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/binauralfir.min.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/snd/complete_hrtfs.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/js/jquery-1.11.1.min.js"></script>
+    <script src="https://raw.githubusercontent.com/Ircam-RnD/binauralFIR/master/examples/js/jquery.knob.js"></script>
+
+    <script>
+        var audioContext = new AudioContext();
+        var bufferLoader = createBufferLoader();
+        var targetNode = audioContext.destination;
+
+        // HRTF files loading
+        for(var i = 0; i < hrtfs.length; i++){
+            var buffer = audioContext.createBuffer(2, 512, 44100);
+            var bufferChannelLeft = buffer.getChannelData(0);
+            var bufferChannelRight = buffer.getChannelData(1);
+            for(var e = 0; e < hrtfs[i].fir_coeffs_left.length; e++){
+                bufferChannelLeft[e] = hrtfs[i].fir_coeffs_left[e];
+                bufferChannelRight[e] = hrtfs[i].fir_coeffs_right[e];
+            }
+            hrtfs[i].buffer = buffer;
+        }
+
+        //Create Audio Nodes
+        var player = createPlayer();
+        var binauralFIRNode = createBinauralFIR();
+        //Set HRTF dataset
+        binauralFIRNode.HRTFDataset = hrtfs;
+        //Connect Audio Nodes
+        player.connect(binauralFIRNode.input);
+        binauralFIRNode.connect(targetNode);
+        binauralFIRNode.setPosition(0, 0, 1);
+
+        //Load player file
+        bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+          player.setBuffer(buffer);
+          player.enableLoop(true);
+        })
+    </script>
+</head>
+<body>
+    <center>
+        <button id ="play"> Play </button>
+        <button id ="stop"> Stop </button>
+        <button id ="pause"> Pause </button>
+        <pre> Azimuth </pre>
+        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+        <pre> Elevation </pre>   
+        <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
+    </center>
+
+    <script>
+        $(".vs1").val(0);
+          //Listeners of the knobs
+        $(".vs1").knob({
+          'change' : function (v) {
+            binauralFIRNode.setPosition(v, binauralFIRNode.getPosition().elevation, binauralFIRNode.getPosition().distance);
+          },
+          'release' : function (v) {
+            binauralFIRNode.setPosition(v, binauralFIRNode.getPosition().elevation, binauralFIRNode.getPosition().distance);
+          }
+        });
+        $(".vs2").val(0);
+          //Listeners of the knobs
+        $(".vs2").knob({
+          'change' : function (v) {
+            binauralFIRNode.setPosition(binauralFIRNode.getPosition().azimuth, v, binauralFIRNode.getPosition().distance);
+          },
+          'release' : function (v) {
+            binauralFIRNode.setPosition(binauralFIRNode.getPosition().azimuth, v, binauralFIRNode.getPosition().distance);
+          }
+        });
+
+        var playButton = document.getElementById("play");       
+        playButton.addEventListener('click', function(){
+            player.start();
+        });
+        var stopButton = document.getElementById("stop");
+        stopButton.addEventListener('click', function(){
+            player.stop();
+        })
+        var pauseButton = document.getElementById("pause");
+        pauseButton.addEventListener('click', function(){
+            player.pause();
+        })
+    </script>
+
+</body>
+</html>
