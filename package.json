@@ -22,5 +22,8 @@
     "blanket": "~1.1.6",
     "grunt-contrib-connect": "~0.7.1",
     "snd-dep": "git+https://github.com/vectorsize/snd-dep.git#master"
+  },
+  "dependencies": {
+    "kdt": "^0.1.0"
   }
 }

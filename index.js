@@ -1,17 +1,21 @@
 /**
  * @fileOverview
- * Audio Library for Binaural audio playing
- * Comments...
- * @author Arnau Julià
- * @version 0.1.0
+ * The binauralFIR node provides binaural listening to the user. The novelty of
+ * this library is that it permits to use your own HRTF dataset. This library
+ * can be used as a regular node inside the Web Audio API.
+ * @author Arnau Julià, Samuel Goldszmidt
+ * @version 0.1.1
  */
-
+var kdt = require('kdt');
 /**
  * Function invocation pattern for a binaural node.
  * @public
  */
-var createBinauralFIR = function createBinauralFIR(hrtf) {
+var createBinauralFIR = function createBinauralFIR() {
   'use strict';
+
+  // Ensure global availability of an "audioContext" instance of web audio AudioContext.
+  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
   /**
    * BinauralFIR object as an ECMAScript5 properties object.
@@ -20,40 +24,26 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
   var binauralFIRObject = {
 
     // Private properties
-    context: {
-      writable: true
-    },
-    hrtfData: {
-      writable: true
-    },
-    convNode: {
+    hrtfDataset: {
       writable: true,
       value: []
     },
-    gainNode: {
+    hrtfDatasetLength: {
       writable: true,
-      value: []
+      value: 0
     },
-    outputNode: {
-      writable: true
-    },
-    oscillatorNode: {
-      writable: true
-    },
-    gainOscillatorNode: {
-      writable: true
-    },
-    nextPosition: {
-      writable: true,
-      value: []
-    },
-    currentHRTFBufferIndex: {
+    tree: {
       writable: true,
       value: -1
     },
-    bufferIndex: {
+
+    position: {
       writable: true,
-      value: 0
+      value: {}
+    },
+    nextPosition: {
+      writable: true,
+      value: {}
     },
     changeWhenFinishCrossfading: {
       writable: true,
@@ -66,44 +56,14 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       writable: true,
       value: 20/1000
     },
-    position: {
-      writable: true,
-      value: []
-    },
-    immediate: {
-      writable: true,
-      value: false
-    },
-    nextImmediate: {
-      writable: true,
-      value: false
-    },
-    finishCrossfadeTime: {
-      writable: true,
-      value: 0
-    },
-    startedAtTime: {
-      writable: true,
-      value: 0
-    },
-    convNodeActive: {
-      writable: true,
-      value: 0
-    },
-    convNodeInactive: {
-      writable: true,
-      value: 1
-    },
     input: {
       writable: true,
     },
-    number: {
-      writable: true,
-      value: 0
+    mainConvolver: {
+      writable: true
     },
-    id: {
-      writable: true,
-      value: false
+    secondaryConvolver: {
+      writable: true
     },
 
     /**
@@ -113,162 +73,159 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
      */
     init: {
       enumerable: true,
-      value: function(hrtf) {
+      value: function() {
+        this.input = audioContext.createGain();
 
-        this.context = window.audioContext;
-        this.setBuffer(hrtf);
+        // Two sub audio graphs creation:
+        // - mainConvolver which represents the current state
+        // - and secondaryConvolver which represents the potential target state
+        //   when moving sound to a new position
 
-        //Creations
-        this.input = this.context.createGain();
-        this.gainNode[0] = this.context.createGain();
-        this.gainNode[1] = this.context.createGain();
-        this.convNode[0] = this.context.createConvolver();
-        this.convNode[1] = this.context.createConvolver();
-        this.convNode[0].normalize = false;
-        this.convNode[1].normalize = false;
-  
-        //to mantain the audioParam active when the source is not active
-        this.oscillatorNode = this.context.createOscillator();
-        this.gainOscillatorNode = this.context.createGain();
-  
-        //Connections
-        this.oscillatorNode.connect(this.gainOscillatorNode);
-        this.gainOscillatorNode.connect(this.gainNode[0]);
-        this.gainOscillatorNode.connect(this.gainNode[1]);
-        this.input.connect(this.gainNode[0]);
-        this.input.connect(this.gainNode[1]);
-        this.gainNode[0].connect(this.convNode[0]);
-        this.gainNode[1].connect(this.convNode[1]);
-  
-        //Value
-        this.gainNode[0].gain.value = 1;
-        this.gainNode[1].gain.value = 0;
-        this.gainOscillatorNode.gain.value = 0;
-        //If they are set through getPosition method, it's not set immediately
-        // this.convNode[0].buffer = this.hrtfData[0];
-        // this.convNode[1].buffer = this.hrtfData[0];
-        this.oscillatorNode.start(0);
-        this.position[0] = 0;
-        this.position[1] = 0;
-        this.position[2] = 1;
-  
-        return this;  // for chainability
+        this.mainConvolver = Object.create({}, convolverAudioGraph);
+        this.mainConvolver.init();
+        this.mainConvolver.gain.value = 1;
+        this.input.connect(this.mainConvolver.input);
+
+        this.secondaryConvolver = Object.create({}, convolverAudioGraph);
+        this.secondaryConvolver.init();
+        this.secondaryConvolver.gain.value = 0;
+        this.input.connect(this.secondaryConvolver.input);
+
+        return this;  // For chainability
       }
     },
 
     /**
-     * Web audio API-like connect method.
+     * Connects the binauralFIRNode to the Web Audio graph
      * @public
      * @chainable
+     * @param node Destination node
      */
     connect: {
       enumerable: true,
       value: function(node) {
-        this.convNode[0].connect(node);
-        this.convNode[1].connect(node);
-        return this;  // for chainability
+        this.mainConvolver.connect(node);
+        this.secondaryConvolver.connect(node);
+        return this;  // For chainability
       }
     },
 
     /**
-     * Web audio API-like disconnect method.
+     * Disconnect the binauralFIRNode from the Web Audio graph
      * @public
      * @chainable
+     * @param node Destination node
      */
     disconnect: {
       enumerable: true,
-      value: function(output) {
-        this.convNode[0].disconnect(output);
-        this.convNode[1].disconnect(output);
-        return this; // for chainability
+      value: function(node) {
+        this.mainConvolver.disconnect(node);
+        this.secondaryConvolver.disconnect(node);
+        return this; // For chainability
       }
     },
 
     /**
-     * Set a HRTF set and update the current position with the new HRTF.
+     * Set HRTF Dataset to be used with the virtual source.
      * @public
      * @chainable
+     * @param hrtfDataset Array of Objects containing the azimuth, distance, elevation, url and buffer for each point
      */
-    loadHRTF: {
-      enumerable: true,
-      value: function(buffer) {
-        if (buffer) {
-          //save the new HRTF set
-          this.setBuffer(buffer);
-          //update the current position with the new HRTF
-          this.setPosition(this.getPosition()[0], this.getPosition()[1], this.getPosition()[2]);
-          return this; // for chainability
-        } else {
-          throw "HRTF setting error";
+    HRTFDataset: {
+      enumerable : true,
+      configurable : true,
+      set: function(hrtfDataset){
+        this.hrtfDataset = hrtfDataset;
+        this.hrtfDatasetLength = this.hrtfDataset.length;
+
+        for(var i=0; i<this.hrtfDatasetLength; i++){
+          var hrtf = this.hrtfDataset[i];
+          // Azimuth and elevation to radians
+          var azimuthRadians = hrtf.azimuth*Math.PI/180;
+          var elevationRadians = hrtf.elevation*Math.PI/180;
+          var catesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, hrtf.distance);
+          hrtf.x = catesianCoord.x;
+          hrtf.y = catesianCoord.y;
+          hrtf.z = catesianCoord.z;
         }
+        this.tree = kdt.createKdTree(this.hrtfDataset, this.distance, ['x', 'y', 'z']);
+      },
+      get: function(){
+        return this.hrtfDataset;
       }
     },
 
     /**
-     * Set Position of virtual source
+     * Calculate the distance between two points in a 3-D space.
+     * @private
+     * @chainable
+     * @param a Object containing three properties: x, y, z
+     * @param b Object containing three properties: x, y, z
+     */
+    distance: {
+      enumerable: false,
+      value: function(a, b){
+        // No need to compute square root here for distance comparison, this is more eficient.
+        return Math.pow(a.x - b.x, 2) +  Math.pow(a.y - b.y, 2) +  Math.pow(a.z - b.z, 2);
+      }
+    },
+
+    /**
+     * Set position of the virtual source
      * @public
      * @chainable
+     * @param azimuth Azimuth in degrees (°): from 0 to -180 for source on your left, and from 0 to 180 for source on your right
+     * @param elevation Elevation in degrees (°): from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
+     * @param distance Distance in meters
      * @todo Implement Immediate setPosition
      */
     setPosition: {
       enumerable: true,
-      value: function(azimuth, elevation, distance, optImmediate) {
+      value: function(azimuth, elevation, distance) {
+
         if (arguments.length === 3 || arguments.length === 4 ) {
-          //Derive the value of the next buffer
-          var bufferIndex = this.getBufferValue(azimuth, elevation, distance);
-          
-          //Check if it is necessary to change the active buffer.
-          if (bufferIndex !== this.currentHRTFBufferIndex) {
-                        
-            //Check if the crossfading is active           
-            if (this.isCrossfading() === true) {              
-              //Check it there are a value waiting to be set
-              if (this.changeWhenFinishCrossfading === true ) {
-                //Stop the past setInterval event.
+          // Calculate the nearest position for the input azimuth, elevation and distance
+          var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
+          // No need to change the current HRTF loaded if setted position equal current position
+          if (nearestPosition.azimuth !== this.position.azimuth || nearestPosition.elevation !== this.position.elevation || nearestPosition.distance !== this.position.distance ) {
+            // Check if the crossfading is active
+            if (this.isCrossfading() === true) {
+              // Check if there is a value waiting to be set
+              if (this.changeWhenFinishCrossfading === true) {
+                // Stop the past setInterval event.
                 clearInterval(this.intervalID);
               } else {
                 this.changeWhenFinishCrossfading = true;
               }
-              //save the position
-              this.nextPosition[0] = azimuth;
-              this.nextPosition[1] = elevation;
-              this.nextPosition[2] = distance;
-              this.nextImmediate = optImmediate || false;
-              
-              //start the setInterval: wait until the crossfading is finished.
+              // Save the position
+              this.nextPosition.azimuth = nearestPosition.azimuth;
+              this.nextPosition.elevation = nearestPosition.elevation;
+              this.nextPosition.distance = nearestPosition.distance;
+
+              // Start the setInterval: wait until the crossfading is finished.
               this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
             } else {
-              this.nextPosition[0] = azimuth;
-              this.nextPosition[1] = elevation;
-              this.nextPosition[2] = distance;
+              this.nextPosition.azimuth = nearestPosition.azimuth;
+              this.nextPosition.elevation = nearestPosition.elevation;
+              this.nextPosition.distance = nearestPosition.distance;
               this.reallyStartPosition();
-            }  
-   
-          } else {
-              //Although it is not necessary to update the HRTF buffer, we save the current position.
-              this.position[0] = azimuth;
-              this.position[1] = elevation;
-              this.position[2] = distance;
-              //optImmediate not implemented
-              this.immediate = optImmediate || false;
-          }
-
-          return this; // for chainability
-        } else {
-          throw "Position setting error";
+            }
+          
+            return this; // For chainability
+          } 
         }
       }
     },
 
     /**
      * Get if the gains are in a crossfading or not.
-     * @public
+     * @false
      */
     isCrossfading: {
-      enumerable: true,
+      enumerable: false,
       value: function() {
-        //The ramps are not finished, the crossfading is not finished
-        if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0) {
+        // The ramps are not finished, so the crossfading is not finished
+        if(this.mainConvolver.gain.value !== 1){
           return true;
         }else{
           return false;
@@ -284,23 +241,21 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
       enumerable: false,
       value: function() {
 
-        //Save the current position (maybe better in an object?)
-        this.position[0] = this.nextPosition[0];
-        this.position[1] = this.nextPosition[1];
-        this.position[2] = this.nextPosition[2];
-
-        var bufferIndex = this.getBufferValue(this.position[0], this.position[1], this.position[2]);
-
-        //Load the new position in the convolver not active
-        this.convNode[this.convNodeInactive].buffer = this.hrtfData[bufferIndex];
-        //Do the crossfading between convNodeInactive and convNodeActive
+        // Save the current position
+        this.position.azimuth = this.nextPosition.azimuth;
+        this.position.elevation = this.nextPosition.elevation;
+        this.position.distance = this.nextPosition.distance;
+        // Load the new position in the convolver not active (secondaryConvolver)
+        this.secondaryConvolver.buffer = this.getHRTF(this.position.azimuth, this.position.elevation, this.position.distance);
+        // Do the crossfading between mainConvolver and secondaryConvolver
         this.crossfading();
-        //Update the value of the current HRTF Position
-        this.currentHRTFBufferIndex = bufferIndex;
 
-        //Update the memories
-        this.updateMemories();
-        if(this.changeWhenFinishCrossfading){   
+        // Change current mainConvolver
+        var active = this.mainConvolver;
+        this.mainConvolver = this.secondaryConvolver;
+        this.secondaryConvolver = active;
+
+        if(this.changeWhenFinishCrossfading){
           this.changeWhenFinishCrossfading = false;
           clearInterval(this.intervalID);
         }
@@ -308,32 +263,16 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     },
 
     /**
-     * Get the time before crossfading end
-     * @public
-     */
-    getTimeBeforeCrossfadingEnd: {
-      enumerable: true,
-      value: function() {
-        //if it is crossfading, return the time until finish the crossfading
-        if(this.isCrossfading()){
-          return this.finishCrossfadeTime - this.context.currentTime;
-        }else{
-        //if it is not crossfading, return 0
-          return 0;
-        }
-      }
-    },
-
-    /**
-     * Set the crossfade duration in ms
+     * Set the duration of crossfading in miliseconds.
      * @public
      * @chainable
+     * @param duration Duration of the crossfading in miliseconds
      */
     setCrossfadeDuration: {
       enumerable: true,
       value: function(duration) {
         if (duration) {
-          //ms to s
+          // Miliseconds to s
           this.crossfadeDuration = duration/1000;
           return this; // for chainability
         } else {
@@ -343,43 +282,24 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     },
 
     /**
-     * Get the crossfade duration in ms
+     * Get the duration of crossfading in miliseconds.
      * @public
      */
     getCrossfadeDuration: {
       enumerable: true,
       value: function(){
-        //s to ms
+        // Seconds to ms
         return this.crossfadeDuration*1000;
       }
     },
 
     /**
-     * Get the specified metadata about current HRTF set
-     * @public
-     * @todo Waiting for new standard format.
-     */
-    getMetaDataAboutCurrentHRTF: {
-      enumerable: true,
-      value: function(metadataName){
-        if (metadataName) {
-          return "info of the metadata: nonimplemented"
-        } else {
-          throw "metadata getting error";
-        }
-      }
-    },
-
-    /**
-     * Get player status.
+     * Get the current position of the virtual source.
      * @public
      */
     getPosition: {
       enumerable: true,
       value: function() {
-        //position[0] = azimuth;
-        //position[1] = elevation;
-        //position[2] = distance;
         return this.position;
       }
     },
@@ -391,72 +311,94 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
     crossfading: {
       enumerable: false,
       value: function() {
-        
-        if(this.isCrossfading() === true)
-        {
-          console.log(audioContext.currentTime, "problem!!");
-        }
-        if(this.gainNode[this.convNodeActive].gain.value!==1||this.gainNode[this.convNodeInactive].gain.value!==0){
-          console.log(audioContext.currentTime, "problem!!");
-        }
+        // Do the crossfading between mainConvolver and secondaryConvolver
+        var guardInterval = 0.02;
+        this.mainConvolver.gain.setValueAtTime(1, audioContext.currentTime+guardInterval);
+        this.mainConvolver.gain.linearRampToValueAtTime(0, audioContext.currentTime+guardInterval+this.crossfadeDuration);
 
-        //save when the crossfading will be finish
-        this.finishCrossfadeTime = this.context.currentTime+this.crossfadeDuration+0.02;
-        //Do crossfading
-        this.gainNode[this.convNodeActive].gain.setValueAtTime(1, this.context.currentTime+0.02);
-        this.gainNode[this.convNodeActive].gain.linearRampToValueAtTime(0, this.context.currentTime+0.02+this.crossfadeDuration);
-        
-        this.gainNode[this.convNodeInactive].gain.setValueAtTime(0, this.context.currentTime+0.02);
-        this.gainNode[this.convNodeInactive].gain.linearRampToValueAtTime(1, this.context.currentTime+0.02+this.crossfadeDuration);
+        this.secondaryConvolver.gain.setValueAtTime(0, audioContext.currentTime+guardInterval);
+        this.secondaryConvolver.gain.linearRampToValueAtTime(1, audioContext.currentTime+guardInterval+this.crossfadeDuration);
       }
     },
 
     /**
-     * Update the convolverNode active and inactive
+     * Get the HRTF file for an especific position
      * @private
+     * @param azimuth Azimuth in degrees (°): from 0 to -180 for source on your left, and from 0 to 180 for source on your right
+     * @param elevation Elevation in degrees (°): from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
+     * @param distance Distance in meters
      */
-    updateMemories: {
-      enumerable: false,
-      value: function() {
-        var aactive = this.convNodeActive;
-        this.convNodeActive = this.convNodeInactive;
-        this.convNodeInactive = aactive;
-      }
-    },
-
-    /**
-     * Update the convolverNode active and inactive
-     * @private
-     */
-    setBuffer: {
-      enumerable: false,
-      value: function(buffer) {
-        if (buffer) {
-          this.hrtfData = buffer;
-        } else {
-          throw "buffer getting error";
-        }
-      }
-    },
-
-    /**
-     * Get the index buffer value for one specified position (azimuth, elevation, distance)
-     * @private
-     * @todo Have to be adapted to the new standard format
-     */
-    getBufferValue: {
+    getHRTF: {
       enumerable: false,
       value: function(azimuth, elevation, distance){
-        if (arguments.length===3) {
-          return parseInt(azimuth*this.hrtfData.length/360, 10);
-        } else {
-          throw "buffer getting error";
+        var nearest = this.getNearestPoint(azimuth, elevation, distance);
+        // Return buffer of nearest position for the input values
+        return nearest.buffer;
+      }
+    },
+
+    /**
+     * Transform the spherical to cartesian coordinates.
+     * @private
+     * @param azimuth Azimuth in radians
+     * @param elevation Elevation in radians
+     * @param distance Distance in meters
+     */
+    sphericalToCartesian: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        return {
+          x: distance*Math.sin(azimuth),
+          y: distance*Math.cos(azimuth),
+          z: distance*Math.sin(elevation)
         }
       }
     },
 
     /**
-     * Try to set the 'nextPosition' position if the ramps are not in a crossfading
+     * Get the nearest position for an input position.
+     * @private
+     * @param azimuth Azimuth in degrees (°): from 0 to -180 for source on your left, and from 0 to 180 for source on your right
+     * @param elevation Elevation in degrees (°): from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
+     * @param distance Distance in meters
+     */
+    getRealCoordinates: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance){
+        var nearest = this.getNearestPoint(azimuth, elevation, distance);
+        // Return azimuth, elevation and distance of nearest position for the input values
+        return {
+          azimuth: nearest.azimuth,
+          elevation: nearest.elevation,
+          distance: nearest.distance
+        }
+      }
+    },
+
+    /**
+     * Get the nearest position for an input position.
+     * @private
+     * @param azimuth Azimuth in degrees (°): from 0 to -180 for source on your left, and from 0 to 180 for source on your right
+     * @param elevation Elevation in degrees (°): from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
+     * @param distance Distance in meters
+     */
+    getNearestPoint: {
+      enumerable: false,
+      value: function(azimuth, elevation, distance) {
+        // Degrees to radians for the azimuth and elevation
+        var azimuthRadians = azimuth*Math.PI/180;
+        var elevationRadians = elevation*Math.PI/180;
+        // Convert spherical coordinates to cartesian 
+        var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
+        // Get the nearest HRTF file for the desired position
+        var nearest = this.tree.nearest(cartesianCoord, 1)[0];
+
+        return nearest[0];
+      }
+    },
+
+    /**
+     * Try to set the nextPosition position if the ramps are not in a crossfading
      * @private
      */
     setLastPosition: {
@@ -470,9 +412,106 @@ var createBinauralFIR = function createBinauralFIR(hrtf) {
 
   };
 
+  /**
+   * Convolver sub audio graph object as an ECMAScript5 properties object.
+   */
+
+  var convolverAudioGraph = {
+
+    // Private properties
+    convNode: {
+      writable: true
+    },
+    gainNode: {
+      writable: true
+    },
+    oscillatorNode: {
+      writable: true
+    },
+    gainOscillatorNode: {
+      writable: true
+    },
+
+    /**
+     * Mandatory initialization method.
+     * @public
+     * @chainable
+     */
+    init: {
+      enumerable: true,
+      value: function() {
+        this.gainNode = audioContext.createGain();
+        this.convNode = audioContext.createConvolver();
+        this.convNode.normalize = false;
+        this.gainNode.connect(this.convNode);
+
+        // Hack to force audioParam active when the source is not active
+        this.oscillatorNode = audioContext.createOscillator();
+        this.gainOscillatorNode = audioContext.createGain();
+        this.oscillatorNode.connect(this.gainOscillatorNode);
+        this.gainOscillatorNode.connect(this.gainNode);
+        this.gainOscillatorNode.gain.value = 0;
+        this.oscillatorNode.start(0);
+
+        return this;
+      }
+    },
+    input: {
+      enumerable : true,
+      get: function(){
+        return this.gainNode;
+      }
+    },
+    gain: {
+      enumerable : true,
+      get: function(){
+        return this.gainNode.gain;
+      }
+    },
+    /**
+     * Set the buffer in the convolverNode
+     * @public
+     * @param value AudioBuffer Object.
+     */
+    buffer: {
+      enumerable : true,
+      configurable : true,
+      set: function(value){
+        this.convNode.buffer = value;
+      }
+    },
+    /**
+     * Connect the convolverAudioGraph to a node
+     * @public
+     * @chainable
+     * @param node Destination node
+     */
+    connect: {
+      enumerable: true,
+      value: function(node) {
+        this.convNode.connect(node);
+        return this;
+      }
+    },
+    /**
+     * Disconnect the convolverAudioGraph to a node
+     * @public
+     * @chainable
+     * @param node Destination node
+     */
+    disconnect: {
+      enumerable: true,
+      value: function(node){
+        this.convNode.disconnect(node);
+        return this;
+      }
+    }
+
+  };
+
   // Instantiate an object.
   var binauralFIR = Object.create({}, binauralFIRObject);
-  return binauralFIR.init(hrtf);
+  return binauralFIR.init();
 };
 
 // CommonJS function export
