@@ -74,7 +74,7 @@ Data | Description
 `azimuth` | Azimuth in degrees: from 0 to -180 for source on your left, and from 0 to 180 for source on your right
 `distance` | Distance in meters
 `elevation` | Elevation in degrees: from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
-`buffer` | AudioBuffer representing the decoded audio data. It can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
+`buffer` | AudioBuffer representing the decoded audio data. An audio file can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
 
 This data must be provided inside an Array of Objects, like this example:
 
