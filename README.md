@@ -111,7 +111,7 @@ Method | Description
 `binauralFIR.connect()` | Connects the binauralFIRNode to the Web Audio graph
 `binauralFIR.disconnect()` | Disconnect the binauralFIRNode from the Web Audio graph
 `binauralFIR.HRTFDataset` | Set HRTF Dataset to be used with the virtual source.
-`binauralFIR.setPosition(azimuth, elevation, distance, optImmediate)` | Set position of the virtual source.
+`binauralFIR.setPosition(azimuth, elevation, distance)` | Set position of the virtual source.
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
 `binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
 `binauralFIR.getCrossfadeDuration()` | Get the duration of crossfading in miliseconds.
