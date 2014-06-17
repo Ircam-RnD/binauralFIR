@@ -9,7 +9,7 @@ nativeNode.connect(binauralFIR.input);
 binauralFIR.connect(audioContext.destination);
 ```
 
-We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in the /example/snd/complet_hrtfs.js file.
+We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in the /example/snd/complete_hrtfs.js file.
 
 ## Example
 
