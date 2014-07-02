@@ -69,12 +69,6 @@ gulp.task('verb-docs', function () {
 });
 
 gulp.task('verb-gh-pages', function () {
-  var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-
-  var today = new Date();
-  var day = today.getDate();
-  var month = months[today.getMonth()];
-  var year = today.getUTCFullYear();
 
   gulp.src('./docs/css/main.css', {base: './docs/'})
     .pipe(gulp.dest('./gh-pages/'));
@@ -92,7 +86,6 @@ gulp.task('verb-gh-pages', function () {
     .pipe(verb({
       name: libName,
       repo: packageJson.repository.url,
-      updated: [day, month, year].join('/'),
       dest: 'index.html',
       type: 'gh-pages',
       jsstart : '<script>',
