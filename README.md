@@ -1,4 +1,4 @@
-# BinauralFIR node
+## BinauralFIR node
 
 > Processing node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
@@ -11,7 +11,7 @@ binauralFIR.connect(audioContext.destination);
 
 We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in the /example/snd/complete_hrtfs.js file.
 
-## Example
+### Example
 
 Load binauralFIR.js, for instance in your html file by using:
 
@@ -65,7 +65,7 @@ Load binauralFIR.js, for instance in your html file by using:
   
 ```
 
-## HRTF dataset format
+### HRTF dataset format
 
 As this library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset, if you want to use your dataset in the library you have to follow the following format:
 
@@ -102,7 +102,7 @@ This data must be provided inside an Array of Objects, like this example:
 ]
 ```
 
-## API
+### API
 
 The `binauralFIR` object exposes the following API:
 
@@ -115,30 +115,6 @@ Method | Description
 `binauralFIR.getPosition()` | Get the current position of the virtual source.
 `binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
 `binauralFIR.getCrossfadeDuration()` | Get the duration of crossfading in miliseconds.
-
-
-
-## Tests
-
-If grunt is not installed
-
-```bash
-$ npm install -g grunt-cli
-```
-
-Install all depencies in the module folder
-
-```bash
-$ npm install
-```
-
-Run the server on 9001 port (you can change the port in the Grunfile.js)
-
-```bash
-$ grunt test
-```
-
-Run the test via the web browser on `http://localhost:9001/tests`
 
 ## License
 
