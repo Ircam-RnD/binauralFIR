@@ -1,10 +1,10 @@
+var chai = require('chai');
+var audioContext = require("audio-context");
+var BinauralFIR = require('../binaural-fir.es6.js')
 var assert = chai.assert;
-
-window.AudioContext = window.AudioContext||window.webkitAudioContext;
 
 
 // Here we create a buffer to be used later with our player
-var audioContext = new AudioContext();
 var targetNode = audioContext.destination;
 
 // Returns a random integer between min and max
@@ -35,7 +35,7 @@ describe("BinauralFIR tests", function() {
   }
 
   var self = this;
-  self.binauralFIR = createBinauralFIR();
+  self.binauralFIR = new BinauralFIR();
   self.binauralFIR.connect(targetNode);
 
   it('should set HRTF DataSet correctly', function(){

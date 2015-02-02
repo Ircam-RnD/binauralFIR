@@ -7,6 +7,7 @@
  * @version 0.1.1
  */
 var kdt = require('kdt');
+var audioContext = require("audio-context");
 /**
  * Function invocation pattern for a binaural node.
  * @public
@@ -15,7 +16,7 @@ var createBinauralFIR = function createBinauralFIR() {
   'use strict';
 
   // Ensure global availability of an "audioContext" instance of web audio AudioContext.
-  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
+  //audioContext = audioContext || new AudioContext() || new webkitAudioContext();
 
   /**
    * BinauralFIR object as an ECMAScript5 properties object.
@@ -210,9 +211,9 @@ var createBinauralFIR = function createBinauralFIR() {
               this.nextPosition.distance = nearestPosition.distance;
               this.reallyStartPosition();
             }
-          
+
             return this; // For chainability
-          } 
+          }
         }
       }
     },
@@ -388,7 +389,7 @@ var createBinauralFIR = function createBinauralFIR() {
         // Degrees to radians for the azimuth and elevation
         var azimuthRadians = azimuth*Math.PI/180;
         var elevationRadians = elevation*Math.PI/180;
-        // Convert spherical coordinates to cartesian 
+        // Convert spherical coordinates to cartesian
         var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
         // Get the nearest HRTF file for the desired position
         var nearest = this.tree.nearest(cartesianCoord, 1)[0];

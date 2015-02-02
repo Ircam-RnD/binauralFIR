@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mocha</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="tests.js"></script>
+  <script>
+  var a = JSON.stringify(window.__coverage__);
+  var runner = mocha.run();
+  </script>
+  <script>
+  runner.on('end', function(){
+    // Pass coverage object to the server
+    var coverage = JSON.stringify(window.__coverage__);
+    var oReq = new XMLHttpRequest();
+    oReq.open("POST", '/__coverage__', true);
+    oReq.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    oReq.send(coverage);
+  });
+  </script>
+</body>
+</html>

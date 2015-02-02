@@ -1,1 +1,4 @@
 /node_modules/*
+binaural-fir.es5.js
+coverage*
+npm-debug.log
