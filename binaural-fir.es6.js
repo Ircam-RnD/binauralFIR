@@ -23,11 +23,7 @@ class BinauralFIR {
     this.position = {};
     this.nextPosition = {};
     this.changeWhenFinishCrossfading = false;
-    this.intervalID = undefined;
     this.crossfadeDuration = 20 / 1000;
-    this.input = undefined;
-    this.mainConvolver = undefined;
-    this.secondaryConvolver = undefined;
 
     this.input = audioContext.createGain();
 
@@ -43,8 +39,6 @@ class BinauralFIR {
     this.secondaryConvolver = new ConvolverAudioGraph();
     this.secondaryConvolver.gain.value = 0;
     this.input.connect(this.secondaryConvolver.input);
-
-    return this; // For chainability
 
   }
 
@@ -108,7 +102,7 @@ class BinauralFIR {
    * @param b Object containing three properties: x, y, z
    */
   distance(a, b) {
-    // No need to compute square root here for distance comparison, this is more eficient.
+    // No need to compute square root here for distance comparison, this is more efficient.
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2);
   }
 
@@ -207,7 +201,7 @@ class BinauralFIR {
       this.crossfadeDuration = duration / 1000;
       return this; // for chainability
     } else {
-      throw "CrossfadeDuration setting error";
+      throw new Error("CrossfadeDuration setting error");
     }
   }
 
@@ -338,8 +332,6 @@ class ConvolverAudioGraph {
     this.gainOscillatorNode.connect(this.gainNode);
     this.gainOscillatorNode.gain.value = 0;
     this.oscillatorNode.start(0);
-
-    return this;
   }
 
   get input() {

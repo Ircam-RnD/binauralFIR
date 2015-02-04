@@ -17,6 +17,9 @@
     "audio-context": "git://github.com/ircam-rnd/audio-context.git#master",
     "kdt": "^0.1.0"
   },
+  "browserify": {
+    "transforms": ["es6ify"]
+  },
   "scripts": {
     "bundle": "browserify binaural-fir.es6.js > binaural-fir.js -s 'BinauralFIR' -d -t es6ify",
     "watch": "nodemon -w binaural-fir.es6.js -x npm run bundle",
