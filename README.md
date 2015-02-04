@@ -1,8 +1,8 @@
 ## BinauralFIR node
 
-> Processing node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
+> Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
 
-The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node - AudioNode - inside the [Web Audio API](http://www.w3.org/TR/webaudio/). You can connect the native nodes to the binauralFIR node by using the connect method to binauralFIR.input: 
+The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node - AudioNode - inside the [Web Audio API](http://www.w3.org/TR/webaudio/). You can connect the native nodes to the binauralFIR node by using the connect method to binauralFIR.input:
 
 ```js
 nativeNode.connect(binauralFIR.input);
@@ -45,11 +45,11 @@ Load binauralFIR.js, for instance in your html file by using:
   var targetNode = audioContext.destination;
   //Create Audio Nodes
   var player = createPlayer();
-  var binauralFIRNode = createBinauralFIR();
-  
+  var binauralFIRNode = new BinauralFIR();
+
   // Set HRTF dataset
   binauralFIRNode.HRTFDataset = hrtfs;
-  
+
   // Connect Audio Nodes
   player.connect(binauralFIRNode.input);
   binauralFIRNode.connect(targetNode);
@@ -62,7 +62,7 @@ Load binauralFIR.js, for instance in your html file by using:
     player.enableLoop(true);
     player.start();
   })
-  
+
 ```
 
 ### HRTF dataset format

@@ -2,7 +2,7 @@
   "name": "binauralfir",
   "exports": "BinauralFIR",
   "version": "0.1.0",
-  "description": "Arnau will put the description here",
+  "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,23 +10,7 @@
   "author": "Arnau Julià <arnau.julia@gmail.com>",
   "license": "BSD-3",
   "devDependencies": {
-    "body-parser": "^1.9.3",
-    "browserify": "^6.3.3",
-    "browserify-istanbul": "git://github.com/ouhouhsami/browserify-istanbul#master",
-    "chai": "^1.10.0",
-    "connect": "^3.3.3",
-    "es6-transpiler": "^0.7.18",
-    "es6ify": "^1.5.1",
-    "install": "^0.1.8",
-    "istanbul": "^0.3.2",
-    "istanbul-traceur": "git://github.com/ouhouhsami/istanbul-traceur#master",
-    "mocha": "^2.0.1",
-    "mocha-traceur": "^2.0.0",
-    "npm": "^2.2.0",
-    "open": "0.0.5",
-    "serve-static": "^1.7.1",
-    "sinon": "~1.9.1",
-    "traceur": "0.0.74",
+    "tac6": "git://github.com/ircam-rnd/tac6.git#master",
     "chai": "^1.10.0"
   },
   "dependencies": {
@@ -34,9 +18,8 @@
     "kdt": "^0.1.0"
   },
   "scripts": {
-    "test": "node scripts/testsAndCoverage.js",
-    "transpile": "./node_modules/es6-transpiler/build/es5/es6toes5 binaural-fir.es6.js > binaural-fir.es5.js",
-    "browserify": "browserify binaural-fir.es5.js --standalone BinauralFIR > binaural-fir.js",
-    "build": "./node_modules/es6-transpiler/build/es5/es6toes5 binaural-fir.es6.js > binaural-fir.es5.js && browserify binaural-fir.es5.js --standalone BinauralFIR > binaural-fir.js"
+    "bundle": "browserify binaural-fir.es6.js > binaural-fir.js -s 'BinauralFIR' -d -t es6ify",
+    "watch": "nodemon -w binaural-fir.es6.js -x npm run bundle",
+    "test": "tac6"
   }
 }
