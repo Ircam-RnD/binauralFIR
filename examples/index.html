@@ -3,19 +3,20 @@
 <head>
     <title>binauralFIR example</title>
     <meta charset="utf-8"/>
-    <script src="/examples/js/q.js"></script>
-    <script src="/examples/js/buffer-loader.js"></script>
-    <script src="/examples/js/player.js"></script>
+    <script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
+    <script src="https://rawgit.com/Ircam-RnD/audio-context/master/audio-context.min.js"></script>
+    <script src="https://rawgit.com/Ircam-RnD/loaders/master/loaders.js"></script>
+    <script src="https://rawgit.com/Ircam-RnD/player/master/player.js"></script>
+
     <script src="/binaural-fir.js"></script>
+
     <script src="/examples/snd/complete_hrtfs.js"></script>
     <script src="/examples/js/jquery-1.11.1.min.js"></script>
     <script src="/examples/js/jquery.knob.js"></script>
 
     <script>
-        window.waves = window.waves || {};
-        window.waves.audioContext = window.waves.audioContext || new AudioContext()
         var audioContext = window.waves.audioContext;
-        var bufferLoader = createBufferLoader();
+        var bufferLoader = new loaders.AudioBufferLoader();
         var targetNode = audioContext.destination;
 
         // HRTF files loading
@@ -31,7 +32,7 @@
         }
 
         //Create Audio Nodes
-        var player = createPlayer();
+        var player = new Player();
         var binauralFIRNode = new BinauralFIR();
         //Set HRTF dataset
         binauralFIRNode.HRTFDataset = hrtfs;
@@ -53,9 +54,9 @@
         <button id ="stop"> Stop </button>
         <button id ="pause"> Pause </button>
         <pre> Azimuth </pre>
-        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
         <pre> Elevation </pre>
-        <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
+        <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise" />
     </center>
 
     <script>
