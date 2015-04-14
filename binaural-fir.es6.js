@@ -32,7 +32,7 @@ class BinauralFIR {
     // - and secondaryConvolver which represents the potential target state
     //   when moving sound to a new position
 
-    this.mainConvolver = new ConvolverAudioGraph();
+    this.mainConvolver = new ConvolverAudioGraph({audioContext: this.audioContext});
     this.mainConvolver.gain.value = 1;
     this.input.connect(this.mainConvolver.input);
 
