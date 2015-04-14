@@ -14,7 +14,6 @@
     "chai": "^1.10.0"
   },
   "dependencies": {
-    "audio-context": "git://github.com/ircam-rnd/audio-context.git#master",
     "kdt": "^0.1.0"
   },
   "browserify": {
