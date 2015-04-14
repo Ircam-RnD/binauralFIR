@@ -8,7 +8,6 @@
  * @version 0.1.1
  */
 var kdt = require('kdt');
-var audioContext = require("audio-context");
 
 /**
  * @class BinauralFIR
@@ -16,7 +15,8 @@ var audioContext = require("audio-context");
 
 class BinauralFIR {
 
-  constructor() {
+  constructor(options) {
+    this.audioContext = options.audioContext;
     this.hrtfDataset = [];
     this.hrtfDatasetLength = 0;
     this.tree = -1;
@@ -25,7 +25,7 @@ class BinauralFIR {
     this.changeWhenFinishCrossfading = false;
     this.crossfadeDuration = 20 / 1000;
 
-    this.input = audioContext.createGain();
+    this.input = this.audioContext.createGain();
 
     // Two sub audio graphs creation:
     // - mainConvolver which represents the current state
@@ -36,7 +36,7 @@ class BinauralFIR {
     this.mainConvolver.gain.value = 1;
     this.input.connect(this.mainConvolver.input);
 
-    this.secondaryConvolver = new ConvolverAudioGraph();
+    this.secondaryConvolver = new ConvolverAudioGraph({audioContext: this.audioContext});
     this.secondaryConvolver.gain.value = 0;
     this.input.connect(this.secondaryConvolver.input);
 
@@ -229,11 +229,11 @@ class BinauralFIR {
   crossfading() {
     // Do the crossfading between mainConvolver and secondaryConvolver
     var guardInterval = 0.02;
-    this.mainConvolver.gain.setValueAtTime(1, audioContext.currentTime + guardInterval);
-    this.mainConvolver.gain.linearRampToValueAtTime(0, audioContext.currentTime + guardInterval + this.crossfadeDuration);
+    this.mainConvolver.gain.setValueAtTime(1, this.audioContext.currentTime + guardInterval);
+    this.mainConvolver.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + guardInterval + this.crossfadeDuration);
 
-    this.secondaryConvolver.gain.setValueAtTime(0, audioContext.currentTime + guardInterval);
-    this.secondaryConvolver.gain.linearRampToValueAtTime(1, audioContext.currentTime + guardInterval + this.crossfadeDuration);
+    this.secondaryConvolver.gain.setValueAtTime(0, this.audioContext.currentTime + guardInterval);
+    this.secondaryConvolver.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + guardInterval + this.crossfadeDuration);
   }
 
   /**
@@ -319,15 +319,16 @@ class BinauralFIR {
 
 class ConvolverAudioGraph {
 
-  constructor() {
-    this.gainNode = audioContext.createGain();
-    this.convNode = audioContext.createConvolver();
+  constructor(options) {
+    this.audioContext = options.audioContext;
+    this.gainNode = this.audioContext.createGain();
+    this.convNode = this.audioContext.createConvolver();
     this.convNode.normalize = false;
     this.gainNode.connect(this.convNode);
 
     // Hack to force audioParam active when the source is not active
-    this.oscillatorNode = audioContext.createOscillator();
-    this.gainOscillatorNode = audioContext.createGain();
+    this.oscillatorNode = this.audioContext.createOscillator();
+    this.gainOscillatorNode = this.audioContext.createGain();
     this.oscillatorNode.connect(this.gainOscillatorNode);
     this.gainOscillatorNode.connect(this.gainNode);
     this.gainOscillatorNode.gain.value = 0;
