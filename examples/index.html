@@ -4,19 +4,18 @@
     <title>binauralFIR example</title>
     <meta charset="utf-8"/>
     <script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
-    <script src="https://rawgit.com/Ircam-RnD/audio-context/master/audio-context.min.js"></script>
-    <script src="https://rawgit.com/Ircam-RnD/loaders/master/loaders.js"></script>
     <script src="https://rawgit.com/Ircam-RnD/player/master/player.js"></script>
 
     <script src="/binaural-fir.js"></script>
+    <script src="/examples/js/waves.min.js"></script>
 
     <script src="/examples/snd/complete_hrtfs.js"></script>
     <script src="/examples/js/jquery-1.11.1.min.js"></script>
     <script src="/examples/js/jquery.knob.js"></script>
 
     <script>
-        var audioContext = window.waves.audioContext;
-        var bufferLoader = new loaders.AudioBufferLoader();
+        var audioContext = waves.audio.audioContext;
+        var bufferLoader = new waves.loaders.AudioBufferLoader();
         var targetNode = audioContext.destination;
 
         // HRTF files loading
@@ -32,8 +31,8 @@
         }
 
         //Create Audio Nodes
-        var player = new Player();
-        var binauralFIRNode = new BinauralFIR();
+        var player = new Player(undefined, {audioContext: audioContext});
+        var binauralFIRNode = new BinauralFIR({audioContext: audioContext});
         //Set HRTF dataset
         binauralFIRNode.HRTFDataset = hrtfs;
         //Connect Audio Nodes
