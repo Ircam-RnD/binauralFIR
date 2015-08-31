@@ -13,7 +13,7 @@ We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in t
 
 ### Example
 
-A working demo for this module can be found [here](https://ircam-rnd.github.io/binaural-fir/) and in the `examples` folder.
+A working demo for this module can be found [here](http://ircam-rnd.github.io/binauralFIR/examples/) and in the `examples` folder.
 
 ### HRTF dataset format
 
