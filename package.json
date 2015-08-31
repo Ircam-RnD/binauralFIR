@@ -3,9 +3,19 @@
   "exports": "BinauralFIR",
   "version": "0.1.0",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
-  "main": "index.js",
+  "main": "binaural-fir.js",
+  "standalone": "BinauralFIR",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "transpile": "node ./bin/scripts.js --transpile",
+    "prebundle": "npm run hint && npm run transpile",
+    "bundle": "node ./bin/scripts.js --bundle",
+    "postbundle": "npm run uglify",
+    "uglify": "node ./bin/scripts.js --uglify",
+    "watch": "node ./bin/scripts.js --watch",
+    "test": "browserify -t [ babelify --blacklist regenerator ] tests/*.js |  testling -u --no-show",
+    "pretest": "npm run hint",
+    "hint": "jshint ./es6; true",
+    "coverage": "browserify -t [ babelify --blacklist regenerator ] -t coverify tests/*.js | testling -u --no-show | coverify --json -o coverage.json && node ./bin/scripts.js --cover-report -i coverage.json"
   },
   "author": "Arnau Julià <arnau.julia@gmail.com>",
   "license": "BSD-3",
@@ -14,14 +24,29 @@
     "chai": "^1.10.0"
   },
   "dependencies": {
+    "babel-runtime": "^5.8.20",
     "kdt": "^0.1.0"
   },
-  "browserify": {
-    "transforms": ["es6ify"]
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babelify": "^6.2.0",
+    "browserify": "^11.0.1",
+    "coverify": "^1.4.1",
+    "jshint": "^2.8.0",
+    "testling": "^1.7.1",
+    "cli-color": "^1.0.0",
+    "fs-extra": "^0.23.1",
+    "minimist": "^1.2.0",
+    "node-string-pad": "0.0.4",
+    "node-watch": "^0.3.4",
+    "sinon": "^1.14.1",
+    "tape": "^4.2.0",
+    "uglify-js": "^2.4.24"
   },
-  "scripts": {
-    "bundle": "browserify binaural-fir.es6.js > binaural-fir.js -s 'BinauralFIR' -d -t es6ify",
-    "watch": "nodemon -w binaural-fir.es6.js -x npm run bundle",
-    "test": "tac6"
+  "jshintConfig": {
+    "esnext": true,
+    "browser": true,
+    "node": true,
+    "devel": true
   }
 }

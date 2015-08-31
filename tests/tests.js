@@ -1,9 +1,9 @@
-var chai = require('chai');
-var audioContext = require("audio-context");
-var BinauralFIR = require('../binaural-fir.es6.js')
-var assert = chai.assert;
+const test = require('tape');
+
+import BinauralFIR from '../es6/binaural-fir.js';
 
 
+var audioContext = new AudioContext();
 // Here we create a buffer to be used later with our player
 var targetNode = audioContext.destination;
 
@@ -12,53 +12,52 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-describe("BinauralFIR tests", function() {
+var buffer = audioContext.createBuffer(1, 512, 44100);
+var data = buffer.getChannelData(0);
+for (var i = 0; i < data.length; i++) {
+  data[i] = (Math.random() - 0.5) * 2;
+}
 
-  this.buffer = audioContext.createBuffer(1, 512, 44100);
-  this.data = this.buffer.getChannelData(0);
-  for (var i = 0; i < this.data.length; i++) {
-    this.data[i] = (Math.random() - 0.5) * 2;
-  }
+var numberOfPositions = getRandomInt(100, 200);
+var hrtfs = [];
+for (var i = 0; i < numberOfPositions; i++) {
+  var url = 'fakeURL.wav';
+  var obj = {
+    azimuth: getRandomInt(0, 90),
+    elevation: getRandomInt(0, 90),
+    distance: getRandomInt(1, 3),
+    url: url,
+    buffer: buffer
+  };
+  hrtfs.push(obj);
+}
 
-  var numberOfPositions = getRandomInt(100,200);
-  this.hrtfs = [];
-  for (var i = 0; i < numberOfPositions; i++){
-    var url = 'fakeURL.wav';
-    var obj = {
-      azimuth: getRandomInt(0,90),
-      elevation: getRandomInt(0,90),
-      distance: getRandomInt(1,3),
-      url: url,
-      buffer: this.buffer
-    };
-    this.hrtfs.push(obj);
-  }
+var binauralFIR = new BinauralFIR({audioContext: audioContext});
+binauralFIR.connect(targetNode);
 
-  var self = this;
-  self.binauralFIR = new BinauralFIR();
-  self.binauralFIR.connect(targetNode);
+test('should set HRTF DataSet correctly', (assert) => {
+  binauralFIR.HRTFDataset = hrtfs;
+  assert.equal(binauralFIR.HRTFDataset, self.hrtfs);
+  assert.end();
+});
 
-  it('should set HRTF DataSet correctly', function(){
-    self.binauralFIR.HRTFDataset = self.hrtfs;
-    assert.equal(self.binauralFIR.HRTFDataset, self.hrtfs);
-  });
+test('should detect that is crossfading', (assert) => {
+  binauralFIR.setPosition(0, 0, 1);
+  assert.equal(binauralFIR.isCrossfading(), true);
+  assert.end();
+});
 
-  it('should detect that is crossfading', function(){
-    self.binauralFIR.setPosition(0, 0, 1);
-    assert.equal(self.binauralFIR.isCrossfading(), true);
-  });
+test('should set position correctly', (assert) => {
+  binauralFIR.setPosition(10, 20, 30);
+  var coord = binauralFIR.getRealCoordinates(10, 20, 30);
+  assert.equal(binauralFIR.getPosition().azimuth, coord.azimuth);
+  assert.equal(binauralFIR.getPosition().elevation, coord.elevation);
+  assert.equal(binauralFIR.getPosition().distance, coord.distance);
+  assert.end();
+});
 
-  it('should set position correctly', function(){
-    self.binauralFIR.setPosition(10, 20, 30);
-    var coord = self.binauralFIR.getRealCoordinates(10, 20, 30);
-    assert.equal(self.binauralFIR.getPosition().azimuth, coord.azimuth);
-    assert.equal(self.binauralFIR.getPosition().elevation, coord.elevation);
-    assert.equal(self.binauralFIR.getPosition().distance, coord.distance);
-  });
-
-  it('should set crossfade duration correctly', function(){
-    self.binauralFIR.setCrossfadeDuration(30);
-    assert.equal(self.binauralFIR.getCrossfadeDuration(), 30);
-  });
-
+test('should set crossfade duration correctly', (assert) => {
+  binauralFIR.setCrossfadeDuration(30);
+  assert.equal(binauralFIR.getCrossfadeDuration(), 30);
+  assert.end();
 });

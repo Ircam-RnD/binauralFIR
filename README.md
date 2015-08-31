@@ -13,57 +13,7 @@ We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in t
 
 ### Example
 
-Load binauralFIR.js, for instance in your html file by using:
-
-```html
-    <script src="binuralfir.min.js"></script>
-    <!-- https://github.com/Ircam-RnD/buffer-loader  We need a way to load and decode the HRTF files, so we use this lib -->
-    <script src="buffer-loader.min.js"></script>
-    <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
-    <script src="player.min.js"></script>
-    <!-- You can find the file with the HRTF dataset in  /examples/snd/complete_hrtfs.js folder.-->
-    <script src ="complete_hrtfs.js"></script>
-```
-
-```js
-  // First we generate the HRTF Dataset input format.
-  // The hrtfs Array can be find in the complet_hrtfs.js file. It contains an Array of objects with the azimuth,
-  // elevation, distance information, and the coefficients of the left and right FIR filters for each position.
-  for(var i = 0; i < hrtfs.length; i++){
-    var buffer = audioContext.createBuffer(2, 512, 44100);
-    var bufferChannelLeft = buffer.getChannelData(0);
-    var bufferChannelRight = buffer.getChannelData(1);
-    for(var e = 0; e < hrtfs[i].fir_coeffs_left.length; e++){
-      bufferChannelLeft[e] = hrtfs[i].fir_coeffs_left[e];
-      bufferChannelRight[e] = hrtfs[i].fir_coeffs_right[e];
-    }
-    hrtfs[i].buffer = buffer;
-  }
-
-  // We need an audio context
-  var audioContext = new AudioContext();
-  var targetNode = audioContext.destination;
-  //Create Audio Nodes
-  var player = createPlayer();
-  var binauralFIRNode = new BinauralFIR();
-
-  // Set HRTF dataset
-  binauralFIRNode.HRTFDataset = hrtfs;
-
-  // Connect Audio Nodes
-  player.connect(binauralFIRNode.input);
-  binauralFIRNode.connect(targetNode);
-  // Set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 10º
-  binauralFIRNode.setPosition(-45, 10, 1);
-
-  // Load player file
-  bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-    player.setBuffer(buffer);
-    player.enableLoop(true);
-    player.start();
-  })
-
-```
+A working demo for this module can be found [here](https://ircam-rnd.github.io/binaural-fir/) and in the `examples` folder.
 
 ### HRTF dataset format
 
