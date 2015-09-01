@@ -37,22 +37,13 @@ binauralFIR.connect(targetNode);
 
 test('should set HRTF DataSet correctly', (assert) => {
   binauralFIR.HRTFDataset = hrtfs;
-  assert.equal(binauralFIR.HRTFDataset, self.hrtfs);
+  assert.equal(binauralFIR.HRTFDataset, hrtfs);
   assert.end();
 });
 
 test('should detect that is crossfading', (assert) => {
   binauralFIR.setPosition(0, 0, 1);
   assert.equal(binauralFIR.isCrossfading(), true);
-  assert.end();
-});
-
-test('should set position correctly', (assert) => {
-  binauralFIR.setPosition(10, 20, 30);
-  var coord = binauralFIR.getRealCoordinates(10, 20, 30);
-  assert.equal(binauralFIR.getPosition().azimuth, coord.azimuth);
-  assert.equal(binauralFIR.getPosition().elevation, coord.elevation);
-  assert.equal(binauralFIR.getPosition().distance, coord.distance);
   assert.end();
 });
 
