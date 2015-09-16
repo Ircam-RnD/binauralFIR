@@ -29,9 +29,6 @@
     <p>
         [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
     </p>
-    <p>
-        Warning: this web page has been checked only on Chrome latest version.
-    </p>
     <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
     <center>
         <pre> Azimuth </pre>
@@ -74,13 +71,10 @@
     $(".vs1").knob({
         'change': function(v) {
             binauralFIRNode.setPosition(v, binauralFIRNode.getPosition().elevation, binauralFIRNode.getPosition().distance);
-        },
-        'release': function(v) {
-            binauralFIRNode.setPosition(v, binauralFIRNode.getPosition().elevation, binauralFIRNode.getPosition().distance);
         }
     });
 
-    $('.vs3').on("input change", function(evt) {
+    $('.vs3').on("input", function(evt) {
         binauralFIRNode.setPosition(binauralFIRNode.getPosition().azimuth, evt.target.value, binauralFIRNode.getPosition().distance);
     });
 

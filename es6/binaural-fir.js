@@ -1,10 +1,10 @@
 /**
  * @fileOverview
- * The binauralFIR node provides binaural listening to the user. The novelty of
- * this library is that it permits to use your own HRTF dataset. This library
- * can be used as a regular node inside the Web Audio API.
+ * The binauralFIR node provides binaural listening to the user.
+ * This library allows you to use your own HRTF dataset.
+ * This library can be used as a regular node inside the Web Audio API.
  * @author Arnau Julià
- * @version 0.1.1
+ * @version 0.1.2
  */
 import kdt from 'kdt';
 
@@ -12,30 +12,34 @@ import kdt from 'kdt';
  * @class BinauralFIR
  */
 export default class BinauralFIR {
+  /**
+   * Instanciate 2 convolver nodes
+   * When moving a source, a crossfade is triggered
+   * between these 2 convolvers.
+   * A, B, A=>B, B=>A, A=>B+Next, B=>A+Next
+   * The two latter exist in "pending mode".
+   */
   constructor(options) {
     this.audioContext = options.audioContext;
     this.hrtfDataset = [];
     this.hrtfDatasetLength = 0;
-    this.tree = -1;
+    this.tree = undefined;
     this.position = {};
-    this.nextPosition = {};
-    this.changeWhenFinishCrossfading = false;
-    this.crossfadeDuration = 20 / 1000;
-
+    this.crossfadeDuration = 0.02;
     this.input = this.audioContext.createGain();
-
-    // Two sub audio graphs creation:
-    // - mainConvolver which represents the current state
-    // - and secondaryConvolver which represents the potential target state
-    //   when moving sound to a new position
-
-    this.mainConvolver = new ConvolverAudioGraph({audioContext: this.audioContext});
-    this.mainConvolver.gain.value = 1;
-    this.input.connect(this.mainConvolver.input);
-
-    this.secondaryConvolver = new ConvolverAudioGraph({audioContext: this.audioContext});
-    this.secondaryConvolver.gain.value = 0;
-    this.input.connect(this.secondaryConvolver.input);
+    this.state = "A";  // States in ["A", "B", "A2B", "B2A"]
+    this.target = undefined;
+    this.pendingPosition = undefined;
+    this.convolverA = new ConvolverAudioGraph({
+      audioContext: this.audioContext
+    });
+    this.convolverA.gain.value = 1;
+    this.input.connect(this.convolverA.input);
+    this.convolverB = new ConvolverAudioGraph({
+      audioContext: this.audioContext
+    });
+    this.convolverB.gain.value = 0;
+    this.input.connect(this.convolverB.input);
 
   }
 
@@ -46,9 +50,9 @@ export default class BinauralFIR {
    * @param node Destination node
    */
   connect(node) {
-    this.mainConvolver.connect(node);
-    this.secondaryConvolver.connect(node);
-    return this; // For chainability
+    this.convolverA.connect(node);
+    this.convolverB.connect(node);
+    return this;
   }
 
   /**
@@ -58,10 +62,9 @@ export default class BinauralFIR {
    * @param node Destination node
    */
   disconnect(node) {
-    this.mainConvolver.disconnect(node);
-    this.secondaryConvolver.disconnect(node);
-    return this; // For chainability
-
+    this.convolverA.disconnect(node);
+    this.convolverB.disconnect(node);
+    return this;
   }
 
   /**
@@ -110,80 +113,65 @@ export default class BinauralFIR {
    * @param azimuth Azimuth in degrees (°): from 0 to -180 for source on your left, and from 0 to 180 for source on your right
    * @param elevation Elevation in degrees (°): from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
    * @param distance Distance in meters
-   * @todo Implement Immediate setPosition
    */
   setPosition(azimuth, elevation, distance) {
-
-    if (arguments.length === 3 || arguments.length === 4) {
-      // Calculate the nearest position for the input azimuth, elevation and distance
-      var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
-      // No need to change the current HRTF loaded if setted position equal current position
-      if (nearestPosition.azimuth !== this.position.azimuth || nearestPosition.elevation !== this.position.elevation || nearestPosition.distance !== this.position.distance) {
-        // Check if the crossfading is active
-        if (this.isCrossfading() === true) {
-          // Check if there is a value waiting to be set
-          if (this.changeWhenFinishCrossfading === true) {
-            // Stop the past setInterval event.
-            clearInterval(this.intervalID);
-          } else {
-            this.changeWhenFinishCrossfading = true;
-          }
-          // Save the position
-          this.nextPosition.azimuth = nearestPosition.azimuth;
-          this.nextPosition.elevation = nearestPosition.elevation;
-          this.nextPosition.distance = nearestPosition.distance;
-
-          // Start the setInterval: wait until the crossfading is finished.
-          this.intervalID = window.setInterval(this.setLastPosition.bind(this), 0.005);
-        } else {
-          this.nextPosition.azimuth = nearestPosition.azimuth;
-          this.nextPosition.elevation = nearestPosition.elevation;
-          this.nextPosition.distance = nearestPosition.distance;
-          this.reallyStartPosition();
-        }
-
-        return this; // For chainability
+    // Calculate the nearest position for the input azimuth, elevation and distance
+    var nearestPosition = this.getRealCoordinates(azimuth, elevation, distance);
+    if (nearestPosition.azimuth !== this.position.azimuth || nearestPosition.elevation !== this.position.elevation || nearestPosition.distance !== this.position.distance) {
+      switch (this.state) {
+        case "A":
+          this.state = "A2B";
+          this.pendingPosition = undefined;
+          this._crossfadeTo("B", nearestPosition);
+          break;
+        case "B":
+          this.state = "B2A";
+          this.pendingPosition = undefined;
+          this._crossfadeTo("A", nearestPosition);
+          break;
+        case "A2B":
+          this.pendingPosition = nearestPosition;
+          break;
+        case "B2A":
+          this.pendingPosition = nearestPosition;
+          break;
       }
     }
   }
 
-  /**
-   * Get if the gains are in a crossfading or not.
-   * @false
-   */
-  isCrossfading() {
-    // The ramps are not finished, so the crossfading is not finished
-    if (this.mainConvolver.gain.value !== 1) {
-      return true;
-    } else {
-      return false;
+  _crossfadeTo(target, position) {
+    // Set the new target position
+    this.position = position;
+    this.target = target;
+    let hrtf = this.getHRTF(this.position.azimuth, this.position.elevation, this.position.distance);
+    let now = this.audioContext.currentTime;
+    let next = now + this.crossfadeDuration;
+    switch (this.target) {
+      case "A":
+        this.convolverA.buffer = hrtf;
+        this.convolverB.gain.linearRampToValueAtTime(0, next);
+        this.convolverA.gain.linearRampToValueAtTime(1, next);
+        break;
+      case "B":
+        this.convolverB.buffer = hrtf;
+        this.convolverA.gain.linearRampToValueAtTime(0, next);
+        this.convolverB.gain.linearRampToValueAtTime(1, next);
+        break;
     }
-  }
-
-  /**
-   * Really change the position
-   * @private
-   */
-  reallyStartPosition() {
-
-    // Save the current position
-    this.position.azimuth = this.nextPosition.azimuth;
-    this.position.elevation = this.nextPosition.elevation;
-    this.position.distance = this.nextPosition.distance;
-    // Load the new position in the convolver not active (secondaryConvolver)
-    this.secondaryConvolver.buffer = this.getHRTF(this.position.azimuth, this.position.elevation, this.position.distance);
-    // Do the crossfading between mainConvolver and secondaryConvolver
-    this.crossfading();
-
-    // Change current mainConvolver
-    var active = this.mainConvolver;
-    this.mainConvolver = this.secondaryConvolver;
-    this.secondaryConvolver = active;
-
-    if (this.changeWhenFinishCrossfading) {
-      this.changeWhenFinishCrossfading = false;
-      clearInterval(this.intervalID);
+    // Trigger event when linearRamp is reached
+    function endRamp(tg) {
+      if (tg.audioContext.currentTime > next) {
+        window.clearInterval(intervalID);
+        // Target state is reached
+        tg.state = tg.target;
+        tg.target = undefined;
+        // Trigger if there is a pending position
+        if (tg.pendingPosition) {
+          tg.setPosition(tg.pendingPosition.azimuth, tg.pendingPosition.elevation, tg.pendingPosition.distance);
+        }
+      }
     }
+    let intervalID = window.setInterval(endRamp, 10, this);
   }
 
   /**
@@ -196,7 +184,7 @@ export default class BinauralFIR {
     if (duration) {
       // Miliseconds to s
       this.crossfadeDuration = duration / 1000;
-      return this; // for chainability
+      return this;
     } else {
       throw new Error("CrossfadeDuration setting error");
     }
@@ -217,20 +205,6 @@ export default class BinauralFIR {
    */
   getPosition() {
     return this.position;
-  }
-
-  /**
-   * Do the crossfading between the gainNode active and inactive.
-   * @private
-   */
-  crossfading() {
-    // Do the crossfading between mainConvolver and secondaryConvolver
-    var guardInterval = 0.02;
-    this.mainConvolver.gain.setValueAtTime(1, this.audioContext.currentTime + guardInterval);
-    this.mainConvolver.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + guardInterval + this.crossfadeDuration);
-
-    this.secondaryConvolver.gain.setValueAtTime(0, this.audioContext.currentTime + guardInterval);
-    this.secondaryConvolver.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + guardInterval + this.crossfadeDuration);
   }
 
   /**
@@ -293,18 +267,7 @@ export default class BinauralFIR {
     var cartesianCoord = this.sphericalToCartesian(azimuthRadians, elevationRadians, distance);
     // Get the nearest HRTF file for the desired position
     var nearest = this.tree.nearest(cartesianCoord, 1)[0];
-
     return nearest[0];
-  }
-
-  /**
-   * Try to set the nextPosition position if the ramps are not in a crossfading
-   * @private
-   */
-  setLastPosition() {
-    if (!this.isCrossfading()) {
-      this.reallyStartPosition();
-    }
   }
 }
 

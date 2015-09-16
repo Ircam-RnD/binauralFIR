@@ -1,7 +1,7 @@
 {
   "name": "binauralfir",
   "exports": "BinauralFIR",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "binaural-fir.js",
   "standalone": "BinauralFIR",
