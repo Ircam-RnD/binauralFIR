@@ -40,7 +40,6 @@ export default class BinauralFIR {
     });
     this.convolverB.gain.value = 0;
     this.input.connect(this.convolverB.input);
-
   }
 
   /**
