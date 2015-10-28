@@ -1,6 +1,6 @@
 const test = require('tape');
 
-import BinauralFIR from '../es6/binaural-fir.js';
+import BinauralFIR from '../lib/binaural-fir.js';
 
 
 var audioContext = new AudioContext();

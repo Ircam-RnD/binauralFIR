@@ -3,36 +3,45 @@
   "exports": "BinauralFIR",
   "version": "0.1.2",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
-  "main": "binaural-fir.js",
+  "main": "lib/binaural-fir.js",
   "standalone": "BinauralFIR",
   "scripts": {
-    "transpile": "node ./bin/scripts.js --transpile",
-    "prebundle": "npm run hint && npm run transpile",
-    "bundle": "node ./bin/scripts.js --bundle",
-    "postbundle": "npm run uglify",
-    "uglify": "node ./bin/scripts.js --uglify",
-    "watch": "node ./bin/scripts.js --watch",
+    "build": "npm run bundle && npm run umd",
+    "bundle": "browserify -d lib/binaural-fir.js > dist/binaural-fir.js",
+    "postbundle": "cat dist/binaural-fir.js | uglifyjs > ./binaural-fir.min.js",
+    "umd": "browserify -d --standalone BinauralFIR lib/binaural-fir.js > ./binaural-fir.umd.js",
+    "watch": "watchify lib/binaural-fir.js -d -v -o dist/binaural-fir.js",
     "test": "browserify -t [ babelify --blacklist regenerator ] tests/*.js |  testling -u --no-show",
     "pretest": "npm run hint",
-    "hint": "jshint ./es6; true",
+    "hint": "jshint ./lib; true",
     "coverage": "browserify -t [ babelify --blacklist regenerator ] -t coverify tests/*.js | testling -u --no-show | coverify --json -o coverage.json && node ./bin/scripts.js --cover-report -i coverage.json"
   },
   "author": "Arnau Julià <arnau.julia@gmail.com>",
   "license": "BSD-3",
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "blacklist": "regenerator"
+        }
+      ]
+    ]
+  },
   "dependencies": {
     "babel-runtime": "^5.8.20",
+    "babelify": "^6.4.0",
     "kdt": "^0.1.0"
   },
   "devDependencies": {
     "babel": "^5.8.23",
     "babelify": "^6.2.0",
     "browserify": "^11.0.1",
-    "coverify": "^1.4.1",
-    "connect": "^3.4.0",
-    "jshint": "^2.8.0",
-    "testling": "^1.7.1",
     "cli-color": "^1.0.0",
+    "connect": "^3.4.0",
+    "coverify": "^1.4.1",
     "fs-extra": "^0.23.1",
+    "jshint": "^2.8.0",
     "minimist": "^1.2.0",
     "node-string-pad": "0.0.4",
     "node-watch": "^0.3.4",
@@ -41,7 +50,9 @@
     "serve-static": "^1.10.0",
     "sinon": "^1.14.1",
     "tape": "^4.2.0",
-    "uglify-js": "^2.4.24"
+    "testling": "^1.7.1",
+    "uglify-js": "^2.4.24",
+    "watchify": "^3.5.0"
   },
   "jshintConfig": {
     "esnext": true,
