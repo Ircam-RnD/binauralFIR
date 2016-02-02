@@ -1,83 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Binaural FIR Example</title>
-    <meta charset="utf-8"/>
-    <script src="../binaural-fir.min.js"></script>
-    <script src="./snd/complete_hrtfs.js"></script>
-    <script src="./js/jquery-1.11.1.min.js"></script>
-    <script src="./js/jquery.knob.js"></script>
-    <style type="text/css">
-    input[type=range][orient=vertical]
-    {
-        writing-mode: bt-lr; /* IE */
-        -webkit-appearance: slider-vertical; /* WebKit */
-        width: 8px;
-        height: 175px;
-        padding: 0 5px;
-    }
-    </style>
-</head>
-<body>
-    <h1>Binaural FIR Example</h1>
-    <p>
-        This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.
-    </p>
-    <p>
-        The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). In the current version, the set of HRIRs is imposed. In a future release, the user interface will propose to download different sets of HRIRs from a public server that will host a database of individual HRIRs.
-    </p>
-    <p>
-        [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
-    </p>
-    <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
-    <center>
-        <pre> Azimuth </pre>
-        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
-        <pre> Elevation </pre>
-        <input type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
-    </center>
+    <head>
+        <title>Binaural FIR Example</title>
+        <meta charset="utf-8"/>
+        <script src="../include/AudioContextMonkeyPatch.js"></script>
+        <script src="../binaural.js"></script>
+        <script src="./js/jquery-1.11.1.min.js"></script>
+        <script src="./js/jquery.knob.js"></script>
+        <style type="text/css">
+         input[type=range][orient=vertical]
+         {
+             writing-mode: bt-lr; /* IE */
+             -webkit-appearance: slider-vertical; /* WebKit */
+             width: 8px;
+             height: 175px;
+             padding: 0 5px;
+         }
+        </style>
+    </head>
+    <body>
+        <h1>Binaural FIR Example</h1>
+        <p>
+            This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.
+        </p>
+        <p>
+            The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). In the current version, the set of HRIRs is imposed. In a future release, the user interface will propose to download different sets of HRIRs from a public server that will host a database of individual HRIRs.
+        </p>
+        <p>
+            [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
+        </p>
+        <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
+        <center>
+            <pre> Azimuth </pre>
+            <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
+            <pre> Elevation </pre>
+            <input type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
+        </center>
 
-    <script>
-    var audioContext = new AudioContext();
-    var targetNode = audioContext.destination;
+        <script>
+         var audioContext = new AudioContext();
+         var serverDataBase = new binaural.default.sofa.ServerDataBase();
+         serverDataBase
+         .loadCatalogue()
+         .then( function () {
+             return serverDataBase.getUrls({
+                 convention: 'HRIR',
+                 dataBase: 'CROSSMOD',
+                 equalisation: 'compensated',
+                 sampleRate: audioContext.sampleRate,
+                 freePattern: '1070',
+             });
+         })
+         .then( function (urls) {
+             var hrtfSet = new binaural.default.sofa.HrtfSet({
+                 audioContext: audioContext,
+                 positionsType: 'gl', // mandatory for BinauralPanner
+             });
 
-    // HRTF files loading
-    for (var i = 0; i < hrtfs.length; i++) {
-        var buffer = audioContext.createBuffer(2, 512, 44100);
-        var bufferChannelLeft = buffer.getChannelData(0);
-        var bufferChannelRight = buffer.getChannelData(1);
-        for (var e = 0; e < hrtfs[i].fir_coeffs_left.length; e++) {
-            bufferChannelLeft[e] = hrtfs[i].fir_coeffs_left[e];
-            bufferChannelRight[e] = hrtfs[i].fir_coeffs_right[e];
-        }
-        hrtfs[i].buffer = buffer;
-    }
+             return hrtfSet.load(urls[0])
+         })
+         .then( function (hrtfSet) {
+             // Audio Nodes
+             var $mediaElement = document.getElementById('source');
+             var player = audioContext.createMediaElementSource($mediaElement);
 
-    //Create Audio Nodes
-    var mediaElement = document.getElementById('source');
-    var player = audioContext.createMediaElementSource(mediaElement);
-    var binauralFIRNode = new BinauralFIR({
-        audioContext: audioContext
-    });
-    //Set HRTF dataset
-    binauralFIRNode.HRTFDataset = hrtfs;
-    //Connect Audio Nodes
-    player.connect(binauralFIRNode.input);
-    binauralFIRNode.connect(targetNode);
-    binauralFIRNode.setPosition(0, 0, 1);
+             binauralPanner = new binaural.default.audio.BinauralPanner({
+                 audioContext,
+                 hrtfSet: hrtfSet,
+                 corssfadeDuration: 0.01,
+                 positionsType: 'sofaSpherical',
+                 sourceCount: 1,
+                 sourcePositions: [ [0, 0, 1] ],
+             });
 
-    $(".vs1").val(0);
-    //Listeners of the knobs
-    $(".vs1").knob({
-        'change': function(v) {
-            binauralFIRNode.setPosition(v, binauralFIRNode.getPosition().elevation, binauralFIRNode.getPosition().distance);
-        }
-    });
+             binauralPanner.connectOutputs(audioContext.destination);
+             binauralPanner.connectInputByIndex(0, player);
 
-    $('.vs3').on("input", function(evt) {
-        binauralFIRNode.setPosition(binauralFIRNode.getPosition().azimuth, evt.target.value, binauralFIRNode.getPosition().distance);
-    });
+             // Knobs
+             $(".vs1").val(0);
+             $(".vs1").knob({
+                 'change': function(value) {
+                     var position = binauralPanner.getSourcePositionByIndex(0);
+                     position[0] = -value;
+                     binauralPanner.setSourcePositionByIndex(0, position);
+                     window.requestAnimationFrame( function() {
+                         binauralPanner.update();
+                     });
+                 }
+             });
 
-    </script>
-</body>
+             $('.vs3').on("input", function(event) {
+                 var position = binauralPanner.getSourcePositionByIndex(0);
+                 position[1] = event.target.value;
+                 binauralPanner.setSourcePositionByIndex(0, position);
+                 window.requestAnimationFrame( function() {
+                     binauralPanner.update();
+                 });
+             });
+
+         });
+        </script>
+    </body>
 </html>
