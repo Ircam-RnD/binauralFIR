@@ -1,7 +1,7 @@
 {
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
