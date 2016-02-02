@@ -1,52 +1,49 @@
 {
-  "name": "binauralfir",
-  "exports": "BinauralFIR",
-  "version": "0.1.2",
+  "name": "binaural",
+  "exports": "binaural",
+  "version": "0.2.1",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
-  "main": "binaural-fir.js",
-  "standalone": "BinauralFIR",
+  "main": "binaural.js",
+  "standalone": "binaural",
   "scripts": {
-    "transpile": "node ./bin/scripts.js --transpile",
-    "prebundle": "npm run hint && npm run transpile",
-    "bundle": "node ./bin/scripts.js --bundle",
-    "postbundle": "npm run uglify",
-    "uglify": "node ./bin/scripts.js --uglify",
-    "watch": "node ./bin/scripts.js --watch",
-    "test": "browserify -t [ babelify --blacklist regenerator ] tests/*.js |  testling -u --no-show",
-    "pretest": "npm run hint",
-    "hint": "jshint ./es6; true",
-    "coverage": "browserify -t [ babelify --blacklist regenerator ] -t coverify tests/*.js | testling -u --no-show | coverify --json -o coverage.json && node ./bin/scripts.js --cover-report -i coverage.json"
+    "lint": "eslint ./src/ ./test/ && jscs ./src/ ./test/ ",
+    "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
+    "browserify": "browserify dist/index.js --standalone binaural > binaural.js",
+    "bundle": "npm run lint &&npm run test && npm run compile && npm run browserify",
+    "doc": "jsdoc -c jsdoc.json",
+    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' | tape-run",
+    "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
+    "watch": "watch 'npm run bundle' ./src/"
   },
-  "author": "Arnau Julià <arnau.julia@gmail.com>",
-  "license": "BSD-3",
+  "authors": [
+    "Arnau Julià <arnau.julia@gmail.com>",
+    "Jean-Philippe.Lambert@ircam.fr"
+  ],
+  "license": "BSD-3-Clause",
   "dependencies": {
-    "babel-runtime": "^5.8.20",
-    "kdt": "^0.1.0"
+    "gl-matrix": "^2.3.1",
+    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ircam-RnD/binauralFIR"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
-    "babelify": "^6.2.0",
-    "browserify": "^11.0.1",
-    "coverify": "^1.4.1",
-    "connect": "^3.4.0",
-    "jshint": "^2.8.0",
+    "babel": "^6.3.26",
+    "babel-cli": "^6.4.5",
+    "babel-eslint": "^4.1.6",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0",
+    "blue-tape": "^0.1.11",
+    "browserify": "^12.0.2",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^0.1.1",
+    "jscs": "^2.8.0",
+    "jsdoc": "^3.4.0",
+    "minami": "^1.1.1",
+    "tape": "^4.4.0",
+    "tape-run": "^2.1.2",
     "testling": "^1.7.1",
-    "cli-color": "^1.0.0",
-    "fs-extra": "^0.23.1",
-    "minimist": "^1.2.0",
-    "node-string-pad": "0.0.4",
-    "node-watch": "^0.3.4",
-    "portfinder": "^0.4.0",
-    "serve-favicon": "^2.3.0",
-    "serve-static": "^1.10.0",
-    "sinon": "^1.14.1",
-    "tape": "^4.2.0",
-    "uglify-js": "^2.4.24"
-  },
-  "jshintConfig": {
-    "esnext": true,
-    "browser": true,
-    "node": true,
-    "devel": true
+    "watch": "^0.17.1"
   }
 }

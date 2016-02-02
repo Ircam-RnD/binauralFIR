@@ -1,0 +1,20 @@
+{
+  "preset": "airbnb",
+  "disallowSpacesInsideArrayBrackets": false,
+  "disallowSpacesInsideBrackets": false,
+  "disallowSpacesInsideParentheses": false,
+  "requireCurlyBraces": [
+    "if",
+    "else",
+    "for",
+    "while",
+    "do",
+    "switch",
+    "try",
+    "catch"
+  ],
+  "requirePaddingNewLinesAfterBlocks": false,
+  "requirePaddingNewLinesBeforeLineComments": false,
+  "requireSpacesInsideObjectBrackets": false
+}
+
