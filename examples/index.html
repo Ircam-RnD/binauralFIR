@@ -39,7 +39,7 @@
 
         <script>
          var audioContext = new AudioContext();
-         var serverDataBase = new binaural.default.sofa.ServerDataBase();
+         var serverDataBase = new binaural.sofa.ServerDataBase();
          serverDataBase
          .loadCatalogue()
          .then( function () {
@@ -52,7 +52,7 @@
              });
          })
          .then( function (urls) {
-             var hrtfSet = new binaural.default.sofa.HrtfSet({
+             var hrtfSet = new binaural.sofa.HrtfSet({
                  audioContext: audioContext,
                  positionsType: 'gl', // mandatory for BinauralPanner
              });
@@ -64,7 +64,7 @@
              var $mediaElement = document.getElementById('source');
              var player = audioContext.createMediaElementSource($mediaElement);
 
-             binauralPanner = new binaural.default.audio.BinauralPanner({
+             binauralPanner = new binaural.audio.BinauralPanner({
                  audioContext,
                  hrtfSet: hrtfSet,
                  corssfadeDuration: 0.01,
@@ -81,6 +81,7 @@
              $(".vs1").knob({
                  'change': function(value) {
                      var position = binauralPanner.getSourcePositionByIndex(0);
+                     // azimuth in interface is the opposite of SOFA convention
                      position[0] = -value;
                      binauralPanner.setSourcePositionByIndex(0, position);
                      window.requestAnimationFrame( function() {
