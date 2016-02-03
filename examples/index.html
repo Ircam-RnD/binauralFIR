@@ -24,82 +24,112 @@
             This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.
         </p>
         <p>
-            The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). In the current version, the set of HRIRs is imposed. In a future release, the user interface will propose to download different sets of HRIRs from a public server that will host a database of individual HRIRs.
+            The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). The user interface also proposes to download different sets of HRIRs from a public server that hosts a database of individual HRIRs.
         </p>
         <p>
             [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
         </p>
         <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
+        <select id="hrtf-set"></select>
         <center>
             <pre> Azimuth </pre>
-            <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
+            <input id="azimuth" type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
             <pre> Elevation </pre>
-            <input type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
+            <input id="elevation" type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
         </center>
 
         <script>
          var audioContext = new AudioContext();
          var serverDataBase = new binaural.sofa.ServerDataBase();
+
+         var hrtfSet = new binaural.sofa.HrtfSet({
+                 audioContext: audioContext,
+                 positionsType: 'gl', // mandatory for BinauralPanner
+         });
+
+         // Audio Nodes
+         var $mediaElement = document.getElementById('source');
+         var player = audioContext.createMediaElementSource($mediaElement);
+
+         var binauralPanner;
+
+         // Knobs
+         var $azimuth = $("#azimuth");
+         $azimuth.val(0);
+         $azimuth.knob({
+             'change': function(value) {
+                 var position = binauralPanner.getSourcePositionByIndex(0);
+                 // azimuth in interface is the opposite of SOFA convention
+                 position[0] = -value;
+                 binauralPanner.setSourcePositionByIndex(0, position);
+                 window.requestAnimationFrame( function () {
+                     binauralPanner.update();
+                 });
+             }
+         });
+
+         var $elevation = $('#elevation');
+         $elevation.on("input", function(event) {
+             var position = binauralPanner.getSourcePositionByIndex(0);
+             position[1] = event.target.value;
+             binauralPanner.setSourcePositionByIndex(0, position);
+             window.requestAnimationFrame( function () {
+                 binauralPanner.update();
+             });
+         });
+
+         // HRTF set selection
+         var $hrtfSet = document.querySelector('#hrtf-set');
+         $hrtfSet.onchange = function () {
+             loadHrtfSet($hrtfSet.value);
+         };
+
          serverDataBase
          .loadCatalogue()
          .then( function () {
-             return serverDataBase.getUrls({
+             var urls = serverDataBase.getUrls({
                  convention: 'HRIR',
-                 dataBase: 'CROSSMOD',
                  equalisation: 'compensated',
                  sampleRate: audioContext.sampleRate,
-                 freePattern: '1070',
              });
+
+             var $option;
+             urls.forEach( function (url) {
+                 $option = document.createElement('option');
+                 $option.textContent = url;
+                 $hrtfSet.add($option);
+             });
+
+             defaultUrl = urls.findIndex( function (url) {
+                 return url.match('1076');
+             });
+             $hrtfSet.value = urls[defaultUrl]
+             $hrtfSet.onchange();
+
+             return urls;
          })
-         .then( function (urls) {
-             var hrtfSet = new binaural.sofa.HrtfSet({
-                 audioContext: audioContext,
-                 positionsType: 'gl', // mandatory for BinauralPanner
-             });
 
-             return hrtfSet.load(urls[0])
-         })
-         .then( function (hrtfSet) {
-             // Audio Nodes
-             var $mediaElement = document.getElementById('source');
-             var player = audioContext.createMediaElementSource($mediaElement);
 
-             binauralPanner = new binaural.audio.BinauralPanner({
-                 audioContext,
-                 hrtfSet: hrtfSet,
-                 corssfadeDuration: 0.01,
-                 positionsType: 'sofaSpherical',
-                 sourceCount: 1,
-                 sourcePositions: [ [0, 0, 1] ],
-             });
-
-             binauralPanner.connectOutputs(audioContext.destination);
-             binauralPanner.connectInputByIndex(0, player);
-
-             // Knobs
-             $(".vs1").val(0);
-             $(".vs1").knob({
-                 'change': function(value) {
-                     var position = binauralPanner.getSourcePositionByIndex(0);
-                     // azimuth in interface is the opposite of SOFA convention
-                     position[0] = -value;
-                     binauralPanner.setSourcePositionByIndex(0, position);
-                     window.requestAnimationFrame( function() {
-                         binauralPanner.update();
-                     });
-                 }
-             });
-
-             $('.vs3').on("input", function(event) {
-                 var position = binauralPanner.getSourcePositionByIndex(0);
-                 position[1] = event.target.value;
-                 binauralPanner.setSourcePositionByIndex(0, position);
-                 window.requestAnimationFrame( function() {
-                     binauralPanner.update();
-                 });
-             });
-
-         });
+             function loadHrtfSet(url) {
+                 $hrtfSet.style.backgroundColor="rgba(255, 0, 0, 0.7)";
+             return hrtfSet
+               .load(url)
+               .then( function (hrtfSet) {
+                   binauralPanner = new binaural.audio.BinauralPanner({
+                       audioContext,
+                       hrtfSet: hrtfSet,
+                       corssfadeDuration: 0.01,
+                       positionsType: 'sofaSpherical',
+                       sourceCount: 1,
+                       sourcePositions: [ [0, 0, 1] ],
+                   });
+                   
+                   binauralPanner.connectOutputs(audioContext.destination);
+                   binauralPanner.connectInputByIndex(0, player);
+                   binauralPanner.update();
+                   $hrtfSet.style.backgroundColor="";
+               });
+         }
         </script>
     </body>
 </html>
