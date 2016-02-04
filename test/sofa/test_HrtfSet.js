@@ -249,16 +249,35 @@ test(`${prefix}: Load full set and post-filter`, (assert) => {
         assert.equals(filterPositions.findIndex( (position, index) => {
           const nearest = hrtfSet.nearest(filterPositions[index]);
           return nearest.distance > 0.01;
-        }), -1, 'got all expected positions');
+        }), -1, 'got all expected positions form SOFA');
 
         assert.equals(testPositions.findIndex( (position, index) => {
           const nearest = hrtfSet.nearest(position);
           return nearest.index !== expectedIndices[index];
-        }), -1, 'got all expected indices');
+        }), -1, 'got all expected indices from SOFA');
 
       })
       .catch( (error) => {
         assert.fail(`URL ${crossmod1071Url} failed: ${error.message}.`);
+      })
+  );
+
+  testPromises.push(
+    hrtfSet.load(`${crossmod1071Url}.json`)
+      .then( () => {
+        assert.equals(filterPositions.findIndex( (position, index) => {
+          const nearest = hrtfSet.nearest(filterPositions[index]);
+          return nearest.distance > 0.01;
+        }), -1, 'got all expected positions from JSON');
+
+        assert.equals(testPositions.findIndex( (position, index) => {
+          const nearest = hrtfSet.nearest(position);
+          return nearest.index !== expectedIndices[index];
+        }), -1, 'got all expected indices from JSON');
+
+      })
+      .catch( (error) => {
+        assert.fail(`URL ${crossmod1071Url}.json failed: ${error.message}.`);
       })
   );
 

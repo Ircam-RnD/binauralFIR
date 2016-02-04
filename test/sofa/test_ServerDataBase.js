@@ -73,7 +73,7 @@ test(`${prefix}: Default catalogue`, (assert) => {
         dataBase: 'Listen', // mixed-case
         equalisation: 'compensated', // lower-case
         sampleRate: 44100, // number
-        freePattern: '1012', // string
+        freePattern: 1012, // number
       });
 
       assert.equals(filteredUrls.length, 1, '1 URL left after mixed filter.');

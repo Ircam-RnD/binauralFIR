@@ -139,7 +139,9 @@ export class ServerDataBase {
     ];
 
     // any where in URL
-    const freePattern = options.freePattern;
+    const freePattern = (typeof options.freePattern === 'number'
+                         ? options.freePattern.toString()
+                         : options.freePattern);
 
     const pattern = filters.reduce( (global, local) => {
       // partial filter inside slashes
