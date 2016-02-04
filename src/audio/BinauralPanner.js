@@ -192,7 +192,9 @@ export class BinauralPanner {
   }
 
   set filterPositionsType(type) {
-    this._hrtfSet.filterPositionsType = type;
+    this._hrtfSet.filterPositionsType = (typeof type !== 'undefined'
+                                         ? type
+                                         : this.positionsType);
   }
 
   get filterPositionsType() {
