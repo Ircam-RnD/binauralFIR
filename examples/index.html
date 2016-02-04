@@ -51,7 +51,16 @@
          var $mediaElement = document.getElementById('source');
          var player = audioContext.createMediaElementSource($mediaElement);
 
-         var binauralPanner;
+         var binauralPanner = new binaural.audio.BinauralPanner({
+             audioContext,
+             hrtfSet: hrtfSet,
+             crossfadeDuration: 0.05,
+             positionsType: 'sofaSpherical',
+             sourceCount: 1,
+             sourcePositions: [ [0, 0, 1] ],
+         });
+         binauralPanner.connectOutputs(audioContext.destination);
+         binauralPanner.connectInputByIndex(0, player);
 
          // Knobs
          var $azimuth = $("#azimuth");
@@ -111,28 +120,11 @@
 
 
          function loadHrtfSet(url) {
-             // invalid current
+             // invalidate current
              $hrtfSet.style.backgroundColor="rgba(255, 0, 0, 0.7)";
-             if (typeof binauralPanner !== 'undefined') {
-                 binauralPanner.disconnectOutputs();
-                 binauralPanner.disconnectInputByIndex(0, player);
-             }
-
-             return hrtfSet
-               .load(url)
-               .then( function (hrtfSet) {
-                   binauralPanner = new binaural.audio.BinauralPanner({
-                       audioContext,
-                       hrtfSet: hrtfSet,
-                       crossfadeDuration: 0.05,
-                       positionsType: 'sofaSpherical',
-                       sourceCount: 1,
-                       sourcePositions: [ [0, 0, 1] ],
-                   });
-                   
-                   binauralPanner.connectOutputs(audioContext.destination);
-                   binauralPanner.connectInputByIndex(0, player);
-                   binauralPanner.update();
+             return binauralPanner
+               .loadHrtfSet(url)
+               .then( function () {
                    $hrtfSet.style.backgroundColor="";
                });
          }

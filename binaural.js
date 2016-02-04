@@ -5,8 +5,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Multi-source binaural panner.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license CECILL-2.1
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
+
+var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -19,11 +21,17 @@ var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
 var _coordinates = require('../geometry/coordinates');
 
+var _HrtfSet = require('../sofa/HrtfSet');
+
+var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
+
 var _Source = require('./Source');
 
 var _Source2 = _interopRequireDefault(_Source);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -32,6 +40,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 var BinauralPanner = exports.BinauralPanner = function () {
+
+  /**
+   /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an HRTF URL.
+   *
+   * @see HrtfSet
+   * @see loadHrtfSet
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {coordinatesType} [options.positionsType='gl']
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * array of positions to filter. Use undefined to use all positions.
+   * @param {Boolean} [options.filterAfterLoad = false] true to filter after
+   * full load of SOFA file
+   * @param {coordinates} [options.listenerPosition=[0, 0, 0]]
+   * @param {coordinates} [options.listenerUp=[0, 1, 0]]
+   * @param {coordinates} [options.listenerView=[0, 0, -1]]
+   * @param {Number} [options.sourceCount=1]
+   * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
+   * be of length options.sourceCount
+   */
+
   function BinauralPanner() {
     var _this = this;
 
@@ -41,9 +75,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this._audioContext = options.audioContext;
 
-    this.positionsType = typeof options.positionsType !== 'undefined' ? options.positionsType : 'gl';
-
-    this._hrtfSet = options.hrtfSet;
+    this.positionsType = options.positionsType;
 
     var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
 
@@ -64,8 +96,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     this._sources = this._sourcesOutdated.map(function () {
       return new _Source2.default({
         audioContext: _this._audioContext,
-        crossfadeDuration: options.crossfadeDuration,
-        hrtfSet: _this._hrtfSet
+        crossfadeDuration: options.crossfadeDuration
       });
     });
 
@@ -77,6 +108,15 @@ var BinauralPanner = exports.BinauralPanner = function () {
       return [0, 0, 1]; // allocation and default value
     });
 
+    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
+      audioContext: this._audioContext,
+      positionsType: 'gl'
+    });
+
+    this.filterPositionsType = options.filterPositionsType;
+    this.filterPositions = options.filterPositions;
+    this.filterAfterLoad = options.filterAfterLoad;
+
     if (typeof options.sourcePositions !== 'undefined') {
       this.sourcePositions = options.sourcePositions;
     }
@@ -86,14 +126,35 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
   // ----------- accessors
 
+  /**
+   * Set coordinates type for positions.
+   * @param {coordinatesType} [type='gl']
+   */
+
   _createClass(BinauralPanner, [{
     key: 'setSourcePositionByIndex',
+
+    /**
+     * Set the position of one source.
+     *
+     * @param {Number} index
+     * @param {coordinates} positionRequest
+     * @returns {this}
+     */
     value: function setSourcePositionByIndex(index, positionRequest) {
       this._sourcesOutdated[index] = true;
       (0, _coordinates.typedToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.positionsType);
 
       return this;
     }
+
+    /**
+     * Get the position of one source
+     *
+     * @param {Number} index
+     * @returns {coordinates}
+     */
+
   }, {
     key: 'getSourcePositionByIndex',
     value: function getSourcePositionByIndex(index) {
@@ -102,6 +163,38 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     // ----------- public methods
 
+    /**
+     * Load an HRTF set form an URL, and update sources.
+     *
+     * @see HrtfSet#load
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<(this|Error)>} resolve when URL successfully
+     * loaded.
+     */
+
+  }, {
+    key: 'loadHrtfSet',
+    value: function loadHrtfSet(sourceUrl) {
+      var _this2 = this;
+
+      return this._hrtfSet.load(sourceUrl).then(function () {
+        _this2._sourcesOutdated.fill(true);
+        _this2.update();
+        return _this2;
+      });
+    }
+
+    /**
+     * Connect the input of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
   }, {
     key: 'connectInputByIndex',
     value: function connectInputByIndex(index, nodesToConnect, output, input) {
@@ -109,6 +202,15 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the input of one source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectInputByIndex',
     value: function disconnectInputByIndex(index, nodesToDisconnect) {
@@ -116,6 +218,14 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the input of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectInputs',
     value: function disconnectInputs(nodesToDisconnect) {
@@ -127,6 +237,17 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
   }, {
     key: 'connectOutputByIndex',
     value: function connectOutputByIndex(index, nodesToConnect, output, input) {
@@ -134,6 +255,15 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectOutputByIndex',
     value: function disconnectOutputByIndex(index, nodesToDisconnect) {
@@ -141,6 +271,20 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Connect each output of each source. Note that the number of nodes to
+     * connect must match the number of sources.
+     *
+     * @see BinauralPanner#connectOutputByIndex
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
   }, {
     key: 'connectOutputs',
     value: function connectOutputs(nodesToConnect, output, input) {
@@ -150,6 +294,14 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the output of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectOutputs',
     value: function disconnectOutputs(nodesToDisconnect) {
@@ -159,10 +311,18 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
       return this;
     }
+
+    /**
+     * Update the sources filters, according to possible changes in listener,
+     * and source positions.
+     *
+     * @returns {this}
+     */
+
   }, {
     key: 'update',
     value: function update() {
-      var _this2 = this;
+      var _this3 = this;
 
       if (this._listenerOutdated) {
         _glMatrix2.default.mat4.lookAt(this._listenerLookAt, this._listenerPosition, this._listenerView, this._listenerUp);
@@ -170,17 +330,122 @@ var BinauralPanner = exports.BinauralPanner = function () {
         this._sourcesOutdated.fill(true);
       }
 
-      this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
-        if (_this2._sourcesOutdated[index]) {
-          _glMatrix2.default.vec3.transformMat4(_this2._sourcePositionsRelative[index], positionAbsolute, _this2._listenerLookAt);
+      if (this._hrtfSet.isReady) {
+        this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
+          if (_this3._sourcesOutdated[index]) {
+            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listenerLookAt);
 
-          _this2._sources[index].position = _this2._sourcePositionsRelative[index];
+            _this3._sources[index].position = _this3._sourcePositionsRelative[index];
 
-          _this2._sourcesOutdated[index] = false;
-        }
-      });
+            _this3._sourcesOutdated[index] = false;
+          }
+        });
+      }
 
       return this;
+    }
+  }, {
+    key: 'positionsType',
+    set: function set(type) {
+      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    }
+
+    /**
+     * Get coordinates type for positions.
+     * @returns {coordinatesType}
+     */
+    ,
+    get: function get() {
+      return this._positionsType;
+    }
+
+    /**
+     * Refer an external HRTF set, and update sources. Its positions
+     * coordinate type must be 'gl'.
+     *
+     * @see HrtfSet
+     * @see BinauralPanner#update
+     *
+     * @param {HrtfSet} hrtfSet
+     * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+     * not 'gl'.
+     */
+
+  }, {
+    key: 'hrtfSet',
+    set: function set(hrtfSet) {
+      var _this4 = this;
+
+      if (typeof hrtfSet !== 'undefined') {
+        if (hrtfSet.positionsType !== 'gl') {
+          throw new Error('positions type of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.positionsType + '\') ')(_templateObject));
+        }
+        this._hrtfSet = hrtfSet;
+      } else {
+        throw new Error('Undefined HRTF set for BinauralPanner');
+      }
+
+      // update HRTF set references
+      this._sourcesOutdated.fill(true);
+      this._sources.forEach(function (source) {
+        source.hrtfSet = _this4._hrtfSet;
+      });
+
+      this.update();
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet;
+    }
+
+    // ------------- HRTF set proxies
+
+    /**
+     * Set the filter positions of the HRTF set
+     *
+     * @see HrtfSet#filterPositions
+     *
+     * @param {Array.<coordinates>} positions
+     */
+
+  }, {
+    key: 'filterPositions',
+    set: function set(positions) {
+      this._hrtfSet.filterPositions = positions;
+    }
+
+    /**
+     * Get the filter positions of the HRTF set
+     *
+     * @see HrtfSet#filterPositions
+     *
+     * @return {Array.<coordinates>} positions
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterPositions;
+    }
+  }, {
+    key: 'filterPositionsType',
+    set: function set(type) {
+      this._hrtfSet.filterPositionsType = type;
+    },
+    get: function get() {
+      return this._hrtfSet.filterPositionsType;
+    }
+  }, {
+    key: 'filterAfterLoad',
+    set: function set(post) {
+      this._hrtfSet.filterAfterLoad = post;
+    },
+    get: function get() {
+      return this._hrtfSet.filterAfterLoad;
     }
   }, {
     key: 'listenerPosition',
@@ -211,42 +476,41 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Set coordinates type for positions.
-     * @param {coordinatesType} [type='gl']
+     * Set the sources positions.
+     *
+     * @see BinauralPanner#setSourcePositionByIndex
+     *
+     * @param {Array.<coordinates>} positionsRequest
+     * @throws {Error} if the length of positionsRequest is not the same as
+     * the number of sources
      */
 
-  }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
-    }
-
-    /**
-     * Get coordinates type for positions.
-     * @returns {coordinatesType}
-     */
-    ,
-    get: function get() {
-      return this._positionsType;
-    }
   }, {
     key: 'sourcePositions',
     set: function set(positionsRequest) {
-      var _this3 = this;
+      var _this5 = this;
 
       if (positionsRequest.length !== this._sources.length) {
         throw new Error('Bad number of source positions: ' + (positionsRequest.length + ' ') + ('instead of ' + this._sources.length));
       }
 
       positionsRequest.forEach(function (position, index) {
-        _this3.setSourcePositionByIndex(index, position);
+        _this5._sourcesOutdated[index] = true;
+        _this5.setSourcePositionByIndex(index, position);
       });
-    },
+    }
+
+    /**
+     * Get the source positions.
+     *
+     * @returns {Array.<coordinates>}
+     */
+    ,
     get: function get() {
-      var _this4 = this;
+      var _this6 = this;
 
       return this._sourcePositionsAbsolute.map(function (position) {
-        return (0, _coordinates.glToTyped)([], position, _this4.positionsType);
+        return (0, _coordinates.glToTyped)([], position, _this6.positionsType);
       });
     }
   }]);
@@ -255,7 +519,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
 }();
 
 exports.default = BinauralPanner;
-},{"../geometry/coordinates":8,"./Source":2,"gl-matrix":18}],2:[function(require,module,exports){
+},{"../geometry/coordinates":8,"../sofa/HrtfSet":12,"./Source":2,"gl-matrix":18}],2:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -569,7 +833,7 @@ function createNoiseBuffer() {
  * @param {Array} options.inputSamples input array
  * @param {Number} options.inputSampleRate in Hertz
  * @param {Number} [options.outputSampleRate=options.inputSampleRate]
- * @returns {Promise.<Float32Array|Error>}
+ * @returns {Promise.<(Float32Array|Error)>}
  */
 function resampleFloat32Array() {
   var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -1042,6 +1306,7 @@ var _sofa2 = _interopRequireDefault(_sofa);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// no default for top-level index, for browserify
 exports.audio = _audio2.default;
 exports.common = _common2.default;
 exports.geometry = _geometry2.default;
@@ -1095,7 +1360,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * @see load
+   * @see Hrtfset#load
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -1114,6 +1379,8 @@ var HrtfSet = exports.HrtfSet = function () {
     _classCallCheck(this, HrtfSet);
 
     this.audioContext = options.audioContext;
+
+    this._ready = false;
 
     this.positionsType = options.positionsType;
 
@@ -1161,7 +1428,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * Load an URL and generate the corresponding set of IR buffers.
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<this | Error>} resolve when the URL sucessfully
+     * @returns {Promise.<(this|Error)>} resolve when the URL sucessfully
      * loaded.
      */
 
@@ -1182,7 +1449,10 @@ var HrtfSet = exports.HrtfSet = function () {
         promise = Promise.all([this._loadMetaAndPositions(sourceUrl), this._loadDataSet(sourceUrl)]).then(function (indicesAndDataSet) {
           var indices = indicesAndDataSet[0];
           var dataSet = indicesAndDataSet[1];
-          return _this2._loadSofaPartial(sourceUrl, indices, dataSet);
+          return _this2._loadSofaPartial(sourceUrl, indices, dataSet).then(function () {
+            _this2._ready = true;
+            return _this2; // final resolve
+          });
         }).catch(function () {
           // when pre-fitering fails, for any reason, try to post-filter
           // console.log(`Error while partial loading of ${sourceUrl}. `
@@ -1190,6 +1460,7 @@ var HrtfSet = exports.HrtfSet = function () {
           //             + `Load full and post-filtering, instead.`);
           return _this2._loadSofaFull(url).then(function () {
             _this2.applyFilterPositions();
+            _this2._ready = true;
             return _this2; // final resolve
           });
         });
@@ -1198,6 +1469,7 @@ var HrtfSet = exports.HrtfSet = function () {
             if (typeof _this2._filterPositions !== 'undefined' && _this2.filterAfterLoad) {
               _this2.applyFilterPositions();
             }
+            _this2._ready = true;
             return _this2; // final resolve
           });
         }
@@ -1302,7 +1574,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<Number>} indices
      * @param {Array.<coordinates>} positions
      * @param {Array.<Float32Array>} firs
-     * @returns {Promise.<Array | Error>}
+     * @returns {Promise.<(Array|Error)>}
      * @throws {Error} assertion that the channel count is 2
      */
 
@@ -1340,7 +1612,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<Object | Error>}
+     * @returns {Promise.<(Object|Error)>}
      */
 
   }, {
@@ -1382,7 +1654,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<Array.<Number> | Error>}
+     * @returns {(Promise.<Array.<Number>>|Error)}
      */
 
   }, {
@@ -1451,7 +1723,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} url
-     * @returns {Promise.<this | Error>}
+     * @returns {Promise.<(this|Error)>}
      */
 
   }, {
@@ -1504,7 +1776,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<String>} sourceUrl
      * @param {Array.<Number>} indices
      * @param {Object} dataSet
-     * @returns {Promise.<this | Error>}
+     * @returns {Promise.<(this|Error)>}
      */
 
   }, {
@@ -1711,13 +1983,13 @@ var HrtfSet = exports.HrtfSet = function () {
             break;
 
           case 'sofaCartesian':
-            positions = this._filterPositions.forEach(function (current) {
+            positions = this._filterPositions.map(function (current) {
               return _coordinates2.default.glToSofaCartesian([], current);
             });
             break;
 
           case 'sofaSpherical':
-            positions = this._filterPositions.forEach(function (current) {
+            positions = this._filterPositions.map(function (current) {
               return _coordinates2.default.glToSofaSpherical([], current);
             });
             break;
@@ -1747,6 +2019,21 @@ var HrtfSet = exports.HrtfSet = function () {
     ,
     get: function get() {
       return this._filterAfterLoad;
+    }
+
+    /**
+     * Test whether an HRTF set is actually loaded.
+     *
+     * @see HrtfSet#load
+     *
+     * @returns {Boolean} false before any successful load, true after.
+     *
+     */
+
+  }, {
+    key: 'isReady',
+    get: function get() {
+      return this._ready;
     }
   }]);
 
@@ -1815,7 +2102,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
    * {@link constructor}.
    * @param {Object} [destination] Catalogue to update. Default is
    * internal.
-   * @returns {Promise.<(String | Error)>} The promise will resolve (with
+   * @returns {Promise.<(String|Error)>} The promise will resolve (with
    * sourceUrl) when every sub-catalogue will successfully load, or will
    * reject (with an error) as soon as one transfer fails.
    */
@@ -1949,7 +2236,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
      * server, like
      * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
      *
-     * @returns {Promise.<(Object | String)>} The promise will resolve after
+     * @returns {Promise.<(Object|String)>} The promise will resolve after
      * successfully loading, with definitions as * `{definition: {key: values}}`
      * objects; the promise will reject is the transfer fails, with an error.
      */

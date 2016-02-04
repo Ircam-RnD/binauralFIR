@@ -134,6 +134,73 @@ test(`${prefix}: Partial load set`, (assert) => {
   return Promise.all(testPromises);
 });
 
+test(`${prefix}: Instantiate and set filter afterwards`, (assert) => {
+  // spherical in degrees
+  const positionsType = 'sofaSpherical';
+
+  const filterPositions = [
+    [30, 0, 2], // front-left
+    [0, 0, 2], // centre
+    [-30, 0, 2], // front-right
+  ];
+
+  const testPositions = [
+    [-180, 0, 2],
+    [-90, 0, 2],
+    [-60, 0, 2],
+    [-30, 0, 2],
+    [0, 0, 2],
+    [40, 0, 2],
+    [100, 0, 2],
+  ];
+
+  const expectedIndices = [
+    701,
+    701,
+    701,
+    701,
+    481,
+    501,
+    501,
+  ];
+
+  const hrtfSet = new HrtfSet({
+    audioContext,
+  });
+
+  // when not defined in constructor, must explicitly set all types
+  hrtfSet.positionsType = positionsType;
+  hrtfSet.filterPositionsType = positionsType;
+
+  hrtfSet.filterPositions = filterPositions;
+
+  const url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/'
+          + 'COMPENSATED/44100/IRC_1142_C_HRIR.sofa';
+
+  const testPromises = [];
+
+  testPromises.push(
+    hrtfSet.load(url)
+      .then( () => {
+        assert.equals(filterPositions.findIndex( (position) => {
+          const nearest = hrtfSet.nearest(position);
+          return nearest.distance > 0.01;
+        }), -1, 'got all expected positions');
+
+        assert.equals(testPositions.findIndex( (position, index) => {
+          const nearest = hrtfSet.nearest(position);
+          return nearest.index !== expectedIndices[index];
+        }), -1, 'got all expected indices');
+
+      })
+      .catch( (error) => {
+        assert.fail(`URL ${url} failed: ${error.message}.`);
+      })
+  );
+
+  return Promise.all(testPromises);
+});
+
 test(`${prefix}: Load full set and post-filter`, (assert) => {
   // spherical in degrees
   const positionsType = 'sofaSpherical';

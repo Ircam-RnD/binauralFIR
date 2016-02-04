@@ -40,7 +40,7 @@ export class ServerDataBase {
    * {@link constructor}.
    * @param {Object} [destination] Catalogue to update. Default is
    * internal.
-   * @returns {Promise.<(String | Error)>} The promise will resolve (with
+   * @returns {Promise.<(String|Error)>} The promise will resolve (with
    * sourceUrl) when every sub-catalogue will successfully load, or will
    * reject (with an error) as soon as one transfer fails.
    */
@@ -176,7 +176,7 @@ export class ServerDataBase {
    * server, like
    * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
    *
-   * @returns {Promise.<(Object | String)>} The promise will resolve after
+   * @returns {Promise.<(Object|String)>} The promise will resolve after
    * successfully loading, with definitions as * `{definition: {key: values}}`
    * objects; the promise will reject is the transfer fails, with an error.
    */

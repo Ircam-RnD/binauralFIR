@@ -34,7 +34,7 @@ const testPositionsName = [
 
 const serverDataBase = new ServerDataBase();
 
-test(`${prefix}`, (assert) => {
+test(`${prefix} with an external HRTF set`, (assert) => {
   console.log('loading catalogue from server');
   return serverDataBase.loadCatalogue()
     .then( () => {
@@ -112,6 +112,88 @@ test(`${prefix}`, (assert) => {
               };
 
               audioContext.startRendering();
+            });
+
+          });
+
+      });
+
+      return Promise.all(promises);
+    }); // after URL loaded
+}); // test after HrtfSet
+
+test(`${prefix} with an internal HRTF set`, (assert) => {
+  console.log('loading catalogue from server');
+  return serverDataBase.loadCatalogue()
+    .then( () => {
+
+      return serverDataBase.getUrls({
+        convention: 'HRIR',
+        dataBase: 'BILI',
+        equalisation: 'COMPENSATED',
+        sampleRate,
+        freePattern: '1112',
+      });
+    })
+    .then( (urls) => {
+      const promises = testPositions.map( (position, index) => {
+        const positionName = testPositionsName[index];
+
+        // use off-line context now
+        const audioContext = new window.OfflineAudioContext(
+                  2, // stereo output
+                  sampleRate, // 1 second
+                  sampleRate);
+
+        const binauralPanner = new BinauralPanner({
+          audioContext,
+          crossfadeDuration: 0, // immediate for testing
+          filterPositions: testPositions,
+          filterPositionsType: positionsType,
+          positionsType,
+          sourceCount: testPositions.length,
+          sourcePositions: testPositions,
+        });
+
+        return binauralPanner.loadHrtfSet(urls[0])
+          .then( () => {
+            return new Promise( (resolve, reject) => {
+
+              const diracBuffer = audio.createDiracBuffer( {
+                audioContext,
+                length: 2, // Safari needs at least 2 samples
+              } );
+
+              binauralPanner.connectOutputs(audioContext.destination);
+              const dirac = audioContext.createBufferSource();
+              dirac.buffer = diracBuffer;
+              binauralPanner.connectInputByIndex(index, dirac);
+              dirac.start(0);
+
+              audioContext.oncomplete = (event) => {
+                const sourceBuffer = event.renderedBuffer;
+
+                const firBuffer = binauralPanner._hrtfSet.nearestFir(
+                  coordinates.typedToGl([], position, positionsType) );
+
+                for (let channel = 0; channel < 2; ++channel) {
+                  const firArray = [ ...firBuffer.getChannelData(channel) ];
+                  const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
+
+                  /* eslint-disable no-loop-func */
+                  assert.equals(firArray.findIndex( (sample, s) => {
+                    return !almostEquals(sample, sourceArray[s], epsilon);
+                  }), -1, `${positionName}[${channel}] matches`);
+
+                }
+                resolve();
+              };
+
+              audioContext.onerror = () => {
+                reject();
+              };
+
+              audioContext.startRendering(0);
             });
 
           });

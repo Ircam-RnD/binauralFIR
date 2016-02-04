@@ -101,7 +101,7 @@ function createNoiseBuffer() {
  * @param {Array} options.inputSamples input array
  * @param {Number} options.inputSampleRate in Hertz
  * @param {Number} [options.outputSampleRate=options.inputSampleRate]
- * @returns {Promise.<Float32Array|Error>}
+ * @returns {Promise.<(Float32Array|Error)>}
  */
 function resampleFloat32Array() {
   var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];

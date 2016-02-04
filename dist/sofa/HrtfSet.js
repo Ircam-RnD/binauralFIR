@@ -46,7 +46,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * @see load
+   * @see Hrtfset#load
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -65,6 +65,8 @@ var HrtfSet = exports.HrtfSet = function () {
     _classCallCheck(this, HrtfSet);
 
     this.audioContext = options.audioContext;
+
+    this._ready = false;
 
     this.positionsType = options.positionsType;
 
@@ -112,7 +114,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * Load an URL and generate the corresponding set of IR buffers.
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<this | Error>} resolve when the URL sucessfully
+     * @returns {Promise.<(this|Error)>} resolve when the URL sucessfully
      * loaded.
      */
 
@@ -133,7 +135,10 @@ var HrtfSet = exports.HrtfSet = function () {
         promise = Promise.all([this._loadMetaAndPositions(sourceUrl), this._loadDataSet(sourceUrl)]).then(function (indicesAndDataSet) {
           var indices = indicesAndDataSet[0];
           var dataSet = indicesAndDataSet[1];
-          return _this2._loadSofaPartial(sourceUrl, indices, dataSet);
+          return _this2._loadSofaPartial(sourceUrl, indices, dataSet).then(function () {
+            _this2._ready = true;
+            return _this2; // final resolve
+          });
         }).catch(function () {
           // when pre-fitering fails, for any reason, try to post-filter
           // console.log(`Error while partial loading of ${sourceUrl}. `
@@ -141,6 +146,7 @@ var HrtfSet = exports.HrtfSet = function () {
           //             + `Load full and post-filtering, instead.`);
           return _this2._loadSofaFull(url).then(function () {
             _this2.applyFilterPositions();
+            _this2._ready = true;
             return _this2; // final resolve
           });
         });
@@ -149,6 +155,7 @@ var HrtfSet = exports.HrtfSet = function () {
             if (typeof _this2._filterPositions !== 'undefined' && _this2.filterAfterLoad) {
               _this2.applyFilterPositions();
             }
+            _this2._ready = true;
             return _this2; // final resolve
           });
         }
@@ -253,7 +260,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<Number>} indices
      * @param {Array.<coordinates>} positions
      * @param {Array.<Float32Array>} firs
-     * @returns {Promise.<Array | Error>}
+     * @returns {Promise.<(Array|Error)>}
      * @throws {Error} assertion that the channel count is 2
      */
 
@@ -291,7 +298,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<Object | Error>}
+     * @returns {Promise.<(Object|Error)>}
      */
 
   }, {
@@ -333,7 +340,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<Array.<Number> | Error>}
+     * @returns {(Promise.<Array.<Number>>|Error)}
      */
 
   }, {
@@ -402,7 +409,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} url
-     * @returns {Promise.<this | Error>}
+     * @returns {Promise.<(this|Error)>}
      */
 
   }, {
@@ -455,7 +462,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<String>} sourceUrl
      * @param {Array.<Number>} indices
      * @param {Object} dataSet
-     * @returns {Promise.<this | Error>}
+     * @returns {Promise.<(this|Error)>}
      */
 
   }, {
@@ -662,13 +669,13 @@ var HrtfSet = exports.HrtfSet = function () {
             break;
 
           case 'sofaCartesian':
-            positions = this._filterPositions.forEach(function (current) {
+            positions = this._filterPositions.map(function (current) {
               return _coordinates2.default.glToSofaCartesian([], current);
             });
             break;
 
           case 'sofaSpherical':
-            positions = this._filterPositions.forEach(function (current) {
+            positions = this._filterPositions.map(function (current) {
               return _coordinates2.default.glToSofaSpherical([], current);
             });
             break;
@@ -698,6 +705,21 @@ var HrtfSet = exports.HrtfSet = function () {
     ,
     get: function get() {
       return this._filterAfterLoad;
+    }
+
+    /**
+     * Test whether an HRTF set is actually loaded.
+     *
+     * @see HrtfSet#load
+     *
+     * @returns {Boolean} false before any successful load, true after.
+     *
+     */
+
+  }, {
+    key: 'isReady',
+    get: function get() {
+      return this._ready;
     }
   }]);
 

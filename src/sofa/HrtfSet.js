@@ -23,7 +23,7 @@ export class HrtfSet {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * @see load
+   * @see Hrtfset#load
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -37,6 +37,8 @@ export class HrtfSet {
    */
   constructor(options = {}) {
     this.audioContext = options.audioContext;
+
+    this._ready = false;
 
     this.positionsType = options.positionsType;
 
@@ -132,13 +134,13 @@ export class HrtfSet {
           break;
 
         case 'sofaCartesian':
-          positions = this._filterPositions.forEach( (current) => {
+          positions = this._filterPositions.map( (current) => {
             return coordinates.glToSofaCartesian([], current);
           });
           break;
 
         case 'sofaSpherical':
-          positions = this._filterPositions.forEach( (current) => {
+          positions = this._filterPositions.map( (current) => {
             return coordinates.glToSofaSpherical([], current);
           });
           break;
@@ -166,6 +168,18 @@ export class HrtfSet {
    */
   get filterAfterLoad() {
     return this._filterAfterLoad;
+  }
+
+  /**
+   * Test whether an HRTF set is actually loaded.
+   *
+   * @see HrtfSet#load
+   *
+   * @returns {Boolean} false before any successful load, true after.
+   *
+   */
+  get isReady() {
+    return this._ready;
   }
 
   // ------------- public methods
@@ -198,7 +212,7 @@ export class HrtfSet {
    * Load an URL and generate the corresponding set of IR buffers.
    *
    * @param {String} sourceUrl
-   * @returns {Promise.<this | Error>} resolve when the URL sucessfully
+   * @returns {Promise.<(this|Error)>} resolve when the URL sucessfully
    * loaded.
    */
   load(sourceUrl) {
@@ -222,7 +236,11 @@ export class HrtfSet {
         .then( (indicesAndDataSet) => {
           const indices = indicesAndDataSet[0];
           const dataSet = indicesAndDataSet[1];
-          return this._loadSofaPartial(sourceUrl, indices, dataSet);
+          return this._loadSofaPartial(sourceUrl, indices, dataSet)
+            .then( () => {
+              this._ready = true;
+              return this; // final resolve
+            });
         })
         .catch( () => {
           // when pre-fitering fails, for any reason, try to post-filter
@@ -232,6 +250,7 @@ export class HrtfSet {
           return this._loadSofaFull(url)
             .then( () => {
               this.applyFilterPositions();
+              this._ready = true;
               return this; // final resolve
             });
         });
@@ -242,6 +261,7 @@ export class HrtfSet {
               && this.filterAfterLoad) {
             this.applyFilterPositions();
           }
+          this._ready = true;
           return this; // final resolve
         });
     }
@@ -340,7 +360,7 @@ export class HrtfSet {
    * @param {Array.<Number>} indices
    * @param {Array.<coordinates>} positions
    * @param {Array.<Float32Array>} firs
-   * @returns {Promise.<Array | Error>}
+   * @returns {Promise.<(Array|Error)>}
    * @throws {Error} assertion that the channel count is 2
    */
   _generateIndicesPositionsFirs(indices, positions, firs) {
@@ -382,7 +402,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} sourceUrl
-   * @returns {Promise.<Object | Error>}
+   * @returns {Promise.<(Object|Error)>}
    */
   _loadDataSet(sourceUrl) {
     const promise = new Promise( (resolve, reject) => {
@@ -422,7 +442,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} sourceUrl
-   * @returns {Promise.<Array.<Number> | Error>}
+   * @returns {(Promise.<Array.<Number>>|Error)}
    */
   _loadMetaAndPositions(sourceUrl) {
     const promise = new Promise( (resolve, reject) => {
@@ -493,7 +513,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} url
-   * @returns {Promise.<this | Error>}
+   * @returns {Promise.<(this|Error)>}
    */
   _loadSofaFull(url) {
     const promise = new Promise( (resolve, reject) => {
@@ -545,7 +565,7 @@ export class HrtfSet {
    * @param {Array.<String>} sourceUrl
    * @param {Array.<Number>} indices
    * @param {Object} dataSet
-   * @returns {Promise.<this | Error>}
+   * @returns {Promise.<(this|Error)>}
    */
   _loadSofaPartial(sourceUrl, indices, dataSet) {
     const urlPromises = indices.map( (index) => {
