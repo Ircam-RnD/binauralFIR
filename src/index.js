@@ -1,10 +1,13 @@
 import audio from './audio';
+export { audio };
 import common from './common';
+export { common };
 import geometry from './geometry';
+export { geometry };
 import sofa from './sofa';
+export { sofa };
 
-// no default for top-level index, for browserify
-export {
+export default {
   audio,
   common,
   geometry,
