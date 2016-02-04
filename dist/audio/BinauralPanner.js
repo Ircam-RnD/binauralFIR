@@ -433,7 +433,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
   }, {
     key: 'filterPositionsType',
     set: function set(type) {
-      this._hrtfSet.filterPositionsType = type;
+      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
     },
     get: function get() {
       return this._hrtfSet.filterPositionsType;

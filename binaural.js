@@ -434,7 +434,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
   }, {
     key: 'filterPositionsType',
     set: function set(type) {
-      this._hrtfSet.filterPositionsType = type;
+      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
     },
     get: function get() {
       return this._hrtfSet.filterPositionsType;
@@ -2206,7 +2206,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
 
       // any where in URL
       // in file name
-      var freePattern = options.freePattern;
+      var freePattern = typeof options.freePattern === 'number' ? options.freePattern.toString() : options.freePattern;
 
       var pattern = filters.reduce(function (global, local) {
         // partial filter inside slashes

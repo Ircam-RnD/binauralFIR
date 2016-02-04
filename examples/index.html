@@ -42,18 +42,12 @@
          var audioContext = new AudioContext();
          var serverDataBase = new binaural.sofa.ServerDataBase();
 
-         var hrtfSet = new binaural.sofa.HrtfSet({
-                 audioContext: audioContext,
-                 positionsType: 'gl', // mandatory for BinauralPanner
-         });
-
          // Audio Nodes
          var $mediaElement = document.getElementById('source');
          var player = audioContext.createMediaElementSource($mediaElement);
 
          var binauralPanner = new binaural.audio.BinauralPanner({
              audioContext,
-             hrtfSet: hrtfSet,
              crossfadeDuration: 0.05,
              positionsType: 'sofaSpherical',
              sourceCount: 1,

@@ -157,7 +157,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
 
       // any where in URL
       // in file name
-      var freePattern = options.freePattern;
+      var freePattern = typeof options.freePattern === 'number' ? options.freePattern.toString() : options.freePattern;
 
       var pattern = filters.reduce(function (global, local) {
         // partial filter inside slashes
