@@ -21,12 +21,11 @@ import Source from './Source';
 export class BinauralPanner {
 
   /**
-   /**
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an HRTF URL.
    *
    * @see HrtfSet
-   * @see loadHrtfSet
+   * @see BinauralPanner#loadHrtfSet
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -191,54 +190,125 @@ export class BinauralPanner {
     return this._hrtfSet.filterPositions;
   }
 
+  /**
+   * Set coordinates type for positions.
+   *
+   * @param {coordinatesType} [type='gl']
+   */
   set filterPositionsType(type) {
     this._hrtfSet.filterPositionsType = (typeof type !== 'undefined'
                                          ? type
                                          : this.positionsType);
   }
 
+  /**
+   * Get coordinates type for filters.
+   *
+   * @returns {coordinatesType}
+   */
   get filterPositionsType() {
     return this._hrtfSet.filterPositionsType;
   }
 
-  set filterAfterLoad(post) {
-    this._hrtfSet.filterAfterLoad = post;
-  }
+  /**
+   * Set post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @param {Boolean} [post=false]
+   */
+   set filterAfterLoad(post) {
+     this._hrtfSet.filterAfterLoad = post;
+   }
 
+  /**
+   * Get post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @returns {Boolean}
+   */
   get filterAfterLoad() {
     return this._hrtfSet.filterAfterLoad;
   }
 
+  /**
+   * Set listener position. It will update the relative positions of the
+   * sources after a call to the update method.
+   *
+   * Default value is [0, 0, 0] in 'gl' coordinates.
+   *
+   * @see BinauralPanner#update
+   *
+   * @param {coordinates} positionRequest
+   */
   set listenerPosition(positionRequest) {
     typedToGl(this._listenerPosition, positionRequest, this._positionsType);
     this._listenerOutdated = true;
   }
 
+  /**
+   * Get listener position.
+   *
+   * @returns {coordinates}
+   */
   get listenerPosition() {
     return glToTyped([], this._listenerPosition, this._positionsType);
   }
 
+  /**
+   * Set listener up direction (not an absolute position). It will update
+   * the relative positions of the sources after a call to the update
+   * method.
+   *
+   * Default value is [0, 1, 0] in 'gl' coordinates.
+   *
+   * @see BinauralPanner#update
+   *
+   * @param {coordinates} positionRequest
+   */
   set listenerUp(upRequest) {
     typedToGl(this._listenerUp, upRequest, this._positionsType);
     this._listenerOutdated = true;
   }
 
+  /**
+   * Get listener up direction.
+   *
+   * @returns {coordinates}
+   */
   get listenerUp() {
     return glToTyped([], this._listenerUp, this._positionsType);
   }
 
+  /**
+   * Set listener view, as an aiming position. It is an absolute position,
+   * and not a direction. It will update the relative positions of the
+   * sources after a call to the update method.
+   *
+   * Default value is [0, 0, -1] in 'gl' coordinates.
+   *
+   * @see BinauralPanner#update
+   *
+   * @param {coordinates} positionRequest
+   */
   set listenerView(viewRequest) {
     typedToGl(this._listenerView, viewRequest, this._positionsType);
     this._listenerOutdated = true;
   }
 
+  /**
+   * Get listener view direction.
+   *
+   * @returns {coordinates}
+   */
   get listenerView() {
     return glToTyped([], this._listenerView, this._positionsType);
   }
 
   /**
-   * Set the sources positions.
+   * Set the sources positions. It will update the relative positions after
+   * a call to the update method.
    *
+   * @see BinauralPanner#update
    * @see BinauralPanner#setSourcePositionByIndex
    *
    * @param {Array.<coordinates>} positionsRequest
@@ -270,7 +340,10 @@ export class BinauralPanner {
   }
 
   /**
-   * Set the position of one source.
+   * Set the position of one source. It will update the corresponding
+   * relative position after a call to the update method.
+   *
+   * @see BinauralPanner#update
    *
    * @param {Number} index
    * @param {coordinates} positionRequest
@@ -286,7 +359,7 @@ export class BinauralPanner {
   }
 
   /**
-   * Get the position of one source
+   * Get the position of one source.
    *
    * @param {Number} index
    * @returns {coordinates}

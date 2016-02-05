@@ -688,7 +688,9 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
-     * Set post-filtering flag.
+     * Set post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
      * @param {Boolean} [post=false]
      */
 
@@ -699,7 +701,9 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
-     * Get post-filtering flag.
+     * Get post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
      * @returns {Boolean}
      */
     ,

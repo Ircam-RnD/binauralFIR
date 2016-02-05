@@ -153,7 +153,9 @@ export class HrtfSet {
   }
 
   /**
-   * Set post-filtering flag.
+   * Set post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
    * @param {Boolean} [post=false]
    */
   set filterAfterLoad(post) {
@@ -163,7 +165,9 @@ export class HrtfSet {
   }
 
   /**
-   * Get post-filtering flag.
+   * Get post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
    * @returns {Boolean}
    */
   get filterAfterLoad() {

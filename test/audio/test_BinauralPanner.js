@@ -33,10 +33,13 @@ const testPositionsName = [
 ];
 
 const serverDataBase = new ServerDataBase();
+const serverDataBaseLoaded = serverDataBase.loadCatalogue();
+serverDataBaseLoaded.catch( (error) => {
+  throw new Error(`Error while loading catalogue. ${error.message}`);
+});
 
 test(`${prefix} with an external HRTF set`, (assert) => {
-  console.log('loading catalogue from server');
-  return serverDataBase.loadCatalogue()
+  return serverDataBaseLoaded
     .then( () => {
 
       return serverDataBase.getUrls({
@@ -123,8 +126,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
 }); // test after HrtfSet
 
 test(`${prefix} with an internal HRTF set`, (assert) => {
-  console.log('loading catalogue from server');
-  return serverDataBase.loadCatalogue()
+  return serverDataBaseLoaded
     .then( () => {
 
       return serverDataBase.getUrls({
