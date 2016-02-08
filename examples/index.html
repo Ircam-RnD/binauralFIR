@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <title>Binaural FIR Example</title>
@@ -20,17 +20,17 @@
     </head>
     <body>
         <h1>Binaural FIR Example</h1>
-        <p>
-            This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.
-        </p>
-        <p>
-            The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). The user interface also proposes to download different sets of HRIRs from a public server that hosts a database of individual HRIRs.
-        </p>
-        <p>
-            [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
-        </p>
+
+        <p>This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.</p>
+
+        <p>The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). The user interface also proposes to download different sets of HRIRs from a public server that hosts a database of individual HRIRs.</p>
+
+        <p>[1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015</p>
+
         <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
+
         <select id="hrtf-set"></select>
+
         <center>
             <pre> Azimuth </pre>
             <input id="azimuth" type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
@@ -65,7 +65,7 @@
                  // azimuth in interface is the opposite of SOFA convention
                  position[0] = -value;
                  binauralPanner.setSourcePositionByIndex(0, position);
-                 window.requestAnimationFrame( function () {
+                 window.requestAnimationFrame(function () {
                      binauralPanner.update();
                  });
              }
@@ -76,7 +76,7 @@
              var position = binauralPanner.getSourcePositionByIndex(0);
              position[1] = event.target.value;
              binauralPanner.setSourcePositionByIndex(0, position);
-             window.requestAnimationFrame( function () {
+             window.requestAnimationFrame(function () {
                  binauralPanner.update();
              });
          });
@@ -89,15 +89,31 @@
 
          serverDataBase
          .loadCatalogue()
-         .then( function () {
+         .then(function () {
              var urls = serverDataBase.getUrls({
                  convention: 'HRIR',
                  equalisation: 'compensated',
                  sampleRate: audioContext.sampleRate,
              });
 
+             return urls;
+         })
+         .catch(function(error) {
+             console.error('Error accessing HRTF server. ' + error.message);
+
+             // local files (1076 as default in menu)
+             var hrtfIds = [1037, 1076, 1129];
+
+             var urls = hrtfIds.map(function(id) {
+                 return './hrtf/IRC_' + id + '_C_HRIR_'
+                      + audioContext.sampleRate + '.sofa.json';
+             });
+
+             return urls;
+         })
+         .then(function(urls) {
              var $option;
-             urls.forEach( function (url) {
+             urls.forEach(function (url) {
                  $option = document.createElement('option');
                  $option.textContent = url;
                  $hrtfSet.add($option);
@@ -106,10 +122,8 @@
              defaultUrl = urls.findIndex( function (url) {
                  return url.match('1076');
              });
-             $hrtfSet.value = urls[defaultUrl]
+             $hrtfSet.value = urls[defaultUrl];
              $hrtfSet.onchange();
-
-             return urls;
          });
 
 
