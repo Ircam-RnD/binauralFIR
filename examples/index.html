@@ -109,7 +109,7 @@
 
              // local HRTF sets FIR sample-rates are 44100 and 48000 Hz
              var sampleRate = audioContext.sampleRate;
-             if (sampleRate !== 44100 || sampleRate !== 48000) {
+             if (sampleRate !== 44100 && sampleRate !== 48000) {
                  $sampleRateWarning
                      = document.querySelector('#sample-rate-warning');
 
