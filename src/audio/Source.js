@@ -8,9 +8,24 @@
 /**
  * Single source.
  *
- * @see BinauralPanner
+ * See {@link BinauralPanner}.
  */
 export class Source {
+
+  /**
+   * Construct a source, with and AudioContext and an HrtfSet.
+   *
+   * See {@link HrtfSet}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [position=[0, 0, 0]] in 'gl' coordinates type.
+   * {@link Source#position}
+   * @param {Number} [crossfadeDuration] in seconds
+   * {@link Source#crossfadeDuration}
+   */
   constructor(options = {}) {
     this._audioContext = options.audioContext;
     this._hrtfSet = options.hrtfSet;
@@ -40,22 +55,47 @@ export class Source {
 
   // ----------- accessors
 
+  /**
+   * Set the crossfade duration when the position changes.
+   *
+   * @param {Number} [duration=0.02] in seconds
+   */
   set crossfadeDuration(duration = 0.02) {
     this._crossfadeDuration = duration;
   }
 
+  /**
+   * Get the crossfade duration when the position changes.
+   *
+   * @returns {Number} in seconds
+   */
   get crossfadeDuration() {
     return this._crossfadeDuration;
   }
 
+  /**
+   * Refer an external HRTF set.
+   *
+   * @param {HrtfSet} hrtfSet
+   */
   set hrtfSet(hrtfSet) {
     this._hrtfSet = hrtfSet;
   }
 
+  /**
+   * Get the HrtfSet.
+   *
+   * @returns {HrtfSet}
+   */
   get hrtfSet() {
     return this._hrtfSet;
   }
 
+  /**
+   * Set the position of the source and updates.
+   *
+   * @param {coordinates} positionRequest
+   */
   set position(positionRequest) {
     clearTimeout(this._crossfadeTimeout);
     const now = this._audioContext.currentTime;
@@ -95,6 +135,14 @@ export class Source {
 
   // ----------- public methods
 
+  /**
+   * Connect the input of a source.
+   *
+   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+   * @param {Number} [output=0] output to connect from
+   * @param {Number} [input=0] input to connect to
+   * @returns {this}
+   */
   connectInput(nodesToConnect, output, input) {
     const nodes = (Array.isArray(nodesToConnect)
                    ? nodesToConnect
@@ -108,6 +156,13 @@ export class Source {
     return this;
   }
 
+  /**
+   * Disconnect the input of a source.
+   *
+   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+   * all when undefined.
+   * @returns {this}
+   */
   disconnectInput(nodesToDisconnect) {
     const nodes = (Array.isArray(nodesToDisconnect)
                    ? nodesToDisconnect
@@ -121,6 +176,14 @@ export class Source {
     return this;
   }
 
+  /**
+   * Connect the output of a source.
+   *
+   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+   * @param {Number} [output=0] output to connect from
+   * @param {Number} [input=0] input to connect to
+   * @returns {this}
+   */
   connectOutput(nodesToConnect, output, input) {
     const nodes = (Array.isArray(nodesToConnect)
                    ? nodesToConnect
@@ -134,6 +197,13 @@ export class Source {
     return this;
   }
 
+  /**
+   * Disconnect the output of a source.
+   *
+   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+   * all when undefined.
+   * @returns {this}
+   */
   disconnectOutput(nodesToDisconnect) {
     if (typeof nodesToDisconnect === 'undefined') {
       // disconnect all

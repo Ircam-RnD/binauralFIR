@@ -1,10 +1,10 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -18,10 +18,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Single source.
  *
- * @see BinauralPanner
+ * See {@link BinauralPanner}.
  */
 
 var Source = exports.Source = function () {
+
+  /**
+   * Construct a source, with and AudioContext and an HrtfSet.
+   *
+   * See {@link HrtfSet}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [position=[0, 0, 0]] in 'gl' coordinates type.
+   * {@link Source#position}
+   * @param {Number} [crossfadeDuration] in seconds
+   * {@link Source#crossfadeDuration}
+   */
+
   function Source() {
     var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -55,11 +71,27 @@ var Source = exports.Source = function () {
 
   // ----------- accessors
 
+  /**
+   * Set the crossfade duration when the position changes.
+   *
+   * @param {Number} [duration=0.02] in seconds
+   */
+
+
   _createClass(Source, [{
     key: 'connectInput',
 
+
     // ----------- public methods
 
+    /**
+     * Connect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
     value: function connectInput(nodesToConnect, output, input) {
       var _this = this;
 
@@ -72,6 +104,15 @@ var Source = exports.Source = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectInput',
     value: function disconnectInput(nodesToDisconnect) {
@@ -86,6 +127,16 @@ var Source = exports.Source = function () {
 
       return this;
     }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
   }, {
     key: 'connectOutput',
     value: function connectOutput(nodesToConnect, output, input) {
@@ -100,6 +151,15 @@ var Source = exports.Source = function () {
 
       return this;
     }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
   }, {
     key: 'disconnectOutput',
     value: function disconnectOutput(nodesToDisconnect) {
@@ -126,18 +186,46 @@ var Source = exports.Source = function () {
       var duration = arguments.length <= 0 || arguments[0] === undefined ? 0.02 : arguments[0];
 
       this._crossfadeDuration = duration;
-    },
+    }
+
+    /**
+     * Get the crossfade duration when the position changes.
+     *
+     * @returns {Number} in seconds
+     */
+    ,
     get: function get() {
       return this._crossfadeDuration;
     }
+
+    /**
+     * Refer an external HRTF set.
+     *
+     * @param {HrtfSet} hrtfSet
+     */
+
   }, {
     key: 'hrtfSet',
     set: function set(hrtfSet) {
       this._hrtfSet = hrtfSet;
-    },
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
     get: function get() {
       return this._hrtfSet;
     }
+
+    /**
+     * Set the position of the source and updates.
+     *
+     * @param {coordinates} positionRequest
+     */
+
   }, {
     key: 'position',
     set: function set(positionRequest) {

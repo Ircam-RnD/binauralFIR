@@ -56,9 +56,6 @@ export function createDiracBuffer(options = {}) {
 /**
  * Create a noise buffer.
  *
- * Warning: the default length is 2 samples,
- * to by-pass a bug in Safari ≤ 9.
- *
  * @param {Object} options
  * @param {AudioContext} options.audioContext must be defined
  * @param {Number} [options.channelCount=1]
@@ -100,7 +97,7 @@ export function createNoiseBuffer(options = {}) {
  * @param {Array} options.inputSamples input array
  * @param {Number} options.inputSampleRate in Hertz
  * @param {Number} [options.outputSampleRate=options.inputSampleRate]
- * @returns {Promise.<(Float32Array|Error)>}
+ * @returns {Promise.<Float32Array|Error>}
  */
 export function resampleFloat32Array(options = {}) {
   const promise = new Promise( (resolve, reject) => {

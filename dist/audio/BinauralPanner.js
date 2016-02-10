@@ -1,5 +1,10 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BinauralPanner = undefined;
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Multi-source binaural panner.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
@@ -8,11 +13,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.BinauralPanner = undefined;
 
 var _glMatrix = require('gl-matrix');
 
@@ -44,24 +44,31 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an HRTF URL.
    *
-   * @see HrtfSet
-   * @see BinauralPanner#loadHrtfSet
+   * See {@link HrtfSet}.
+   * See {@link BinauralPanner#loadHrtfSet}.
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {coordinatesType} [options.positionsType='gl']
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
-   * array of positions to filter. Use undefined to use all positions.
-   * @param {Boolean} [options.filterAfterLoad = false] true to filter after
-   * full load of SOFA file
-   * @param {coordinates} [options.listenerPosition=[0, 0, 0]]
-   * @param {coordinates} [options.listenerUp=[0, 1, 0]]
-   * @param {coordinates} [options.listenerView=[0, 0, -1]]
+   * {@link BinauralPanner#positionsType}
    * @param {Number} [options.sourceCount=1]
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
-   * be of length options.sourceCount
+   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
+   * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link BinauralPanner#filterPositionsType}
+   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * array of positions to filter. Use undefined to use all positions from the HRTF set.
+   * {@link BinauralPanner#filterPositions}
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * {@link BinauralPanner#listenerPosition}
+   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * {@link BinauralPanner#listenerUp}
+   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * {@link BinauralPanner#listenerView}
    */
 
   function BinauralPanner() {
@@ -126,17 +133,20 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
   /**
    * Set coordinates type for positions.
+   *
    * @param {coordinatesType} [type='gl']
    */
 
+
   _createClass(BinauralPanner, [{
     key: 'setSourcePositionByIndex',
+
 
     /**
      * Set the position of one source. It will update the corresponding
      * relative position after a call to the update method.
      *
-     * @see BinauralPanner#update
+     * See {@link BinauralPanner#update}.
      *
      * @param {Number} index
      * @param {coordinates} positionRequest
@@ -167,10 +177,10 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Load an HRTF set form an URL, and update sources.
      *
-     * @see HrtfSet#load
+     * See {@link HrtfSet#load}.
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<(this|Error)>} resolve when URL successfully
+     * @returns {Promise.<this|Error>} resolve when URL successfully
      * loaded.
      */
 
@@ -208,7 +218,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Disconnect the input of one source.
      *
      * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
      * @returns {this}
      */
 
@@ -223,7 +234,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Disconnect the input of each source.
      *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
      * @returns {this}
      */
 
@@ -261,7 +273,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Disconnect the output of a source.
      *
      * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
      * @returns {this}
      */
 
@@ -277,9 +290,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Connect each output of each source. Note that the number of nodes to
      * connect must match the number of sources.
      *
-     * @see BinauralPanner#connectOutputByIndex
+     * See {@link BinauralPanner#connectOutputByIndex}.
      *
-     * @param {Number} index
      * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
      * @param {Number} [output=0] output to connect from
      * @param {Number} [input=0] input to connect to
@@ -353,6 +365,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     /**
      * Get coordinates type for positions.
+     *
      * @returns {coordinatesType}
      */
     ,
@@ -364,8 +377,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Refer an external HRTF set, and update sources. Its positions
      * coordinate type must be 'gl'.
      *
-     * @see HrtfSet
-     * @see BinauralPanner#update
+     * See {@link HrtfSet}.
+     * See {@link BinauralPanner#update}.
      *
      * @param {HrtfSet} hrtfSet
      * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
@@ -410,7 +423,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Set the filter positions of the HRTF set
      *
-     * @see HrtfSet#filterPositions
+     * See {@link HrtfSet#filterPositions}.
      *
      * @param {Array.<coordinates>} positions
      */
@@ -424,7 +437,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get the filter positions of the HRTF set
      *
-     * @see HrtfSet#filterPositions
+     * See {@link HrtfSet#filterPositions}.
      *
      * @return {Array.<coordinates>} positions
      */
@@ -485,7 +498,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 0, 0] in 'gl' coordinates.
      *
-     * @see BinauralPanner#update
+     * See {@link BinauralPanner#update}.
      *
      * @param {coordinates} positionRequest
      */
@@ -514,7 +527,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 1, 0] in 'gl' coordinates.
      *
-     * @see BinauralPanner#update
+     * See {@link BinauralPanner#update}.
      *
      * @param {coordinates} positionRequest
      */
@@ -543,7 +556,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 0, -1] in 'gl' coordinates.
      *
-     * @see BinauralPanner#update
+     * See {@link BinauralPanner#update}.
      *
      * @param {coordinates} positionRequest
      */
@@ -569,8 +582,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Set the sources positions. It will update the relative positions after
      * a call to the update method.
      *
-     * @see BinauralPanner#update
-     * @see BinauralPanner#setSourcePositionByIndex
+     * See {@link BinauralPanner#update}.
+     * See {@link BinauralPanner#setSourcePositionByIndex}.
      *
      * @param {Array.<coordinates>} positionsRequest
      * @throws {Error} if the length of positionsRequest is not the same as

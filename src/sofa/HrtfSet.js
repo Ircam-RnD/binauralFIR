@@ -23,20 +23,24 @@ export class HrtfSet {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * @see Hrtfset#load
+   * See {@link HrtfSet#load}.
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {coordinatesType} [options.positionsType='gl']
+   * {@link HrtfSet#positionsType}
    * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link HrtfSet#filterPositionsType}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
-   * @param {Boolean} [options.filterAfterLoad = false] true to filter after
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
    * full load of SOFA file
+   * {@link HrtfSet#filterAfterLoad}
    */
   constructor(options = {}) {
-    this.audioContext = options.audioContext;
+    this._audioContext = options.audioContext;
 
     this._ready = false;
 
@@ -62,6 +66,7 @@ export class HrtfSet {
 
   /**
    * Get coordinates type for positions.
+   *
    * @returns {coordinatesType}
    */
   get positionsType() {
@@ -70,6 +75,7 @@ export class HrtfSet {
 
   /**
    * Set coordinates type for filter positions.
+   *
    * @param {coordinatesType} [type] undefined to use positionsType
    */
   set filterPositionsType(type) {
@@ -80,6 +86,7 @@ export class HrtfSet {
 
   /**
    * Get coordinates type for filter positions.
+   *
    * @param {coordinatesType} type
    */
   get filterPositionsType() {
@@ -88,6 +95,7 @@ export class HrtfSet {
 
   /**
    * Set filter positions.
+   *
    * @param {Array.<coordinates>} [positions] undefined for no filtering.
    */
   set filterPositions(positions) {
@@ -121,6 +129,7 @@ export class HrtfSet {
 
   /**
    * Get filter positions.
+   *
    * @param {Array.<coordinates>} positions
    */
   get filterPositions() {
@@ -177,13 +186,40 @@ export class HrtfSet {
   /**
    * Test whether an HRTF set is actually loaded.
    *
-   * @see HrtfSet#load
+   * See {@link HrtfSet#load}.
    *
    * @returns {Boolean} false before any successful load, true after.
    *
    */
   get isReady() {
     return this._ready;
+  }
+
+  /**
+   * Get the URL used to actually load the HRTF set.
+   *
+   * @returns {String} that is undefined before a successfully load.
+   */
+  get sofaUrl() {
+    return this._sofaUrl;
+  }
+
+  /**
+   * Get the original sample-rate from the SOFA URL already loaded.
+   *
+   * @returns {Number} that is undefined before a successfully load.
+   */
+  get sofaSampleRate() {
+    return this._sofaSampleRate;
+  }
+
+  /**
+   * Get the meta-data from the SOFA URL already loaded.
+   *
+   * @returns {Object} that is undefined before a successfully load.
+   */
+  get sofaMetaData() {
+    return this._sofaMetaData;
   }
 
   // ------------- public methods
@@ -194,12 +230,12 @@ export class HrtfSet {
    *
    * This is destructive.
    *
-   * @see HrtfSet#load
+   * See {@link HrtfSet#load}.
    */
   applyFilterPositions() {
     // do not use getter for gl positions
     let filteredPositions = this._filterPositions.map( (current) => {
-      return this.kdt.nearest({ x: current[0], y: current[1], z: current[2] },
+      return this._kdt.nearest({ x: current[0], y: current[1], z: current[2] },
                               1)
         .pop()[0]; // nearest data
     });
@@ -207,7 +243,7 @@ export class HrtfSet {
     // filter out duplicates
     filteredPositions = [ ...new Set(filteredPositions) ];
 
-    this.kdt = kdTree.tree.createKdTree(filteredPositions,
+    this._kdt = kdTree.tree.createKdTree(filteredPositions,
                                         kdTree.distanceSquared,
                                         ['x', 'y', 'z']);
   }
@@ -216,7 +252,7 @@ export class HrtfSet {
    * Load an URL and generate the corresponding set of IR buffers.
    *
    * @param {String} sourceUrl
-   * @returns {Promise.<(this|Error)>} resolve when the URL sucessfully
+   * @returns {Promise.<this|Error>} resolve when the URL sucessfully
    * loaded.
    */
   load(sourceUrl) {
@@ -286,14 +322,14 @@ export class HrtfSet {
   /**
    * Get the nearest point in the HRTF set, after a successful load.
    *
-   * @see HrtfSet#load
+   * See {@link HrtfSet#load}.
    *
    * @param {coordinates} positionRequest
    * @returns {HrtfSet.nearestType}
    */
   nearest(positionRequest) {
     const position = coordinates.typedToGl([], positionRequest, this.positionsType);
-    const nearest = this.kdt.nearest({
+    const nearest = this._kdt.nearest({
       x: position[0],
       y: position[1],
       z: position[2],
@@ -332,10 +368,10 @@ export class HrtfSet {
   _createKdTree(indicesPositionsFirs) {
     const positions = indicesPositionsFirs.map( (value) => {
       const impulseResponses = value[2];
-      const fir = this.audioContext.createBuffer(
+      const fir = this._audioContext.createBuffer(
         impulseResponses.length,
         impulseResponses[0].length,
-        this.audioContext.sampleRate);
+        this._audioContext.sampleRate);
       impulseResponses.forEach( (samples, channel) => {
         // do not use copyToChannel because of Safari <= 9
         fir.getChannelData(channel).set(samples);
@@ -350,7 +386,7 @@ export class HrtfSet {
       };
     });
 
-    this.kdt = kdTree.tree.createKdTree(positions,
+    this._kdt = kdTree.tree.createKdTree(positions,
                                         kdTree.distanceSquared,
                                         ['x', 'y', 'z']);
     return this;
@@ -364,7 +400,7 @@ export class HrtfSet {
    * @param {Array.<Number>} indices
    * @param {Array.<coordinates>} positions
    * @param {Array.<Float32Array>} firs
-   * @returns {Promise.<(Array|Error)>}
+   * @returns {Promise.<Array|Error>}
    * @throws {Error} assertion that the channel count is 2
    */
   _generateIndicesPositionsFirs(indices, positions, firs) {
@@ -379,8 +415,8 @@ export class HrtfSet {
       const sofaFirsChannelsPromises = sofaFirChannels.map( (fir) => {
         return resampleFloat32Array({
           inputSamples: fir,
-          inputSampleRate: this.sofaSampleRate,
-          outputSampleRate: this.audioContext.sampleRate,
+          inputSampleRate: this._sofaSampleRate,
+          outputSampleRate: this._audioContext.sampleRate,
         });
       });
       return Promise.all(sofaFirsChannelsPromises)
@@ -406,7 +442,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} sourceUrl
-   * @returns {Promise.<(Object|Error)>}
+   * @returns {Promise.<Object|Error>}
    */
   _loadDataSet(sourceUrl) {
     const promise = new Promise( (resolve, reject) => {
@@ -446,7 +482,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} sourceUrl
-   * @returns {(Promise.<Array.<Number>>|Error)}
+   * @returns {Promise.<Array.<Number>|Error>}
    */
   _loadMetaAndPositions(sourceUrl) {
     const promise = new Promise( (resolve, reject) => {
@@ -497,7 +533,7 @@ export class HrtfSet {
           // filter out duplicates
           nearestIndices = [ ...new Set(nearestIndices) ];
 
-          this.sofaUrl = sourceUrl;
+          this._sofaUrl = sourceUrl;
           resolve(nearestIndices);
         } catch (error) {
           // re-throw
@@ -517,7 +553,7 @@ export class HrtfSet {
    * @private
    *
    * @param {String} url
-   * @returns {Promise.<(this|Error)>}
+   * @returns {Promise.<this|Error>}
    */
   _loadSofaFull(url) {
     const promise = new Promise( (resolve, reject) => {
@@ -545,7 +581,7 @@ export class HrtfSet {
           )
             .then( (indicesPositionsFirs) => {
               this._createKdTree(indicesPositionsFirs);
-              this.sofaUrl = url;
+              this._sofaUrl = url;
               resolve(this);
             });
 
@@ -569,7 +605,7 @@ export class HrtfSet {
    * @param {Array.<String>} sourceUrl
    * @param {Array.<Number>} indices
    * @param {Object} dataSet
-   * @returns {Promise.<(this|Error)>}
+   * @returns {Promise.<this|Error>}
    */
   _loadSofaPartial(sourceUrl, indices, dataSet) {
     const urlPromises = indices.map( (index) => {
@@ -637,8 +673,8 @@ export class HrtfSet {
       throw new Error('SOFA data type is not FIR');
     }
 
-    this.sofaMetaData = data.metaData;
-    this.sofaSampleRate = data['Data.SamplingRate'].data[0];
+    this._sofaMetaData = data.metaData;
+    this._sofaSampleRate = data['Data.SamplingRate'].data[0];
 
     // Convert listener position, up, and view to SOFA cartesian,
     // to generate a SOFA-to-GL look-at mat4.

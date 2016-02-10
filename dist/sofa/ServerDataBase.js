@@ -1,16 +1,16 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ServerDataBase = undefined;
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Access a remote data-base from a SOFA server.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @copyright 2015-2016 IRCAM, Paris, France
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @license BSD-3-Clause
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ServerDataBase = undefined;
 
 var _parseXml = require('./parseXml');
 
@@ -30,7 +30,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
   /**
    * This is only a constructor, it does not load any thing.
    *
-   * @see loadCatalogue
+   * See {@link ServerDataBase#loadCatalogue}.
    *
    * @param {Object} [options]
    * @param {String} [options.serverUrl] base URL of server, including
@@ -55,13 +55,14 @@ var ServerDataBase = exports.ServerDataBase = function () {
    * @param {String} [sourceUrl] URL of the root catalogue, including the
    * server, like 'http://bili2.ircam.fr/catalog.xml'.
    *  Default is 'catalog.xml' at serverURL supplied at
-   * {@link constructor}.
+   * {@link ServerDataBase#constructor}.
    * @param {Object} [destination] Catalogue to update. Default is
    * internal.
-   * @returns {Promise.<(String|Error)>} The promise will resolve (with
+   * @returns {Promise.<String|Error>} The promise will resolve (with
    * sourceUrl) when every sub-catalogue will successfully load, or will
    * reject (with an error) as soon as one transfer fails.
    */
+
 
   _createClass(ServerDataBase, [{
     key: 'loadCatalogue',
@@ -192,7 +193,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
      * server, like
      * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
      *
-     * @returns {Promise.<(Object|String)>} The promise will resolve after
+     * @returns {Promise.<Object|String>} The promise will resolve after
      * successfully loading, with definitions as * `{definition: {key: values}}`
      * objects; the promise will reject is the transfer fails, with an error.
      */
@@ -229,7 +230,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
      * server, like
      * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
      *
-     * @returns {Promise.<(Array<Array.<Number>> | String)>} The promise will resolve
+     * @returns {Promise.<Array<Array.<Number>>|Error>} The promise will resolve
      * after successfully loading, with an array of positions (which are
      * arrays of 3 numbers); the promise will reject is the transfer fails,
      * with an error.

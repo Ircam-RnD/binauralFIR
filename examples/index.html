@@ -30,6 +30,7 @@
         <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
 
         <select id="hrtf-set"></select>
+        <div id="sample-rate-warning"></div>
 
         <center>
             <pre> Azimuth </pre>
@@ -101,12 +102,27 @@
          .catch(function(error) {
              console.error('Error accessing HRTF server. ' + error.message);
 
+             // local HRTF sets FIR sample-rates are 44100 and 48000 Hz
+             var sampleRate = audioContext.sampleRate;
+             switch (sampleRate) {
+                 case 44100:
+                 case 48000:
+                     break;
+                 case 88200:
+                 case 96000:
+                     sampleRate *= 0.5;
+                     break;
+                 default:
+                     sampleRate = 44100;
+                     break;
+             }
+
              // local files (1076 as default in menu)
              var hrtfIds = [1037, 1076, 1129];
 
              var urls = hrtfIds.map(function(id) {
                  return './hrtf/IRC_' + id + '_C_HRIR_'
-                      + audioContext.sampleRate + '.sofa.json';
+                      + sampleRate + '.sofa.json';
              });
 
              return urls;
@@ -130,6 +146,7 @@
          function loadHrtfSet(url) {
              // invalidate current
              $hrtfSet.style.backgroundColor="rgba(255, 0, 0, 0.7)";
+             debugger;
              return binauralPanner
                .loadHrtfSet(url)
                .then( function () {

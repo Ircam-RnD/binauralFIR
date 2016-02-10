@@ -1,16 +1,16 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HrtfSet = undefined;
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Container for HRTF set.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @copyright 2015-2016 IRCAM, Paris, France
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @license BSD-3-Clause
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HrtfSet = undefined;
 
 var _glMatrix = require('gl-matrix');
 
@@ -46,17 +46,21 @@ var HrtfSet = exports.HrtfSet = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * @see Hrtfset#load
+   * See {@link HrtfSet#load}.
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {coordinatesType} [options.positionsType='gl']
+   * {@link HrtfSet#positionsType}
    * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link HrtfSet#filterPositionsType}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
-   * @param {Boolean} [options.filterAfterLoad = false] true to filter after
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
    * full load of SOFA file
+   * {@link HrtfSet#filterAfterLoad}
    */
 
   function HrtfSet() {
@@ -64,7 +68,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     _classCallCheck(this, HrtfSet);
 
-    this.audioContext = options.audioContext;
+    this._audioContext = options.audioContext;
 
     this._ready = false;
 
@@ -83,8 +87,10 @@ var HrtfSet = exports.HrtfSet = function () {
    * @param {coordinatesType} [type='gl']
    */
 
+
   _createClass(HrtfSet, [{
     key: 'applyFilterPositions',
+
 
     // ------------- public methods
 
@@ -94,27 +100,27 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * This is destructive.
      *
-     * @see HrtfSet#load
+     * See {@link HrtfSet#load}.
      */
     value: function applyFilterPositions() {
       var _this = this;
 
       // do not use getter for gl positions
       var filteredPositions = this._filterPositions.map(function (current) {
-        return _this.kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0]; // nearest data
+        return _this._kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0]; // nearest data
       });
 
       // filter out duplicates
       filteredPositions = [].concat(_toConsumableArray(new Set(filteredPositions)));
 
-      this.kdt = _KdTree2.default.tree.createKdTree(filteredPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
+      this._kdt = _KdTree2.default.tree.createKdTree(filteredPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
     }
 
     /**
      * Load an URL and generate the corresponding set of IR buffers.
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<(this|Error)>} resolve when the URL sucessfully
+     * @returns {Promise.<this|Error>} resolve when the URL sucessfully
      * loaded.
      */
 
@@ -176,7 +182,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Get the nearest point in the HRTF set, after a successful load.
      *
-     * @see HrtfSet#load
+     * See {@link HrtfSet#load}.
      *
      * @param {coordinates} positionRequest
      * @returns {HrtfSet.nearestType}
@@ -186,7 +192,7 @@ var HrtfSet = exports.HrtfSet = function () {
     key: 'nearest',
     value: function nearest(positionRequest) {
       var position = _coordinates2.default.typedToGl([], positionRequest, this.positionsType);
-      var nearest = this.kdt.nearest({
+      var nearest = this._kdt.nearest({
         x: position[0],
         y: position[1],
         z: position[2]
@@ -233,7 +239,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
       var positions = indicesPositionsFirs.map(function (value) {
         var impulseResponses = value[2];
-        var fir = _this3.audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this3.audioContext.sampleRate);
+        var fir = _this3._audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this3._audioContext.sampleRate);
         impulseResponses.forEach(function (samples, channel) {
           // do not use copyToChannel because of Safari <= 9
           fir.getChannelData(channel).set(samples);
@@ -248,7 +254,7 @@ var HrtfSet = exports.HrtfSet = function () {
         };
       });
 
-      this.kdt = _KdTree2.default.tree.createKdTree(positions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
+      this._kdt = _KdTree2.default.tree.createKdTree(positions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
       return this;
     }
 
@@ -260,7 +266,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<Number>} indices
      * @param {Array.<coordinates>} positions
      * @param {Array.<Float32Array>} firs
-     * @returns {Promise.<(Array|Error)>}
+     * @returns {Promise.<Array|Error>}
      * @throws {Error} assertion that the channel count is 2
      */
 
@@ -278,8 +284,8 @@ var HrtfSet = exports.HrtfSet = function () {
         var sofaFirsChannelsPromises = sofaFirChannels.map(function (fir) {
           return (0, _utilities.resampleFloat32Array)({
             inputSamples: fir,
-            inputSampleRate: _this4.sofaSampleRate,
-            outputSampleRate: _this4.audioContext.sampleRate
+            inputSampleRate: _this4._sofaSampleRate,
+            outputSampleRate: _this4._audioContext.sampleRate
           });
         });
         return Promise.all(sofaFirsChannelsPromises).then(function (firChannels) {
@@ -298,7 +304,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {Promise.<(Object|Error)>}
+     * @returns {Promise.<Object|Error>}
      */
 
   }, {
@@ -340,7 +346,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} sourceUrl
-     * @returns {(Promise.<Array.<Number>>|Error)}
+     * @returns {Promise.<Array.<Number>|Error>}
      */
 
   }, {
@@ -388,7 +394,7 @@ var HrtfSet = exports.HrtfSet = function () {
               // filter out duplicates
               nearestIndices = [].concat(_toConsumableArray(new Set(nearestIndices)));
 
-              _this5.sofaUrl = sourceUrl;
+              _this5._sofaUrl = sourceUrl;
               resolve(nearestIndices);
             })();
           } catch (error) {
@@ -409,7 +415,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {String} url
-     * @returns {Promise.<(this|Error)>}
+     * @returns {Promise.<this|Error>}
      */
 
   }, {
@@ -439,7 +445,7 @@ var HrtfSet = exports.HrtfSet = function () {
             }), // full
             sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
               _this6._createKdTree(indicesPositionsFirs);
-              _this6.sofaUrl = url;
+              _this6._sofaUrl = url;
               resolve(_this6);
             });
           } catch (error) {
@@ -462,7 +468,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @param {Array.<String>} sourceUrl
      * @param {Array.<Number>} indices
      * @param {Object} dataSet
-     * @returns {Promise.<(this|Error)>}
+     * @returns {Promise.<this|Error>}
      */
 
   }, {
@@ -529,8 +535,8 @@ var HrtfSet = exports.HrtfSet = function () {
         throw new Error('SOFA data type is not FIR');
       }
 
-      this.sofaMetaData = data.metaData;
-      this.sofaSampleRate = data['Data.SamplingRate'].data[0];
+      this._sofaMetaData = data.metaData;
+      this._sofaSampleRate = data['Data.SamplingRate'].data[0];
 
       // Convert listener position, up, and view to SOFA cartesian,
       // to generate a SOFA-to-GL look-at mat4.
@@ -590,6 +596,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get coordinates type for positions.
+     *
      * @returns {coordinatesType}
      */
     ,
@@ -599,6 +606,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Set coordinates type for filter positions.
+     *
      * @param {coordinatesType} [type] undefined to use positionsType
      */
 
@@ -610,6 +618,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get coordinates type for filter positions.
+     *
      * @param {coordinatesType} type
      */
     ,
@@ -619,6 +628,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Set filter positions.
+     *
      * @param {Array.<coordinates>} [positions] undefined for no filtering.
      */
 
@@ -655,6 +665,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get filter positions.
+     *
      * @param {Array.<coordinates>} positions
      */
     ,
@@ -714,7 +725,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Test whether an HRTF set is actually loaded.
      *
-     * @see HrtfSet#load
+     * See {@link HrtfSet#load}.
      *
      * @returns {Boolean} false before any successful load, true after.
      *
@@ -724,6 +735,42 @@ var HrtfSet = exports.HrtfSet = function () {
     key: 'isReady',
     get: function get() {
       return this._ready;
+    }
+
+    /**
+     * Get the URL used to actually load the HRTF set.
+     *
+     * @returns {String} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaUrl',
+    get: function get() {
+      return this._sofaUrl;
+    }
+
+    /**
+     * Get the original sample-rate from the SOFA URL already loaded.
+     *
+     * @returns {Number} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaSampleRate',
+    get: function get() {
+      return this._sofaSampleRate;
+    }
+
+    /**
+     * Get the meta-data from the SOFA URL already loaded.
+     *
+     * @returns {Object} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaMetaData',
+    get: function get() {
+      return this._sofaMetaData;
     }
   }]);
 

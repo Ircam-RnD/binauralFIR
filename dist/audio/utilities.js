@@ -1,10 +1,11 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 exports.dBToLin = dBToLin;
 exports.createDiracBuffer = createDiracBuffer;
 exports.createNoiseBuffer = createNoiseBuffer;
@@ -62,9 +63,6 @@ function createDiracBuffer() {
 /**
  * Create a noise buffer.
  *
- * Warning: the default length is 2 samples,
- * to by-pass a bug in Safari ≤ 9.
- *
  * @param {Object} options
  * @param {AudioContext} options.audioContext must be defined
  * @param {Number} [options.channelCount=1]
@@ -101,7 +99,7 @@ function createNoiseBuffer() {
  * @param {Array} options.inputSamples input array
  * @param {Number} options.inputSampleRate in Hertz
  * @param {Number} [options.outputSampleRate=options.inputSampleRate]
- * @returns {Promise.<(Float32Array|Error)>}
+ * @returns {Promise.<Float32Array|Error>}
  */
 function resampleFloat32Array() {
   var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];

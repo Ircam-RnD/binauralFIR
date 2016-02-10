@@ -34,6 +34,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @type {String}
  */
 
+/**
+ * Convert SOFA cartesian coordinates to openGL.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
 function sofaCartesianToGl(out, a) {
   // copy to handle in-place
   var x = a[0];
@@ -45,35 +52,44 @@ function sofaCartesianToGl(out, a) {
   out[2] = -x;
 
   return out;
-} /**
-   * @fileOverview SOFA convention to and from openGL convention.
-   *
-   * SOFA distances are in metres, angles in degrees.
-   *
-   * <pre>
-   *
-   * SOFA          +z  +x             openGL    +y
-   *                | /                          |
-   *                |/                           |
-   *         +y ----o                            o---- +x
-   *                                            /
-   *                                           /
-   *                                          +z
-   *
-   * SOFA.x = -openGL.z               openGL.x = -SOFA.y
-   * SOFA.y = -openGL.x               openGL.y =  SOFA.z
-   * SOFA.z =  openGL.y               openGL.z = -SOFA.x
-   *
-   * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
-   * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
-   * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
-   *
-   * </pre>
-   *
-   * @author Jean-Philippe.Lambert@ircam.fr
-   * @copyright 2015-2016 IRCAM, Paris, France
-   * @license BSD-3-Clause
-   */
+}
+
+/**
+ * Convert openGL coordinates to SOFA cartesian.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+/**
+ * @fileOverview SOFA convention to and from openGL convention.
+ *
+ * SOFA distances are in metres, angles in degrees.
+ *
+ * <pre>
+ *
+ * SOFA          +z  +x             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *         +y ----o                            o---- +x
+ *                                            /
+ *                                           /
+ *                                          +z
+ *
+ * SOFA.x = -openGL.z               openGL.x = -SOFA.y
+ * SOFA.y = -openGL.x               openGL.y =  SOFA.z
+ * SOFA.z =  openGL.y               openGL.z = -SOFA.x
+ *
+ * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
+ * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
+ * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
+ *
+ * </pre>
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
 
 function glToSofaCartesian(out, a) {
   // copy to handle in-place
@@ -88,6 +104,13 @@ function glToSofaCartesian(out, a) {
   return out;
 }
 
+/**
+ * Convert SOFA cartesian coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
 function sofaCartesianToSofaSpherical(out, a) {
   // copy to handle in-place
   var x = a[0];
@@ -105,6 +128,13 @@ function sofaCartesianToSofaSpherical(out, a) {
   return out;
 }
 
+/**
+ * Convert SOFA spherical coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
 function sofaSphericalToSofaCartesian(out, a) {
   // copy to handle in-place
   var azimuth = a[0];
@@ -120,12 +150,11 @@ function sofaSphericalToSofaCartesian(out, a) {
 }
 
 /**
- * Convert sofaSpherical coordinates in SOFA convention, to cartesian in openGL
- * convention.
+ * Convert SOFA spherical coordinates to openGL.
  *
- * @param {vec3} out as an array of [x, y, z]. In-place if out === a
- * @param {vec3} a as an array of [azimuth, elevation, distance]
- * @returns {vec3} out
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
  */
 function sofaSphericalToGl(out, a) {
   // copy to handle in-place
@@ -141,6 +170,13 @@ function sofaSphericalToGl(out, a) {
   return out;
 }
 
+/**
+ * Convert openGL coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
 function glToSofaSpherical(out, a) {
   // copy to handle in-place
   // difference to avoid generating -0 out of 0
@@ -159,6 +195,15 @@ function glToSofaSpherical(out, a) {
   return out;
 }
 
+/**
+ * Convert typed coordinates to SOFA cartesian.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
 function typedToSofaCartesian(out, a, type) {
   switch (type) {
     case 'sofaCartesian':
@@ -177,6 +222,15 @@ function typedToSofaCartesian(out, a, type) {
   return out;
 }
 
+/**
+ * Convert typed coordinates to openGL.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
 function typedToGl(out, a, type) {
   switch (type) {
     case 'gl':
@@ -199,6 +253,15 @@ function typedToGl(out, a, type) {
   return out;
 }
 
+/**
+ * Convert openGL coordinates to typed ones.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
 function glToTyped(out, a, type) {
   switch (type) {
     case 'gl':
