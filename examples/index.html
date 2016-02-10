@@ -8,6 +8,11 @@
         <script src="./js/jquery-1.11.1.min.js"></script>
         <script src="./js/jquery.knob.js"></script>
         <style type="text/css">
+         .warning
+         {
+             background-color: rgba(255, 0, 0, 0.7);
+         }
+
          input[type=range][orient=vertical]
          {
              writing-mode: bt-lr; /* IE */
@@ -30,7 +35,7 @@
         <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
 
         <select id="hrtf-set"></select>
-        <div id="sample-rate-warning"></div>
+        <div id="sample-rate-warning" class="warning"></div>
 
         <center>
             <pre> Azimuth </pre>
@@ -104,17 +109,24 @@
 
              // local HRTF sets FIR sample-rates are 44100 and 48000 Hz
              var sampleRate = audioContext.sampleRate;
-             switch (sampleRate) {
-                 case 44100:
-                 case 48000:
-                     break;
-                 case 88200:
-                 case 96000:
+             if (sampleRate !== 44100 || sampleRate !== 48000) {
+                 $sampleRateWarning
+                     = document.querySelector('#sample-rate-warning');
+
+                 // Chrome 48 crashes on OX 10.9 at 96000 Hz
+                 // Firefox and Safari seem to re-sample correctly
+                 $sampleRateWarning.innerHTML
+                     = `Audio sample-rate at ${sampleRate} Hz `
+                     + `is unsupported... Please use 44100 or 48000 Hz instead. `
+                     + `(Trying to re-sample HRIRs.)`
+
+                 window.alert($sampleRateWarning.innerHTML);
+
+                 if (sampleRate === 88200 || sampleRate === 96000) {
                      sampleRate *= 0.5;
-                     break;
-                 default:
+                 } else {
                      sampleRate = 44100;
-                     break;
+                 }
              }
 
              // local files (1076 as default in menu)
@@ -145,12 +157,11 @@
 
          function loadHrtfSet(url) {
              // invalidate current
-             $hrtfSet.style.backgroundColor="rgba(255, 0, 0, 0.7)";
-             debugger;
+             $hrtfSet.classList.add('warning');
              return binauralPanner
                .loadHrtfSet(url)
                .then( function () {
-                   $hrtfSet.style.backgroundColor="";
+                   $hrtfSet.classList.remove('warning');
                });
          }
         </script>

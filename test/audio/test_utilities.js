@@ -45,7 +45,7 @@ test(`${prefix}: resample`, (assert) => {
     })
       .then( (outputSamples) => {
         assert.deepEquals(outputSamples, inputSamples,
-                          'no change after re-sampling to same sample-rate.');
+                          'no change after re-sampling to the same sample-rate.');
       })
   );
 

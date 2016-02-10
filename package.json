@@ -11,9 +11,10 @@
     "browserify": "browserify dist/index.js --standalone binaural > binaural.js",
     "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
     "doc": "esdoc -c esdoc.json",
-    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' | tape-run",
+    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
     "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
-    "watch": "watch 'npm run compile' ./src/"
+    "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
+    "watch": "watch 'npm run browserify' ./src/"
   },
   "authors": [
     "Arnau Julià <arnau.julia@gmail.com>",
