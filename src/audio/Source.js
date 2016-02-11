@@ -21,7 +21,7 @@ export class Source {
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0, 0, 0]] in 'gl' coordinates type.
+   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.
    * {@link Source#position}
    * @param {Number} [crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}

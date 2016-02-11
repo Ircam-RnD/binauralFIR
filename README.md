@@ -51,7 +51,7 @@ See the files in the geometry, for conversions:
 
 Please see the [examples directory] for complete code, and the [examples online].
 
-See also the API documentation for the complete options.
+See also the [API documentation] for the complete options.
 
 ### BinauralPanner ###
 Given an audio element, and a global binaural module,
@@ -226,7 +226,7 @@ transcription. (See the [jsdoc.json](./jsdoc.json) and
 
 This module is released under the [BSD-3-Clause] license.
 
-## Acknowledgments
+## Acknowledgements
 
 This research was developped by both [Acoustic And Cognitive Spaces] and
 [Analysis of Musical Practices] IRCAM research teams. A previous version
