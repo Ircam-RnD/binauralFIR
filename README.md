@@ -172,6 +172,7 @@ urlsFound.then(function(urls) {
 ## Issues ##
 
 - re-sampling is broken (Chrome 48 issue)
+- no HTTPS on server, yet (mixed content blocked)
 
 ## To do ##
 
@@ -235,7 +236,7 @@ the SOFA standard, and the access to a server, is part of the [CoSiMa]
 project, funded by ANR.
 
 [AirBnB]: https://github.com/airbnb/javascript/
-[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/next/doc/
+[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/doc/
 [API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html
 [Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
 [Analysis of Musical Practices]: http://apm.ircam.fr/
@@ -243,14 +244,14 @@ project, funded by ANR.
 [BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause
 [T. Carpentier]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
 [CoSiMa]: http://cosima.ircam.fr/
-[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/next/dist/
+[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/
 [documentation]: #documentation
 [ES2015]: https://babeljs.io/docs/learn-es2015/
-[examples directory]: https://github.com/Ircam-RnD/binauralFIR/next/examples/
-[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/next/examples/hrtf/
+[examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/
+[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/
 [examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html
 [JSDoc]: http://usejsdoc.org/
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
-[src directory]: https://github.com/Ircam-RnD/binauralFIR/next/src
+[src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
 [Web Audio API]: https://webaudio.github.io/web-audio-api/
