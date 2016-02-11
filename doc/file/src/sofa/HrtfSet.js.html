@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/sofa/HrtfSet.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/Ircam-RnD/binauralFIR" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">audio</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html">BinauralPanner</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audio/Source.js~Source.html">Source</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDiracBuffer">createDiracBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createNoiseBuffer">createNoiseBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-dBToLin">dBToLin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-resampleFloat32Array">resampleFloat32Array</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">common</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEquals">almostEquals</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEqualsModulo">almostEqualsModulo</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">geometry</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distance">distance</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sin">sin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-conformSofaType">conformSofaType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSofa">parseSofa</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/sofa/HrtfSet.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * @fileOverview Container for HRTF set: load a set from an URL and get
+ * filters from corresponding positions.
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+import glMatrix from &apos;gl-matrix&apos;;
+
+import { parseDataSet } from &apos;./parseDataSet&apos;;
+import { parseSofa } from &apos;./parseSofa&apos;;
+import { conformSofaType } from &apos;./parseSofa&apos;;
+import coordinates from &apos;../geometry/coordinates&apos;;
+import kdTree from &apos;../geometry/KdTree&apos;;
+import { resampleFloat32Array } from &apos;../audio/utilities&apos;;
+
+/**
+ * Container for HRTF set.
+ */
+export class HrtfSet {
+
+  /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an URL.
+   *
+   * See {@link HrtfSet#load}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {coordinatesType} [options.positionsType=&apos;gl&apos;]
+   * {@link HrtfSet#positionsType}
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link HrtfSet#filterPositionsType}
+   * @param {Array.&lt;coordinates&gt;} [options.filterPositions=undefined]
+   * {@link HrtfSet#filterPositions}
+   * array of positions to filter. Use undefined to use all positions.
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * {@link HrtfSet#filterAfterLoad}
+   */
+  constructor(options = {}) {
+    this._audioContext = options.audioContext;
+
+    this._ready = false;
+
+    this.positionsType = options.positionsType;
+
+    this.filterPositionsType = options.filterPositionsType;
+    this.filterPositions = options.filterPositions;
+
+    this.filterAfterLoad = options.filterAfterLoad;
+  }
+
+  // ------------ accessors
+
+  /**
+   * Set coordinates type for positions.
+   * @param {coordinatesType} [type=&apos;gl&apos;]
+   */
+  set positionsType(type) {
+    this._positionsType = (typeof type !== &apos;undefined&apos;
+                           ? type
+                           : &apos;gl&apos;);
+  }
+
+  /**
+   * Get coordinates type for positions.
+   *
+   * @returns {coordinatesType}
+   */
+  get positionsType() {
+    return this._positionsType;
+  }
+
+  /**
+   * Set coordinates type for filter positions.
+   *
+   * @param {coordinatesType} [type] undefined to use positionsType
+   */
+  set filterPositionsType(type) {
+    this._filterPositionsType = (typeof type !== &apos;undefined&apos;
+                                 ? type
+                                 : this.positionsType);
+  }
+
+  /**
+   * Get coordinates type for filter positions.
+   *
+   * @param {coordinatesType} type
+   */
+  get filterPositionsType() {
+    return this._filterPositionsType;
+  }
+
+  /**
+   * Set filter positions.
+   *
+   * @param {Array.&lt;coordinates&gt;} [positions] undefined for no filtering.
+   */
+  set filterPositions(positions) {
+    if (typeof positions === &apos;undefined&apos;) {
+      this._filterPositions = undefined;
+    } else {
+      switch (this.filterPositionsType) {
+        case &apos;gl&apos;:
+          this._filterPositions = positions.map( (current) =&gt; {
+            return current.slice(0); // copy
+          });
+          break;
+
+        case &apos;sofaCartesian&apos;:
+          this._filterPositions = positions.map( (current) =&gt; {
+            return coordinates.sofaCartesianToGl([], current);
+          });
+          break;
+
+        case &apos;sofaSpherical&apos;:
+          this._filterPositions = positions.map( (current) =&gt; {
+            return coordinates.sofaSphericalToGl([], current);
+          });
+          break;
+
+        default:
+          throw new Error(&apos;Bad filter type&apos;);
+      }
+    }
+  }
+
+  /**
+   * Get filter positions.
+   *
+   * @param {Array.&lt;coordinates&gt;} positions
+   */
+  get filterPositions() {
+    let positions;
+    if (typeof this._filterPositions !== &apos;undefined&apos;) {
+      switch (this.filterPositionsType) {
+        case &apos;gl&apos;:
+          positions = this._filterPositions.map( (current) =&gt; {
+            return current.slice(0); // copy
+          });
+          break;
+
+        case &apos;sofaCartesian&apos;:
+          positions = this._filterPositions.map( (current) =&gt; {
+            return coordinates.glToSofaCartesian([], current);
+          });
+          break;
+
+        case &apos;sofaSpherical&apos;:
+          positions = this._filterPositions.map( (current) =&gt; {
+            return coordinates.glToSofaSpherical([], current);
+          });
+          break;
+
+        default:
+          throw new Error(&apos;Bad filter type&apos;);
+      }
+    }
+    return positions;
+  }
+
+  /**
+   * Set post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @param {Boolean} [post=false]
+   */
+  set filterAfterLoad(post) {
+    this._filterAfterLoad = (typeof post !== &apos;undefined&apos;
+                        ? post
+                        : false);
+  }
+
+  /**
+   * Get post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @returns {Boolean}
+   */
+  get filterAfterLoad() {
+    return this._filterAfterLoad;
+  }
+
+  /**
+   * Test whether an HRTF set is actually loaded.
+   *
+   * See {@link HrtfSet#load}.
+   *
+   * @returns {Boolean} false before any successful load, true after.
+   *
+   */
+  get isReady() {
+    return this._ready;
+  }
+
+  /**
+   * Get the URL used to actually load the HRTF set.
+   *
+   * @returns {String} that is undefined before a successfully load.
+   */
+  get sofaUrl() {
+    return this._sofaUrl;
+  }
+
+  /**
+   * Get the original sample-rate from the SOFA URL already loaded.
+   *
+   * @returns {Number} that is undefined before a successfully load.
+   */
+  get sofaSampleRate() {
+    return this._sofaSampleRate;
+  }
+
+  /**
+   * Get the meta-data from the SOFA URL already loaded.
+   *
+   * @returns {Object} that is undefined before a successfully load.
+   */
+  get sofaMetaData() {
+    return this._sofaMetaData;
+  }
+
+  // ------------- public methods
+
+  /**
+   * Apply filter positions to an existing set of HRTF. (After a successful
+   * load.)
+   *
+   * This is destructive.
+   *
+   * See {@link HrtfSet#load}.
+   */
+  applyFilterPositions() {
+    // do not use getter for gl positions
+    let filteredPositions = this._filterPositions.map( (current) =&gt; {
+      return this._kdt.nearest({ x: current[0], y: current[1], z: current[2] },
+                              1)
+        .pop()[0]; // nearest data
+    });
+
+    // filter out duplicates
+    filteredPositions = [ ...new Set(filteredPositions) ];
+
+    this._kdt = kdTree.tree.createKdTree(filteredPositions,
+                                        kdTree.distanceSquared,
+                                        [&apos;x&apos;, &apos;y&apos;, &apos;z&apos;]);
+  }
+
+  /**
+   * Load an URL and generate the corresponding set of IR buffers.
+   *
+   * @param {String} sourceUrl
+   * @returns {Promise.&lt;this|Error&gt;} resolve when the URL sucessfully
+   * loaded.
+   */
+  load(sourceUrl) {
+    const extension = sourceUrl.split(&apos;.&apos;).pop();
+
+    const url = (extension === &apos;sofa&apos;
+                 ? `${sourceUrl}.json`
+                 : sourceUrl);
+
+    let promise;
+
+    // need a server for partial downloading (&quot;sofa&quot; extension may be naive)
+    const preFilter = typeof this._filterPositions !== &apos;undefined&apos;
+            &amp;&amp; !this.filterAfterLoad
+            &amp;&amp; extension === &apos;sofa&apos;;
+    if (preFilter) {
+      promise = Promise.all([
+        this._loadMetaAndPositions(sourceUrl),
+        this._loadDataSet(sourceUrl),
+      ])
+        .then( (indicesAndDataSet) =&gt; {
+          const indices = indicesAndDataSet[0];
+          const dataSet = indicesAndDataSet[1];
+          return this._loadSofaPartial(sourceUrl, indices, dataSet)
+            .then( () =&gt; {
+              this._ready = true;
+              return this; // final resolve
+            });
+        })
+        .catch( () =&gt; {
+          // when pre-fitering fails, for any reason, try to post-filter
+          // console.log(`Error while partial loading of ${sourceUrl}. `
+          //             + `${error.message}. `
+          //             + `Load full and post-filtering, instead.`);
+          return this._loadSofaFull(url)
+            .then( () =&gt; {
+              this.applyFilterPositions();
+              this._ready = true;
+              return this; // final resolve
+            });
+        });
+    } else {
+      promise = this._loadSofaFull(url)
+        .then( () =&gt; {
+          if (typeof this._filterPositions !== &apos;undefined&apos;
+              &amp;&amp; this.filterAfterLoad) {
+            this.applyFilterPositions();
+          }
+          this._ready = true;
+          return this; // final resolve
+        });
+    }
+
+    return promise;
+  }
+
+  /**
+   * @typedef HrtfSet.nearestType
+   * @type {Object}
+   * @property {Number} distance from the request
+   * @property {AudioBuffer} fir 2-channels impulse response
+   * @property {Number} index original index in the SOFA set
+   * @property {coordinates} position using positionsType coordinates
+   * system.
+   */
+
+  /**
+   * Get the nearest point in the HRTF set, after a successful load.
+   *
+   * See {@link HrtfSet#load}.
+   *
+   * @param {coordinates} positionRequest
+   * @returns {HrtfSet.nearestType}
+   */
+  nearest(positionRequest) {
+    const position = coordinates.typedToGl([], positionRequest, this.positionsType);
+    const nearest = this._kdt.nearest({
+      x: position[0],
+      y: position[1],
+      z: position[2],
+    }, 1).pop(); // nearest only
+    const data = nearest[0];
+    coordinates.glToTyped(position, [data.x, data.y, data.z], this.positionsType);
+    return {
+      distance: nearest[1],
+      fir: data.fir,
+      index: data.index,
+      position,
+    };
+  }
+
+  /**
+   * Get the FIR AudioBuffer that corresponds to the closest position in
+   * the set.
+   * @param {coordinates} positionRequest
+   * @returns {AudioBuffer}
+   */
+  nearestFir(positionRequest) {
+    return this.nearest(positionRequest).fir;
+  }
+
+  // ----------- private methods
+
+  /**
+   * Creates a kd-tree out of the specified indices, positions, and FIR.
+   *
+   * @private
+   *
+   * @param {Array}
+   * indicesPositionsFirs
+   * @returns {this}
+   */
+  _createKdTree(indicesPositionsFirs) {
+    const positions = indicesPositionsFirs.map( (value) =&gt; {
+      const impulseResponses = value[2];
+      const fir = this._audioContext.createBuffer(
+        impulseResponses.length,
+        impulseResponses[0].length,
+        this._audioContext.sampleRate);
+      impulseResponses.forEach( (samples, channel) =&gt; {
+        // do not use copyToChannel because of Safari &lt;= 9
+        fir.getChannelData(channel).set(samples);
+      });
+
+      return {
+        index: value[0],
+        x: value[1][0],
+        y: value[1][1],
+        z: value[1][2],
+        fir,
+      };
+    });
+
+    this._kdt = kdTree.tree.createKdTree(positions,
+                                        kdTree.distanceSquared,
+                                        [&apos;x&apos;, &apos;y&apos;, &apos;z&apos;]);
+    return this;
+  }
+
+  /**
+   * Asynchronously create Float32Arrays, with possible re-sampling.
+   *
+   * @private
+   *
+   * @param {Array.&lt;Number&gt;} indices
+   * @param {Array.&lt;coordinates&gt;} positions
+   * @param {Array.&lt;Float32Array&gt;} firs
+   * @returns {Promise.&lt;Array|Error&gt;}
+   * @throws {Error} assertion that the channel count is 2
+   */
+  _generateIndicesPositionsFirs(indices, positions, firs) {
+    const sofaFirsPromises = firs.map( (sofaFirChannels, index) =&gt; {
+      const channelCount = sofaFirChannels.length;
+      if (channelCount !== 2) {
+        throw new Error(`Bad number of channels`
+                        + ` for IR index ${indices[index]}`
+                        + ` (${channelCount} instead of 2)`);
+      }
+
+      const sofaFirsChannelsPromises = sofaFirChannels.map( (fir) =&gt; {
+        return resampleFloat32Array({
+          inputSamples: fir,
+          inputSampleRate: this._sofaSampleRate,
+          outputSampleRate: this._audioContext.sampleRate,
+        });
+      });
+      return Promise.all(sofaFirsChannelsPromises)
+        .then( (firChannels) =&gt; {
+          return [
+            indices[index],
+            positions[index],
+            firChannels,
+          ];
+        })
+        .catch( (error) =&gt; {
+          // re-throw
+          throw new Error(
+            `Unable to re-sample impulse response ${index}. ${error.message}`);
+        });
+    });
+    return Promise.all(sofaFirsPromises);
+  }
+
+  /**
+   * Try to load a data set from a SOFA URL.
+   *
+   * @private
+   *
+   * @param {String} sourceUrl
+   * @returns {Promise.&lt;Object|Error&gt;}
+   */
+  _loadDataSet(sourceUrl) {
+    const promise = new Promise( (resolve, reject) =&gt; {
+      const ddsUrl = `${sourceUrl}.dds`;
+      const request = new window.XMLHttpRequest();
+      request.open(&apos;GET&apos;, ddsUrl);
+      request.onerror = () =&gt; {
+        reject(new Error(`Unable to GET ${ddsUrl}, status ${request.status} `
+                         + `${request.responseText}`) );
+      };
+
+      request.onload = () =&gt; {
+        if (request.status &lt; 200 || request.status &gt;= 300) {
+          request.onerror();
+          return;
+        }
+
+        try {
+          const dds = parseDataSet(request.response);
+          resolve(dds);
+        } catch (error) {
+          // re-throw
+          reject(new Error(`Unable to parse ${ddsUrl}. ${error.message}`) );
+        }
+      }; // request.onload
+
+      request.send();
+    });
+
+    return promise;
+  }
+
+  /**
+   * Try to load meta-data and positions from a SOFA URL, to get the
+   * indices closest to the filter positions.
+   *
+   * @private
+   *
+   * @param {String} sourceUrl
+   * @returns {Promise.&lt;Array.&lt;Number&gt;|Error&gt;}
+   */
+  _loadMetaAndPositions(sourceUrl) {
+    const promise = new Promise( (resolve, reject) =&gt; {
+      const positionsUrl = `${sourceUrl}.json?`
+              + `ListenerPosition,ListenerUp,ListenerView,SourcePosition,`
+              + `Data.Delay,Data.SamplingRate,`
+              + `EmitterPosition,ReceiverPosition,RoomVolume`; // meta
+
+      const request = new window.XMLHttpRequest();
+      request.open(&apos;GET&apos;, positionsUrl);
+      request.onerror = () =&gt; {
+        reject(new Error(`Unable to GET ${positionsUrl}, status ${request.status} `
+                         + `${request.responseText}`) );
+      };
+
+      request.onload = () =&gt; {
+        if (request.status &lt; 200 || request.status &gt;= 300) {
+          request.onerror();
+          return;
+        }
+
+        try {
+          const data = parseSofa(request.response);
+          this._setMetaData(data);
+
+          const sourcePositions = this._sourcePositionsToGl(data);
+          const hrtfPositions = sourcePositions.map( (position, index) =&gt; {
+            return {
+              x: position[0],
+              y: position[1],
+              z: position[2],
+              index,
+            };
+          });
+
+          const kdt = kdTree.tree.createKdTree(
+            hrtfPositions,
+            kdTree.distanceSquared,
+            [&apos;x&apos;, &apos;y&apos;, &apos;z&apos;]);
+
+          let nearestIndices = this._filterPositions.map( (current) =&gt; {
+            return kdt.nearest({ x: current[0], y: current[1], z: current[2] },
+                               1)
+              .pop()[0] // nearest data
+              .index;
+          });
+
+          // filter out duplicates
+          nearestIndices = [ ...new Set(nearestIndices) ];
+
+          this._sofaUrl = sourceUrl;
+          resolve(nearestIndices);
+        } catch (error) {
+          // re-throw
+          reject(new Error(`Unable to parse ${positionsUrl}. ${error.message}`) );
+        }
+      }; // request.onload
+
+      request.send();
+    });
+
+    return promise;
+  }
+
+  /**
+   * Try to load full SOFA URL.
+   *
+   * @private
+   *
+   * @param {String} url
+   * @returns {Promise.&lt;this|Error&gt;}
+   */
+  _loadSofaFull(url) {
+    const promise = new Promise( (resolve, reject) =&gt; {
+      const request = new window.XMLHttpRequest();
+      request.open(&apos;GET&apos;, url);
+      request.onerror = () =&gt; {
+        reject(new Error(`Unable to GET ${url}, status ${request.status} `
+                         + `${request.responseText}`) );
+      };
+
+      request.onload = () =&gt; {
+        if (request.status &lt; 200 || request.status &gt;= 300) {
+          request.onerror();
+          return;
+        }
+
+        try {
+          const data = parseSofa(request.response);
+          this._setMetaData(data);
+          const sourcePositions = this._sourcePositionsToGl(data);
+          this._generateIndicesPositionsFirs(
+            sourcePositions.map( (position, index) =&gt; index), // full
+            sourcePositions,
+            data[&apos;Data.IR&apos;].data
+          )
+            .then( (indicesPositionsFirs) =&gt; {
+              this._createKdTree(indicesPositionsFirs);
+              this._sofaUrl = url;
+              resolve(this);
+            });
+
+        } catch (error) {
+          // re-throw
+          reject(new Error(`Unable to parse ${url}. ${error.message}`) );
+        }
+      }; // request.onload
+
+      request.send();
+    });
+
+    return promise;
+  }
+
+  /**
+   * Try to load partial data from a SOFA URL.
+   *
+   * @private
+   *
+   * @param {Array.&lt;String&gt;} sourceUrl
+   * @param {Array.&lt;Number&gt;} indices
+   * @param {Object} dataSet
+   * @returns {Promise.&lt;this|Error&gt;}
+   */
+  _loadSofaPartial(sourceUrl, indices, dataSet) {
+    const urlPromises = indices.map( (index) =&gt; {
+      const urlPromise = new Promise( (resolve, reject) =&gt; {
+        const positionUrl = `${sourceUrl}.json?`
+                + `SourcePosition[${index}][0:1:${dataSet.SourcePosition.C - 1}],`
+                + `Data.IR[${index}][0:1:${dataSet[&apos;Data.IR&apos;].R - 1}]`
+                + `[0:1:${dataSet[&apos;Data.IR&apos;].N - 1}]`;
+
+        const request = new window.XMLHttpRequest();
+        request.open(&apos;GET&apos;, positionUrl);
+        request.onerror = () =&gt; {
+          reject(new Error(`Unable to GET ${positionUrl}, status ${request.status} `
+                           + `${request.responseText}`) );
+        };
+
+        request.onload = () =&gt; {
+          if (request.status &lt; 200 || request.status &gt;= 300) {
+            request.onerror();
+          }
+
+          try {
+            const data = parseSofa(request.response);
+            // (meta-data is already loaded)
+
+            const sourcePositions = this._sourcePositionsToGl(data);
+            this._generateIndicesPositionsFirs([index],
+                                               sourcePositions,
+                                               data[&apos;Data.IR&apos;].data)
+              .then( (indicesPositionsFirs) =&gt; {
+                // One position per URL here
+                // Array made of multiple promises, later
+                resolve(indicesPositionsFirs[0]);
+              });
+          } catch (error) {
+            // re-throw
+            reject(new Error(
+              `Unable to parse ${positionUrl}. ${error.message}`) );
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return urlPromise;
+    });
+
+    return Promise.all(urlPromises)
+      .then( (indicesPositionsFirs) =&gt; {
+        this._createKdTree(indicesPositionsFirs);
+        return this; // final resolve
+      });
+  }
+
+  /**
+   * Set meta-data.
+   *
+   * @private
+   *
+   * @param {Object} data
+   * @throws {Error} assertion for FIR data.
+   */
+  _setMetaData(data) {
+    if (data.metaData.DataType !== &apos;FIR&apos;) {
+      throw new Error(&apos;SOFA data type is not FIR&apos;);
+    }
+
+    this._sofaMetaData = data.metaData;
+    this._sofaSampleRate = data[&apos;Data.SamplingRate&apos;].data[0];
+
+    // Convert listener position, up, and view to SOFA cartesian,
+    // to generate a SOFA-to-GL look-at mat4.
+    // Default SOFA type is &apos;cartesian&apos; (see table D.4A).
+
+    const listenerPosition = coordinates.typedToSofaCartesian(
+      [], data.ListenerPosition.data[0],
+      conformSofaType(data.ListenerPosition.Type || &apos;cartesian&apos;) );
+
+    const listenerView = coordinates.typedToSofaCartesian(
+      [], data.ListenerView.data[0],
+      conformSofaType(data.ListenerView.Type || &apos;cartesian&apos;) );
+
+    const listenerUp = coordinates.typedToSofaCartesian(
+      [], data.ListenerUp.data[0],
+      conformSofaType(data.ListenerUp.Type || &apos;cartesian&apos;) );
+
+    this._sofaToGl = glMatrix.mat4.lookAt(
+      [], listenerPosition, listenerView, listenerUp);
+  }
+
+  /**
+   * Convert to GL coordinates, in-place.
+   *
+   * @private
+   *
+   * @param {Object} data
+   * @returns {Array.&lt;coordinates&gt;}
+   * @throws {Error}
+   */
+  _sourcePositionsToGl(data) {
+    const sourcePositions = data.SourcePosition.data; // reference
+    const sourcePositionsType = (typeof data.SourcePosition.Type !== &apos;undefined&apos;
+                                 ? data.SourcePosition.Type
+                                 : &apos;spherical&apos;); // default (SOFA Table D.4C)
+    switch (sourcePositionsType) {
+      case &apos;cartesian&apos;:
+        sourcePositions.forEach( (position) =&gt; {
+          glMatrix.vec3.transformMat4(position, position,
+                                      this._sofaToGl);
+        });
+        break;
+
+      case &apos;spherical&apos;:
+        sourcePositions.forEach( (position) =&gt; {
+          coordinates.sofaSphericalToSofaCartesian(position, position); // in-place
+          glMatrix.vec3.transformMat4(position, position,
+                                      this._sofaToGl);
+        });
+        break;
+
+      default:
+        throw new Error(&apos;Bad source position type&apos;);
+    }
+
+    return sourcePositions;
+  }
+
+}
+
+export default HrtfSet;
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.4)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/audio/BinauralPanner.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/Ircam-RnD/binauralFIR" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">audio</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html">BinauralPanner</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audio/Source.js~Source.html">Source</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDiracBuffer">createDiracBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createNoiseBuffer">createNoiseBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-dBToLin">dBToLin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-resampleFloat32Array">resampleFloat32Array</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">common</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEquals">almostEquals</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEqualsModulo">almostEqualsModulo</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">geometry</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distance">distance</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sin">sin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-conformSofaType">conformSofaType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSofa">parseSofa</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/audio/BinauralPanner.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * @fileOverview Multi-source binaural panner.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license CECILL-2.1
+ */
+
+import glMatrix from &apos;gl-matrix&apos;;
+
+import { glToTyped, typedToGl } from &apos;../geometry/coordinates&apos;;
+
+import HrtfSet from &apos;../sofa/HrtfSet&apos;;
+import Source from &apos;./Source&apos;;
+
+/**
+ * Binaural panner with multiple sources and a listener.
+ */
+export class BinauralPanner {
+
+  /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an HRTF URL.
+   *
+   * See {@link HrtfSet}.
+   * See {@link BinauralPanner#loadHrtfSet}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {coordinatesType} [options.positionsType=&apos;gl&apos;]
+   * {@link BinauralPanner#positionsType}
+   * @param {Number} [options.sourceCount=1]
+   * @param {Array.&lt;coordinates&gt;} [options.sourcePositions=undefined] must
+   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
+   * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link BinauralPanner#filterPositionsType}
+   * @param {Array.&lt;coordinates&gt;} [options.filterPositions=undefined]
+   * array of positions to filter. Use undefined to use all positions from the HRTF set.
+   * {@link BinauralPanner#filterPositions}
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * {@link BinauralPanner#listenerPosition}
+   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * {@link BinauralPanner#listenerUp}
+   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * {@link BinauralPanner#listenerView}
+   */
+  constructor(options = {}) {
+    this._audioContext = options.audioContext;
+
+    this.positionsType = options.positionsType;
+
+    const sourceCount = (typeof options.sourceCount !== &apos;undefined&apos;
+                         ? options.sourceCount
+                         : 1);
+
+    this._listenerOutdated = true;
+    this._listenerLookAt = [];
+
+    this._listenerPosition = [];
+    this.listenerPosition = (typeof options.listenerPosition !== &apos;undefined&apos;
+                             ? options.listenerPosition
+                             : glToTyped([], [0, 0, 0], this.positionsType) );
+
+    this._listenerUp = [];
+    this.listenerUp = (typeof options.listenerUp !== &apos;undefined&apos;
+                       ? options.listenerUp
+                       : glToTyped([], [0, 1, 0], this.positionsType) );
+
+    this._listenerView = [];
+    this.listenerView = (typeof options.listenerView !== &apos;undefined&apos;
+                         ? options.listenerView
+                         : glToTyped([], [0, 0, -1], this.positionsType) );
+
+    this._sourcesOutdated = new Array(sourceCount).fill(true);
+
+    this._sources = this._sourcesOutdated.map( () =&gt; {
+      return new Source({
+        audioContext: this._audioContext,
+        crossfadeDuration: options.crossfadeDuration,
+      });
+    });
+
+    this._sourcePositionsAbsolute = this._sourcesOutdated.map( () =&gt; {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this._sourcePositionsRelative = this._sourcesOutdated.map( () =&gt; {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this.hrtfSet = (typeof options.hrtfSet !== &apos;undefined&apos;
+                    ? options.hrtfSet
+                    : new HrtfSet({
+                      audioContext: this._audioContext,
+                      positionsType: &apos;gl&apos;,
+                    }) );
+
+    this.filterPositionsType = options.filterPositionsType;
+    this.filterPositions = options.filterPositions;
+    this.filterAfterLoad = options.filterAfterLoad;
+
+    if (typeof options.sourcePositions !== &apos;undefined&apos;) {
+      this.sourcePositions = options.sourcePositions;
+    }
+
+    this.update();
+  }
+
+  // ----------- accessors
+
+  /**
+   * Set coordinates type for positions.
+   *
+   * @param {coordinatesType} [type=&apos;gl&apos;]
+   */
+  set positionsType(type) {
+    this._positionsType = (typeof type !== &apos;undefined&apos;
+                           ? type
+                           : &apos;gl&apos;);
+  }
+
+  /**
+   * Get coordinates type for positions.
+   *
+   * @returns {coordinatesType}
+   */
+  get positionsType() {
+    return this._positionsType;
+  }
+
+  /**
+   * Refer an external HRTF set, and update sources. Its positions
+   * coordinate type must be &apos;gl&apos;.
+   *
+   * See {@link HrtfSet}.
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {HrtfSet} hrtfSet
+   * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+   * not &apos;gl&apos;.
+   */
+  set hrtfSet(hrtfSet) {
+    if (typeof hrtfSet !== &apos;undefined&apos;) {
+      if (hrtfSet.positionsType !== &apos;gl&apos;) {
+        throw new Error(`positions type of HRTF set must be &apos;gl&apos; `
+                        + `(and not &apos;${hrtfSet.positionsType}&apos;) `
+                        `for use with BinauralPannerNode`);
+      }
+      this._hrtfSet = hrtfSet;
+    } else {
+      throw new Error(`Undefined HRTF set for BinauralPanner`);
+    }
+
+    // update HRTF set references
+    this._sourcesOutdated.fill(true);
+    this._sources.forEach( (source) =&gt; {
+      source.hrtfSet = this._hrtfSet;
+    });
+
+    this.update();
+  }
+
+  /**
+   * Get the HrtfSet.
+   *
+   * @returns {HrtfSet}
+   */
+  get hrtfSet() {
+    return this._hrtfSet;
+  }
+
+  // ------------- HRTF set proxies
+
+  /**
+   * Set the filter positions of the HRTF set
+   *
+   * See {@link HrtfSet#filterPositions}.
+   *
+   * @param {Array.&lt;coordinates&gt;} positions
+   */
+  set filterPositions(positions) {
+    this._hrtfSet.filterPositions = positions;
+  }
+
+  /**
+   * Get the filter positions of the HRTF set
+   *
+   * See {@link HrtfSet#filterPositions}.
+   *
+   * @return {Array.&lt;coordinates&gt;} positions
+   */
+  get filterPositions() {
+    return this._hrtfSet.filterPositions;
+  }
+
+  /**
+   * Set coordinates type for positions.
+   *
+   * @param {coordinatesType} [type=&apos;gl&apos;]
+   */
+  set filterPositionsType(type) {
+    this._hrtfSet.filterPositionsType = (typeof type !== &apos;undefined&apos;
+                                         ? type
+                                         : this.positionsType);
+  }
+
+  /**
+   * Get coordinates type for filters.
+   *
+   * @returns {coordinatesType}
+   */
+  get filterPositionsType() {
+    return this._hrtfSet.filterPositionsType;
+  }
+
+  /**
+   * Set post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @param {Boolean} [post=false]
+   */
+   set filterAfterLoad(post) {
+     this._hrtfSet.filterAfterLoad = post;
+   }
+
+  /**
+   * Get post-filtering flag. When false, try to load a partial set of
+   * HRTF.
+   *
+   * @returns {Boolean}
+   */
+  get filterAfterLoad() {
+    return this._hrtfSet.filterAfterLoad;
+  }
+
+  /**
+   * Set listener position. It will update the relative positions of the
+   * sources after a call to the update method.
+   *
+   * Default value is [0, 0, 0] in &apos;gl&apos; coordinates.
+   *
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {coordinates} positionRequest
+   */
+  set listenerPosition(positionRequest) {
+    typedToGl(this._listenerPosition, positionRequest, this._positionsType);
+    this._listenerOutdated = true;
+  }
+
+  /**
+   * Get listener position.
+   *
+   * @returns {coordinates}
+   */
+  get listenerPosition() {
+    return glToTyped([], this._listenerPosition, this._positionsType);
+  }
+
+  /**
+   * Set listener up direction (not an absolute position). It will update
+   * the relative positions of the sources after a call to the update
+   * method.
+   *
+   * Default value is [0, 1, 0] in &apos;gl&apos; coordinates.
+   *
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {coordinates} positionRequest
+   */
+  set listenerUp(upRequest) {
+    typedToGl(this._listenerUp, upRequest, this._positionsType);
+    this._listenerOutdated = true;
+  }
+
+  /**
+   * Get listener up direction.
+   *
+   * @returns {coordinates}
+   */
+  get listenerUp() {
+    return glToTyped([], this._listenerUp, this._positionsType);
+  }
+
+  /**
+   * Set listener view, as an aiming position. It is an absolute position,
+   * and not a direction. It will update the relative positions of the
+   * sources after a call to the update method.
+   *
+   * Default value is [0, 0, -1] in &apos;gl&apos; coordinates.
+   *
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {coordinates} positionRequest
+   */
+  set listenerView(viewRequest) {
+    typedToGl(this._listenerView, viewRequest, this._positionsType);
+    this._listenerOutdated = true;
+  }
+
+  /**
+   * Get listener view direction.
+   *
+   * @returns {coordinates}
+   */
+  get listenerView() {
+    return glToTyped([], this._listenerView, this._positionsType);
+  }
+
+  /**
+   * Set the sources positions. It will update the relative positions after
+   * a call to the update method.
+   *
+   * See {@link BinauralPanner#update}.
+   * See {@link BinauralPanner#setSourcePositionByIndex}.
+   *
+   * @param {Array.&lt;coordinates&gt;} positionsRequest
+   * @throws {Error} if the length of positionsRequest is not the same as
+   * the number of sources
+   */
+  set sourcePositions(positionsRequest) {
+    if (positionsRequest.length !== this._sources.length) {
+      throw new Error(`Bad number of source positions: `
+                      + `${positionsRequest.length} `
+                      + `instead of ${this._sources.length}`);
+    }
+
+    positionsRequest.forEach( (position, index) =&gt; {
+      this._sourcesOutdated[index] = true;
+      this.setSourcePositionByIndex(index, position);
+    });
+  }
+
+  /**
+   * Get the source positions.
+   *
+   * @returns {Array.&lt;coordinates&gt;}
+   */
+  get sourcePositions() {
+    return this._sourcePositionsAbsolute.map( (position) =&gt; {
+      return glToTyped([], position, this.positionsType);
+    });
+  }
+
+  /**
+   * Set the position of one source. It will update the corresponding
+   * relative position after a call to the update method.
+   *
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {Number} index
+   * @param {coordinates} positionRequest
+   * @returns {this}
+   */
+  setSourcePositionByIndex(index, positionRequest) {
+    this._sourcesOutdated[index] = true;
+    typedToGl(this._sourcePositionsAbsolute[index],
+              positionRequest,
+              this.positionsType);
+
+    return this;
+  }
+
+  /**
+   * Get the position of one source.
+   *
+   * @param {Number} index
+   * @returns {coordinates}
+   */
+  getSourcePositionByIndex(index) {
+    return glToTyped([], this._sourcePositionsAbsolute[index],
+                     this.positionsType);
+  }
+
+  // ----------- public methods
+
+  /**
+   * Load an HRTF set form an URL, and update sources.
+   *
+   * See {@link HrtfSet#load}.
+   *
+   * @param {String} sourceUrl
+   * @returns {Promise.&lt;this|Error&gt;} resolve when URL successfully
+   * loaded.
+   */
+  loadHrtfSet(sourceUrl) {
+    return this._hrtfSet.load(sourceUrl)
+      .then( () =&gt; {
+        this._sourcesOutdated.fill(true);
+        this.update();
+        return this;
+      });
+  }
+
+  /**
+   * Connect the input of a source.
+   *
+   * @param {Number} index
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToConnect
+   * @param {Number} [output=0] output to connect from
+   * @param {Number} [input=0] input to connect to
+   * @returns {this}
+   */
+  connectInputByIndex(index, nodesToConnect, output, input) {
+    this._sources[index].connectInput(nodesToConnect, output, input);
+
+    return this;
+  }
+
+  /**
+   * Disconnect the input of one source.
+   *
+   * @param {Number} index
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToDisconnect disconnect
+   * all when undefined.
+   * @returns {this}
+   */
+  disconnectInputByIndex(index, nodesToDisconnect) {
+    this._sources[index].disconnectInput(nodesToDisconnect);
+
+    return this;
+  }
+
+  /**
+   * Disconnect the input of each source.
+   *
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToDisconnect disconnect
+   * all when undefined.
+   * @returns {this}
+   */
+  disconnectInputs(nodesToDisconnect) {
+    const nodes = (Array.isArray(nodesToDisconnect)
+                   ? nodesToDisconnect
+                   : [nodesToDisconnect] ); // make array
+
+    this._sources.forEach( (source, index) =&gt; {
+      source.disconnectInput(nodes[index]);
+    });
+
+    return this;
+  }
+
+  /**
+   * Connect the output of a source.
+   *
+   * @param {Number} index
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToConnect
+   * @param {Number} [output=0] output to connect from
+   * @param {Number} [input=0] input to connect to
+   * @returns {this}
+   */
+  connectOutputByIndex(index, nodesToConnect, output, input) {
+    this._sources[index].connectOutput(nodesToConnect, output, input);
+
+    return this;
+  }
+
+  /**
+   * Disconnect the output of a source.
+   *
+   * @param {Number} index
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToDisconnect disconnect
+   * all when undefined.
+   * @returns {this}
+   */
+  disconnectOutputByIndex(index, nodesToDisconnect) {
+    this._sources[index].disconnectOutput(nodesToDisconnect);
+
+    return this;
+  }
+
+  /**
+   * Connect each output of each source. Note that the number of nodes to
+   * connect must match the number of sources.
+   *
+   * See {@link BinauralPanner#connectOutputByIndex}.
+   *
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToConnect
+   * @param {Number} [output=0] output to connect from
+   * @param {Number} [input=0] input to connect to
+   * @returns {this}
+   */
+  connectOutputs(nodesToConnect, output, input) {
+    this._sources.forEach( (source) =&gt; {
+      source.connectOutput(nodesToConnect, output, input);
+    });
+
+    return this;
+  }
+
+  /**
+   * Disconnect the output of each source.
+   *
+   * @param {(AudioNode|Array.&lt;AudioNode&gt;)} nodesToDisconnect
+   * @returns {this}
+   */
+  disconnectOutputs(nodesToDisconnect) {
+    this._sources.forEach( (source) =&gt; {
+      source.disconnectOutput(nodesToDisconnect);
+    });
+
+    return this;
+  }
+
+  /**
+   * Update the sources filters, according to possible changes in listener,
+   * and source positions.
+   *
+   * @returns {this}
+   */
+  update() {
+    if (this._listenerOutdated) {
+      glMatrix.mat4.lookAt(this._listenerLookAt,
+                           this._listenerPosition,
+                           this._listenerView,
+                           this._listenerUp);
+
+      this._sourcesOutdated.fill(true);
+    }
+
+    if (this._hrtfSet.isReady) {
+      this._sourcePositionsAbsolute.forEach( (positionAbsolute, index) =&gt; {
+        if (this._sourcesOutdated[index] ) {
+          glMatrix.vec3.transformMat4(this._sourcePositionsRelative[index],
+                                      positionAbsolute,
+                                      this._listenerLookAt);
+
+          this._sources[index].position = this._sourcePositionsRelative[index];
+
+          this._sourcesOutdated[index] = false;
+        }
+      });
+    }
+
+    return this;
+  }
+}
+
+export default BinauralPanner;
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.4)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
