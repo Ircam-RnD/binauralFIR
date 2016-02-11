@@ -26,11 +26,25 @@
     <body>
         <h1>Binaural FIR Example</h1>
 
-        <p>This example illustrates the use of the binauralFIR node to spatialize in real-time an incoming monophonic audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process simply relies on the convolution of the incoming audio stream with Head Related Impulse Responses (HRIRs) measured on a human head in free field conditions (anechoïc room). See [1] for implementation details and implementation alternative.</p>
+        <p>This example illustrates the use of the binauralFIR node to
+        spatialize in real-time an incoming monophonic audio stream around
+        the head of the listener. The process can be easily extended for
+        multiple sources audio streams. In this implementation, the
+        binaural process simply relies on the convolution of the incoming
+        audio stream with Head Related Impulse Responses (HRIRs) measured
+        on a human head in free field conditions (anechoïc room). See [1]
+        for implementation details and implementation alternative.</p>
 
-        <p>The basic user interface provides control of the rotation on the horizontal plane (azimuth) and on the vertical dimension (elevation). The user interface also proposes to download different sets of HRIRs from a public server that hosts a database of individual HRIRs.</p>
+        <p>The basic user interface provides control of the rotation on the
+        horizontal plane (azimuth) and on the vertical dimension
+        (elevation). The user interface also proposes to download different
+        sets of HRIRs, either from a server or from an URL. The public
+        server that hosts a database of individual HRIRs is available for
+        beta-testers only and will open to public in 2016.</p>
 
-        <p>[1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015</p>
+        <p>[1] T. Carpentier, Binaural Synthesis with the Web Audio API,
+        1st Web Audio Conference (WAC15), Paris
+        2015 <a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">PDF</a></p>
 
         <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
 
@@ -38,10 +52,12 @@
         <div id="sample-rate-warning" class="warning"></div>
 
         <center>
-            <pre> Azimuth </pre>
-            <input id="azimuth" type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise" />
-            <pre> Elevation </pre>
-            <input id="elevation" type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
+            <pre> Azimuth </pre> <input id="azimuth" type="text"
+            data-angleOffset=180 class="vs1" data-width="180"
+            data-cursor=true data-thickness=".5" data-min="-180"
+            data-max="180" data-rotation="clockwise" />
+            <pre> Elevation </pre> <input id="elevation" type="range"
+            min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
         </center>
 
         <script>
@@ -49,15 +65,15 @@
          var serverDataBase = new binaural.sofa.ServerDataBase();
 
          // Audio Nodes
-         var $mediaElement = document.getElementById('source');
+         var $mediaElement = document.querySelector('#source');
          var player = audioContext.createMediaElementSource($mediaElement);
 
          var binauralPanner = new binaural.audio.BinauralPanner({
              audioContext,
-             crossfadeDuration: 0.05,
-             positionsType: 'sofaSpherical',
+             crossfadeDuration: 0.05, // in seconds
+             positionsType: 'sofaSpherical', // [azimuth, elevation, distance]
              sourceCount: 1,
-             sourcePositions: [ [0, 0, 1] ],
+             sourcePositions: [ [0, 0, 1] ], // initial position
          });
          binauralPanner.connectOutputs(audioContext.destination);
          binauralPanner.connectInputByIndex(0, player);
@@ -67,10 +83,15 @@
          $azimuth.val(0);
          $azimuth.knob({
              'change': function(value) {
+                 // get current position
                  var position = binauralPanner.getSourcePositionByIndex(0);
+
+                 // update azimuth
                  // azimuth in interface is the opposite of SOFA convention
                  position[0] = -value;
                  binauralPanner.setSourcePositionByIndex(0, position);
+
+                 // update filters
                  window.requestAnimationFrame(function () {
                      binauralPanner.update();
                  });
@@ -79,9 +100,14 @@
 
          var $elevation = $('#elevation');
          $elevation.on("input", function(event) {
+             // get current position
              var position = binauralPanner.getSourcePositionByIndex(0);
+
+             // update elevation
              position[1] = event.target.value;
              binauralPanner.setSourcePositionByIndex(0, position);
+
+             // update filters
              window.requestAnimationFrame(function () {
                  binauralPanner.update();
              });
@@ -116,8 +142,8 @@
                  // Chrome 48 crashes on OX 10.9 at 96000 Hz
                  // Firefox and Safari seem to re-sample correctly
                  $sampleRateWarning.innerHTML
-                     = `Audio sample-rate at ${sampleRate} Hz `
-                     + `is unsupported... Please use 44100 or 48000 Hz instead. `
+                     = `Audio sample-rate at ${sampleRate} Hz is unsupported. `
+                     + `Please use 44100 or 48000 Hz instead. `
                      + `(Trying to re-sample HRIRs.)`
 
                  window.alert($sampleRateWarning.innerHTML);
@@ -147,7 +173,7 @@
                  $hrtfSet.add($option);
              });
 
-             defaultUrl = urls.findIndex( function (url) {
+             defaultUrl = urls.findIndex(function (url) {
                  return url.match('1076');
              });
              $hrtfSet.value = urls[defaultUrl];
@@ -160,7 +186,7 @@
              $hrtfSet.classList.add('warning');
              return binauralPanner
                .loadHrtfSet(url)
-               .then( function () {
+               .then(function () {
                    $hrtfSet.classList.remove('warning');
                });
          }

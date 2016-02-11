@@ -1,75 +1,256 @@
-## BinauralFIR node
+# Binaural #
 
-> Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio.
+This library permits to render sources in three-dimensional space with
+binaural audio.
 
-The binauralFIR node provides binaural listening to the user with three simple steps. The novelty of this library is that it permits to use your own HRTF dataset. This library can be used as a regular node - AudioNode - inside the [Web Audio API](http://www.w3.org/TR/webaudio/). You can connect the native nodes to the binauralFIR node by using the connect method to binauralFIR.input:
+This library provides an access to a server, in order to load a set of
+[HRTF]. The set of filters applies to any number of sources, given their
+position, and a listener.
 
-```js
-nativeNode.connect(binauralFIR.input);
-binauralFIR.connect(audioContext.destination);
+This library is compatible with the [Web Audio API]. The novelty of this
+library is that it permits to use a custom [HRTF] dataset (see
+[T. Carpentier]).
+
+It is possible to use it without a server, with a direct URL to an [HRTF]
+set.
+
+## Documentation ##
+
+You can consult the [API documentation] for the complete documentation.
+
+### BinauralPanner ###
+
+A `BinauralPanner` is a panner for use with the [Web Audio API]. It
+spatialises multiple audio sources, given a set of head-related transfer
+functions [HRTF]s, and a listener.
+
+### ServerDataBase ###
+
+**The public server that hosts a database of individual [HRTF]s is available
+for beta-testers only and will open to public in 2016.**
+
+The `ServerDataBase` retrieves a catalogue from a [SOFA] server. From the
+catalogue, it get URLs matching optional filters: data-base, sample-rate,
+and any free pattern.
+
+### HRTF dataset ###
+
+You can use any [HRTF] data-set that follows the [SOFA] standard, in JSON
+format, using finite impulse responses (FIR). Second-order sections (SOS)
+are not supported, yet. See the [examples HRTF directory] for a few samples.
+
+### Coordinates system types ###
+
+See the files in the geometry, for conversions:
+- [SOFA] and openGL conventions
+- cartesian and spherical coordinates
+- radian and degree angles
+
+
+## Examples ##
+
+Please see the [examples directory] for complete code, and the [examples online].
+
+See also the API documentation for the complete options.
+
+### BinauralPanner ###
+Given an audio element, and a global binaural module,
+
+```html
+<html>
+    <head>
+        <script src="../binaural.js"></script>
+    </head>
+    <body>
+        <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
+    </body>
+</html>
 ```
 
-We provide a HRTF dataset example provided by [IRCAM](http://www.ircam.fr/) in the /example/snd/complete_hrtfs.js file.
-
-### Example
-
-A working demo for this module can be found [here](http://ircam-rnd.github.io/binauralFIR/examples/) and in the `examples` folder.
-
-### HRTF dataset format
-
-As this library allow you to use your own [HRTF](http://en.wikipedia.org/wiki/Head-related_transfer_function) Dataset, if you want to use your dataset in the library you have to follow the following format:
-
-Data | Description
---- | ---
-`azimuth` | Azimuth in degrees: from 0 to -180 for source on your left, and from 0 to 180 for source on your right
-`distance` | Distance in meters
-`elevation` | Elevation in degrees: from 0 to 90 for source above your head, 0 for source in front of your head, and from 0 to -90 for source below your head)
-`buffer` | AudioBuffer representing the decoded audio data. An audio file can be decoded by using the [buffer-loader library] (https://github.com/Ircam-RnD/buffer-loader)
-
-This data must be provided inside an Array of Objects, like this example:
+create a source audio node,
 
 ```js
-[
-  {
-    'azimuth': 0,
-    'distance': 1,
-    'elevation': 0,
-    'buffer': AudioBuffer
-  },
-  {
-    'azimuth': 5,
-    'distance': 1,
-    'elevation': 0,
-    'buffer': AudioBuffer
-
-  },
-  {
-    'azimuth': 5,
-    'distance': 1,
-    'elevation': 5,
-    'buffer': AudioBuffer
-  }
-]
+var audioContext = new AudioContext();
+var $mediaElement = document.querySelector('#source');
+var player = audioContext.createMediaElementSource($mediaElement);
 ```
 
-### API
+instantiate a `BinauralPanner` and connect it.
 
-The `binauralFIR` object exposes the following API:
+```js
+var binauralPanner = new binaural.audio.BinauralPanner({
+    audioContext,
+    crossfadeDuration: 0.05, // in seconds
+    positionsType: 'sofaSpherical', // [azimuth, elevation, distance]
+    sourceCount: 1,
+    sourcePositions: [ [0, 0, 1] ], // initial position
+});
+binauralPanner.connectOutputs(audioContext.destination);
+binauralPanner.connectInputByIndex(0, player);
 
-Method | Description
---- | ---
-`binauralFIR.connect()` | Connects the binauralFIRNode to the Web Audio graph
-`binauralFIR.disconnect()` | Disconnect the binauralFIRNode from the Web Audio graph
-`binauralFIR.HRTFDataset` | Set HRTF Dataset to be used with the virtual source.
-`binauralFIR.setPosition(azimuth, elevation, distance)` | Set position of the virtual source.
-`binauralFIR.getPosition()` | Get the current position of the virtual source.
-`binauralFIR.setCrossfadeDuration(duration)` | Set the duration of crossfading in miliseconds.
-`binauralFIR.getCrossfadeDuration()` | Get the duration of crossfading in miliseconds.
+```
+
+Load an HRTF set (this returns a promise).
+
+```js
+binauralPanner.loadHrtfSet(url)
+    .then(function () {
+        console.log('loaded');
+    })
+    .catch(function (error) {
+        console.log('Error while loading ' + url
+                    + error.message);
+    });
+```
+
+Then, any source can move:
+
+```js
+$azimuth.on("input", function(event) {
+    // get current position
+    var position = binauralPanner.getSourcePositionByIndex(0);
+
+    // update azimuth
+    position[0] = event.target.value;
+    binauralPanner.setSourcePositionByIndex(0, position);
+
+    // update filters
+    window.requestAnimationFrame(function () {
+        binauralPanner.update();
+    });
+}
+```
+
+Note that a call to the `update` method actually updates the filters.
+
+### ServerDataBase ###
+
+Instantiate a `ServerDataBase`
+
+```js
+var serverDataBase = new binaural.sofa.ServerDataBase();
+```
+
+and load the catalogue from the server. This returns a promise.
+
+```js
+var catalogLoaded = serverDataBase.loadCatalogue();
+```
+
+Find URLs with `HRIR` convention, `COMPENSATED` equalisation, and a
+sample-rate matching those of the audio context.
+
+```js
+var urlsFound = catalogLoaded.then(function () {
+    var urls = serverDataBase.getUrls({
+        convention: 'HRIR',
+        equalisation: 'COMPENSATED',
+        sampleRate: audioContext.sampleRate,
+    });
+    return urls;
+})
+.catch(function(error) {
+    console.log('Error accessing HRTF server. ' + error.message);
+});
+```
+
+Then, a `BinauralPanner` can load one of these URLs
+
+```js
+urlsFound.then(function(urls) {
+    binauralPanner.loadHrtfSet(urls[0])
+        .then(function () {
+            console.log('loaded');
+        })
+        .catch(function (error) {
+            console.log('Error while loading ' + url
+                + error.message);
+        });
+});
+```
+
+## Issues ##
+
+- re-sampling is broken (Chrome 48 issue)
+
+## To do ##
+
+- Spat coordinates
+- attenuation with distance
+- dry/wet outputs for (shared) reverberation
+- relative view for the listener
+
+## Developers ##
+
+The source code is in the [src directory], in [ES2015] standard. `npm run
+compile` with [Babel] to the [dist directory]. Note that there is a
+[.babelrc](./.babelrc) file. `npm run bundle` runs the linters, the tests,
+generates the documentation, and compiles the code.
+
+Be sure to commit the distribution files and the documentation for any
+release, and tag it.
+
+### Style ###
+
+`npm run lint` to check that the code conforms with [.eslintrc](./.eslintrc) and
+[.jscsrc](./.jscsrc) files. The rules derives from [AirBnB] with these
+major points:
+- [ES2015]
+- no `'strict'` globally (already there via babel)
+- enforce curly braces (`if`, `for`, etc.)
+- allow spaces and new lines, with fewer requirements: use them for clarity
+
+### Test ###
+
+For any function or method, there is at least a test. The hierarchy in the
+[test directory] is the same as in the [src directory].
+
+- `npm run test` for all automated tests
+- `npm run test-listen` for supervised listening tests. The test files must
+  end with `_listen.js`
+- `npm run test-issues` for unsolved issues. The issues may depend on the
+  host: operating system, user-agent, sound-device, sample-rate, etc. The
+  test files must end with `_issues.js`
+
+### Documentation ###
+
+Document any public function and method with [JSDoc], and generate the HTML
+pages with `npm run doc`. At this point, neither
+[jsdoc](https://www.npmjs.com/package/jsdoc) nor
+[esdoc](https://www.npmjs.com/package/esdoc) gives perfect
+transcription. (See the [jsdoc.json](./jsdoc.json) and
+[esdoc.json](./esdoc.json) files.)
 
 ## License
 
-This module is released under the [BSD-3-Clause license](http://opensource.org/licenses/BSD-3-Clause).
+This module is released under the [BSD-3-Clause] license.
 
 ## Acknowledgments
 
-This code has been developed from both [Acoustic And Cognitive Spaces](http://recherche.ircam.fr/equipes/salles/) and [Analysis of Musical Practices](http://apm.ircam.fr) IRCAM research teams. It is also part of the WAVE project (http://wave.ircam.fr), funded by ANR (The French National Research Agency), ContInt program, 2012-2015.
+This research was developped by both [Acoustic And Cognitive Spaces] and
+[Analysis of Musical Practices] IRCAM research teams. A previous version
+was part of the WAVE project, funded by ANR (French National Research
+Agency). The current version, supporting multiple sources and a listener,
+the SOFA standard, and the access to a server, is part of the [CoSiMa]
+project, funded by ANR.
+
+[AirBnB]: https://github.com/airbnb/javascript/
+[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/next/doc/
+[API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html
+[Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
+[Analysis of Musical Practices]: http://apm.ircam.fr/
+[Babel]: https://babeljs.io/
+[BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause
+[T. Carpentier]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
+[CoSiMa]: http://cosima.ircam.fr/
+[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/next/dist/
+[documentation]: #documentation
+[ES2015]: https://babeljs.io/docs/learn-es2015/
+[examples directory]: https://github.com/Ircam-RnD/binauralFIR/next/examples/
+[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/next/examples/hrtf/
+[examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html
+[JSDoc]: http://usejsdoc.org/
+[HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
+[SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
+[src directory]: https://github.com/Ircam-RnD/binauralFIR/next/src
+[Web Audio API]: https://webaudio.github.io/web-audio-api/

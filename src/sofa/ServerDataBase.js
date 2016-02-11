@@ -1,5 +1,7 @@
 /**
- * @fileOverview Access a remote data-base from a SOFA server.
+ * @fileOverview Access a remote catalogue from a SOFA server, and get URLs
+ * with filtering.
+ *
  * @author Jean-Philippe.Lambert@ircam.fr
  * @copyright 2015-2016 IRCAM, Paris, France
  * @license BSD-3-Clause

@@ -1,5 +1,7 @@
 /**
- * @fileOverview Container for HRTF set.
+ * @fileOverview Container for HRTF set: load a set from an URL and get
+ * filters from corresponding positions.
+ *
  * @author Jean-Philippe.Lambert@ircam.fr
  * @copyright 2015-2016 IRCAM, Paris, France
  * @license BSD-3-Clause
