@@ -234,8 +234,6 @@ var Source = exports.Source = function () {
       clearTimeout(this._crossfadeTimeout);
       var now = this._audioContext.currentTime;
       if (now >= this._crossfadeAfterTime) {
-        this._crossfadeAfterTime = now + this._crossfadeDuration;
-
         // swap
         var tmp = this._convolverCurrent;
         this._convolverCurrent = this._convolverNext;
@@ -246,6 +244,11 @@ var Source = exports.Source = function () {
         this._gainNext = tmp;
 
         this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);
+
+        // reschedule after setting the buffer, as it may take time
+        // (currentTime updates at least on Chrome 48)
+        now = this._audioContext.currentTime;
+        this._crossfadeAfterTime = now + this._crossfadeDuration;
 
         // fade in next
         this._gainNext.gain.cancelScheduledValues(now);

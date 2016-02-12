@@ -171,8 +171,10 @@ urlsFound.then(function(urls) {
 
 ## Issues ##
 
-- re-sampling is broken (Chrome 48 issue)
-- no HTTPS on server, yet (mixed content blocked)
+- re-sampling is broken on full set (Chrome 48 issue): too many parallel
+  audio contexts?
+- no HTTPS on SOFA server, yet (mixed content blocked)
+- clicks on Firefox 44-45 (during update of `convolver.buffer`-
 
 ## To do ##
 

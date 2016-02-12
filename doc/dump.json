@@ -1758,7 +1758,7 @@
     "access": null,
     "description": null,
     "lineNumber": 13,
-    "content": "/**\n * @fileOverview Source for binaural processing.\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\n/**\n * Single source.\n *\n * See {@link BinauralPanner}.\n */\nexport class Source {\n\n  /**\n   * Construct a source, with and AudioContext and an HrtfSet.\n   *\n   * See {@link HrtfSet}.\n   *\n   * @param {Object} options\n   * @param {AudioContext} options.audioContext mandatory for the creation\n   * of FIR audio buffers\n   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}\n   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.\n   * {@link Source#position}\n   * @param {Number} [crossfadeDuration] in seconds\n   * {@link Source#crossfadeDuration}\n   */\n  constructor(options = {}) {\n    this._audioContext = options.audioContext;\n    this._hrtfSet = options.hrtfSet;\n\n    this._convolverCurrent = this._audioContext.createConvolver();\n    this._convolverCurrent.normalize = false;\n\n    this._gainCurrent = this._audioContext.createGain();\n    this._convolverCurrent.connect(this._gainCurrent);\n\n    this._convolverNext = this._audioContext.createConvolver();\n    this._convolverNext.normalize = false;\n\n    this._gainNext = this._audioContext.createGain();\n    this._convolverNext.connect(this._gainNext);\n\n    this.crossfadeDuration = options.crossfadeDuration;\n\n    this._crossfadeAfterTime = this._audioContext.currentTime;\n    this._crossfadeTimeout = undefined;\n\n    // set position when everything is ready\n    if (typeof options.position !== 'undefined') {\n      this.position = options.position;\n    }\n  }\n\n  // ----------- accessors\n\n  /**\n   * Set the crossfade duration when the position changes.\n   *\n   * @param {Number} [duration=0.02] in seconds\n   */\n  set crossfadeDuration(duration = 0.02) {\n    this._crossfadeDuration = duration;\n  }\n\n  /**\n   * Get the crossfade duration when the position changes.\n   *\n   * @returns {Number} in seconds\n   */\n  get crossfadeDuration() {\n    return this._crossfadeDuration;\n  }\n\n  /**\n   * Refer an external HRTF set.\n   *\n   * @param {HrtfSet} hrtfSet\n   */\n  set hrtfSet(hrtfSet) {\n    this._hrtfSet = hrtfSet;\n  }\n\n  /**\n   * Get the HrtfSet.\n   *\n   * @returns {HrtfSet}\n   */\n  get hrtfSet() {\n    return this._hrtfSet;\n  }\n\n  /**\n   * Set the position of the source and updates.\n   *\n   * @param {coordinates} positionRequest\n   */\n  set position(positionRequest) {\n    clearTimeout(this._crossfadeTimeout);\n    const now = this._audioContext.currentTime;\n    if (now >= this._crossfadeAfterTime) {\n      this._crossfadeAfterTime = now + this._crossfadeDuration;\n\n      // swap\n      let tmp = this._convolverCurrent;\n      this._convolverCurrent = this._convolverNext;\n      this._convolverNext = tmp;\n\n      tmp = this._gainCurrent;\n      this._gainCurrent = this._gainNext;\n      this._gainNext = tmp;\n\n      this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);\n\n      // fade in next\n      this._gainNext.gain.cancelScheduledValues(now);\n      this._gainNext.gain.setValueAtTime(0, now);\n      this._gainNext.gain.linearRampToValueAtTime(\n        1, now + this._crossfadeDuration);\n\n      // fade out current\n      this._gainCurrent.gain.cancelScheduledValues(now);\n      this._gainCurrent.gain.setValueAtTime(1, now);\n      this._gainCurrent.gain.linearRampToValueAtTime(\n        0, now + this._crossfadeDuration);\n    } else {\n      // re-schedule later\n      this._crossfadeTimeout = setTimeout( () => {\n        this.position = positionRequest;\n      }, 0.02);\n    }\n\n  }\n\n  // ----------- public methods\n\n  /**\n   * Connect the input of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect\n   * @param {Number} [output=0] output to connect from\n   * @param {Number} [input=0] input to connect to\n   * @returns {this}\n   */\n  connectInput(nodesToConnect, output, input) {\n    const nodes = (Array.isArray(nodesToConnect)\n                   ? nodesToConnect\n                   : [nodesToConnect] ); // make array\n\n    nodes.forEach( (node) => {\n      node.connect(this._convolverCurrent, output, input);\n      node.connect(this._convolverNext, output, input);\n    });\n\n    return this;\n  }\n\n  /**\n   * Disconnect the input of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect\n   * all when undefined.\n   * @returns {this}\n   */\n  disconnectInput(nodesToDisconnect) {\n    const nodes = (Array.isArray(nodesToDisconnect)\n                   ? nodesToDisconnect\n                   : [nodesToDisconnect] ); // make array\n\n    nodes.forEach( (node) => {\n      node.disconnect(this._convolverCurrent);\n      node.disconnect(this._convolverNext);\n    });\n\n    return this;\n  }\n\n  /**\n   * Connect the output of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect\n   * @param {Number} [output=0] output to connect from\n   * @param {Number} [input=0] input to connect to\n   * @returns {this}\n   */\n  connectOutput(nodesToConnect, output, input) {\n    const nodes = (Array.isArray(nodesToConnect)\n                   ? nodesToConnect\n                   : [nodesToConnect] ); // make array\n\n    nodes.forEach( (node) => {\n      this._gainCurrent.connect(node, output, input);\n      this._gainNext.connect(node, output, input);\n    });\n\n    return this;\n  }\n\n  /**\n   * Disconnect the output of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect\n   * all when undefined.\n   * @returns {this}\n   */\n  disconnectOutput(nodesToDisconnect) {\n    if (typeof nodesToDisconnect === 'undefined') {\n      // disconnect all\n      this._gainCurrent.disconnect();\n      this._gainNext.disconnect();\n    } else {\n      const nodes = (Array.isArray(nodesToDisconnect)\n                     ? nodesToDisconnect\n                     : [nodesToDisconnect] ); // make array\n\n      nodes.forEach( (node) => {\n        this._gainCurrent.disconnect(node);\n        this._gainNext.disconnect(node);\n      });\n    }\n\n    return this;\n  }\n\n}\n\nexport default Source;\n"
+    "content": "/**\n * @fileOverview Source for binaural processing.\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\n/**\n * Single source.\n *\n * See {@link BinauralPanner}.\n */\nexport class Source {\n\n  /**\n   * Construct a source, with and AudioContext and an HrtfSet.\n   *\n   * See {@link HrtfSet}.\n   *\n   * @param {Object} options\n   * @param {AudioContext} options.audioContext mandatory for the creation\n   * of FIR audio buffers\n   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}\n   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.\n   * {@link Source#position}\n   * @param {Number} [crossfadeDuration] in seconds\n   * {@link Source#crossfadeDuration}\n   */\n  constructor(options = {}) {\n    this._audioContext = options.audioContext;\n    this._hrtfSet = options.hrtfSet;\n\n    this._convolverCurrent = this._audioContext.createConvolver();\n    this._convolverCurrent.normalize = false;\n\n    this._gainCurrent = this._audioContext.createGain();\n    this._convolverCurrent.connect(this._gainCurrent);\n\n    this._convolverNext = this._audioContext.createConvolver();\n    this._convolverNext.normalize = false;\n\n    this._gainNext = this._audioContext.createGain();\n    this._convolverNext.connect(this._gainNext);\n\n    this.crossfadeDuration = options.crossfadeDuration;\n\n    this._crossfadeAfterTime = this._audioContext.currentTime;\n    this._crossfadeTimeout = undefined;\n\n    // set position when everything is ready\n    if (typeof options.position !== 'undefined') {\n      this.position = options.position;\n    }\n  }\n\n  // ----------- accessors\n\n  /**\n   * Set the crossfade duration when the position changes.\n   *\n   * @param {Number} [duration=0.02] in seconds\n   */\n  set crossfadeDuration(duration = 0.02) {\n    this._crossfadeDuration = duration;\n  }\n\n  /**\n   * Get the crossfade duration when the position changes.\n   *\n   * @returns {Number} in seconds\n   */\n  get crossfadeDuration() {\n    return this._crossfadeDuration;\n  }\n\n  /**\n   * Refer an external HRTF set.\n   *\n   * @param {HrtfSet} hrtfSet\n   */\n  set hrtfSet(hrtfSet) {\n    this._hrtfSet = hrtfSet;\n  }\n\n  /**\n   * Get the HrtfSet.\n   *\n   * @returns {HrtfSet}\n   */\n  get hrtfSet() {\n    return this._hrtfSet;\n  }\n\n  /**\n   * Set the position of the source and updates.\n   *\n   * @param {coordinates} positionRequest\n   */\n  set position(positionRequest) {\n    clearTimeout(this._crossfadeTimeout);\n    let now = this._audioContext.currentTime;\n    if (now >= this._crossfadeAfterTime) {\n      // swap\n      let tmp = this._convolverCurrent;\n      this._convolverCurrent = this._convolverNext;\n      this._convolverNext = tmp;\n\n      tmp = this._gainCurrent;\n      this._gainCurrent = this._gainNext;\n      this._gainNext = tmp;\n\n      this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);\n\n      // reschedule after setting the buffer, as it may take time\n      // (currentTime updates at least on Chrome 48)\n      now = this._audioContext.currentTime;\n      this._crossfadeAfterTime = now + this._crossfadeDuration;\n\n      // fade in next\n      this._gainNext.gain.cancelScheduledValues(now);\n      this._gainNext.gain.setValueAtTime(0, now);\n      this._gainNext.gain.linearRampToValueAtTime(\n        1, now + this._crossfadeDuration);\n\n      // fade out current\n      this._gainCurrent.gain.cancelScheduledValues(now);\n      this._gainCurrent.gain.setValueAtTime(1, now);\n      this._gainCurrent.gain.linearRampToValueAtTime(\n        0, now + this._crossfadeDuration);\n    } else {\n      // re-schedule later\n      this._crossfadeTimeout = setTimeout( () => {\n        this.position = positionRequest;\n      }, 0.02);\n    }\n\n  }\n\n  // ----------- public methods\n\n  /**\n   * Connect the input of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect\n   * @param {Number} [output=0] output to connect from\n   * @param {Number} [input=0] input to connect to\n   * @returns {this}\n   */\n  connectInput(nodesToConnect, output, input) {\n    const nodes = (Array.isArray(nodesToConnect)\n                   ? nodesToConnect\n                   : [nodesToConnect] ); // make array\n\n    nodes.forEach( (node) => {\n      node.connect(this._convolverCurrent, output, input);\n      node.connect(this._convolverNext, output, input);\n    });\n\n    return this;\n  }\n\n  /**\n   * Disconnect the input of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect\n   * all when undefined.\n   * @returns {this}\n   */\n  disconnectInput(nodesToDisconnect) {\n    const nodes = (Array.isArray(nodesToDisconnect)\n                   ? nodesToDisconnect\n                   : [nodesToDisconnect] ); // make array\n\n    nodes.forEach( (node) => {\n      node.disconnect(this._convolverCurrent);\n      node.disconnect(this._convolverNext);\n    });\n\n    return this;\n  }\n\n  /**\n   * Connect the output of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect\n   * @param {Number} [output=0] output to connect from\n   * @param {Number} [input=0] input to connect to\n   * @returns {this}\n   */\n  connectOutput(nodesToConnect, output, input) {\n    const nodes = (Array.isArray(nodesToConnect)\n                   ? nodesToConnect\n                   : [nodesToConnect] ); // make array\n\n    nodes.forEach( (node) => {\n      this._gainCurrent.connect(node, output, input);\n      this._gainNext.connect(node, output, input);\n    });\n\n    return this;\n  }\n\n  /**\n   * Disconnect the output of a source.\n   *\n   * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect\n   * all when undefined.\n   * @returns {this}\n   */\n  disconnectOutput(nodesToDisconnect) {\n    if (typeof nodesToDisconnect === 'undefined') {\n      // disconnect all\n      this._gainCurrent.disconnect();\n      this._gainNext.disconnect();\n    } else {\n      const nodes = (Array.isArray(nodesToDisconnect)\n                     ? nodesToDisconnect\n                     : [nodesToDisconnect] ); // make array\n\n      nodes.forEach( (node) => {\n        this._gainCurrent.disconnect(node);\n        this._gainNext.disconnect(node);\n      });\n    }\n\n    return this;\n  }\n\n}\n\nexport default Source;\n"
   },
   {
     "__docId__": 57,
@@ -2224,12 +2224,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_crossfadeAfterTime",
+    "name": "_convolverCurrent",
     "memberof": "src/audio/Source.js~Source",
-    "longname": "src/audio/Source.js~Source#_crossfadeAfterTime",
+    "longname": "src/audio/Source.js~Source#_convolverCurrent",
     "access": null,
     "description": null,
-    "lineNumber": 103,
+    "lineNumber": 105,
     "undocument": true,
     "type": {
       "types": [
@@ -2242,12 +2242,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_convolverCurrent",
+    "name": "_convolverNext",
     "memberof": "src/audio/Source.js~Source",
-    "longname": "src/audio/Source.js~Source#_convolverCurrent",
+    "longname": "src/audio/Source.js~Source#_convolverNext",
     "access": null,
     "description": null,
-    "lineNumber": 107,
+    "lineNumber": 106,
     "undocument": true,
     "type": {
       "types": [
@@ -2260,12 +2260,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_convolverNext",
+    "name": "_gainCurrent",
     "memberof": "src/audio/Source.js~Source",
-    "longname": "src/audio/Source.js~Source#_convolverNext",
+    "longname": "src/audio/Source.js~Source#_gainCurrent",
     "access": null,
     "description": null,
-    "lineNumber": 108,
+    "lineNumber": 109,
     "undocument": true,
     "type": {
       "types": [
@@ -2278,12 +2278,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_gainCurrent",
+    "name": "_gainNext",
     "memberof": "src/audio/Source.js~Source",
-    "longname": "src/audio/Source.js~Source#_gainCurrent",
+    "longname": "src/audio/Source.js~Source#_gainNext",
     "access": null,
     "description": null,
-    "lineNumber": 111,
+    "lineNumber": 110,
     "undocument": true,
     "type": {
       "types": [
@@ -2296,12 +2296,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_gainNext",
+    "name": "_crossfadeAfterTime",
     "memberof": "src/audio/Source.js~Source",
-    "longname": "src/audio/Source.js~Source#_gainNext",
+    "longname": "src/audio/Source.js~Source#_crossfadeAfterTime",
     "access": null,
     "description": null,
-    "lineNumber": 112,
+    "lineNumber": 117,
     "undocument": true,
     "type": {
       "types": [
@@ -2319,7 +2319,7 @@
     "longname": "src/audio/Source.js~Source#_crossfadeTimeout",
     "access": null,
     "description": null,
-    "lineNumber": 129,
+    "lineNumber": 132,
     "undocument": true,
     "type": {
       "types": [
@@ -2337,7 +2337,7 @@
     "longname": "src/audio/Source.js~Source#position",
     "access": null,
     "description": null,
-    "lineNumber": 130,
+    "lineNumber": 133,
     "undocument": true,
     "type": {
       "types": [
@@ -2355,7 +2355,7 @@
     "longname": "src/audio/Source.js~Source#connectInput",
     "access": null,
     "description": "Connect the input of a source.",
-    "lineNumber": 146,
+    "lineNumber": 149,
     "unknown": [
       {
         "tagName": "@returns",
@@ -2419,7 +2419,7 @@
     "longname": "src/audio/Source.js~Source#disconnectInput",
     "access": null,
     "description": "Disconnect the input of a source.",
-    "lineNumber": 166,
+    "lineNumber": 169,
     "unknown": [
       {
         "tagName": "@returns",
@@ -2459,7 +2459,7 @@
     "longname": "src/audio/Source.js~Source#connectOutput",
     "access": null,
     "description": "Connect the output of a source.",
-    "lineNumber": 187,
+    "lineNumber": 190,
     "unknown": [
       {
         "tagName": "@returns",
@@ -2523,7 +2523,7 @@
     "longname": "src/audio/Source.js~Source#disconnectOutput",
     "access": null,
     "description": "Disconnect the output of a source.",
-    "lineNumber": 207,
+    "lineNumber": 210,
     "unknown": [
       {
         "tagName": "@returns",
@@ -5615,7 +5615,7 @@
     "access": null,
     "description": null,
     "lineNumber": 10,
-    "content": "/**\n * @fileOverview Access a remote catalogue from a SOFA server, and get URLs\n * with filtering.\n *\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015-2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\nimport parseXml from './parseXml';\nimport { parseDataSet } from './parseDataSet';\n\n/**\n * SOFA remote data-base.\n */\nexport class ServerDataBase {\n  /**\n   * This is only a constructor, it does not load any thing.\n   *\n   * See {@link ServerDataBase#loadCatalogue}.\n   *\n   * @param {Object} [options]\n   * @param {String} [options.serverUrl] base URL of server, including\n   * protocol, eg. 'http://bili2.ircam.fr'.\n   */\n  constructor(options = {}) {\n    this._server = (typeof options.serverUrl !== 'undefined'\n                   ? options.serverUrl\n                   : 'http://bili2.ircam.fr');\n\n    this._catalogue = {};\n    this._urls = [];\n  }\n\n  /**\n   * Asynchronously load complete catalogue from the server, including the\n   * catalogue links found in any partial catalogue.\n   *\n   * @param {String} [sourceUrl] URL of the root catalogue, including the\n   * server, like 'http://bili2.ircam.fr/catalog.xml'.\n   *  Default is 'catalog.xml' at serverURL supplied at\n   * {@link ServerDataBase#constructor}.\n   * @param {Object} [destination] Catalogue to update. Default is\n   * internal.\n   * @returns {Promise.<String|Error>} The promise will resolve (with\n   * sourceUrl) when every sub-catalogue will successfully load, or will\n   * reject (with an error) as soon as one transfer fails.\n   */\n  loadCatalogue(sourceUrl = `${this._server}/catalog.xml`,\n                destination = this._catalogue) {\n    const promise = new Promise( (resolve, reject) => {\n      const request = new window.XMLHttpRequest();\n      request.open('GET', sourceUrl);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${sourceUrl}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n\n        const xml = parseXml(request.response);\n        const dataSet = xml.querySelector('dataset');\n\n        // recursive catalogues\n        const catalogueReferences = xml.querySelectorAll('dataset > catalogRef');\n\n        if (catalogueReferences.length === 0) {\n          // end of recursion\n          destination.urls = [];\n          const urls = xml.querySelectorAll('dataset > dataset');\n          for (let ref = 0; ref < urls.length; ++ref) {\n            // data set name already contains a leading slash\n            const url = this._server\n                    + dataSet.getAttribute('name') + '/'\n                    + urls[ref].getAttribute('name');\n            this._urls.push(url);\n            destination.urls.push(url);\n          }\n\n          resolve(sourceUrl);\n        } else {\n          // recursion\n          const promises = [];\n          for (let ref = 0; ref < catalogueReferences.length; ++ref) {\n            const name = catalogueReferences[ref].getAttribute('name');\n            const recursiveUrl = this._server\n                    + dataSet.getAttribute('name') + '/'\n                    + catalogueReferences[ref].getAttribute('xlink:href');\n            destination[name] = {};\n            promises.push(this.loadCatalogue(recursiveUrl, destination[name]) );\n          }\n\n          Promise.all(promises)\n            .then( () => {\n              this._urls.sort();\n              resolve(sourceUrl);\n            })\n            .catch( (error) => {\n              reject(error);\n            });\n        }\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n  /**\n   * Get URLs, possibly filtered.\n   *\n   * Any filter can be partial, and is case-insensitive. The result must\n   * match every supplied filter. Undefined filters are not applied.\n   *\n   * @param {Object} [options] optional filters\n   * @param {String} [options.convention] 'HRIR' or 'SOS'\n   * @param {String} [options.dataBase] 'LISTEN', 'BILI', etc.\n   * @param {String} [options.equalisation] 'RAW','COMPENSATED'\n   * @param {String} [options.sampleRate] in Hertz\n   * @param {String} [options.sosOrder] '12order' or '24order'\n   * @param {String} [options.freePattern] any pattern matched\n   * globally. Use separators (spaces, tabs, etc.) to combine multiple\n   * patterns: '44100 listen' will restrict on URLs matching '44100' and\n   * 'listen'\n   * @returns {Array.<String>} URLs that match every filter.\n   */\n  getUrls(options = {}) {\n    // the number and the order of the filters in the following array must\n    // match the URL sub-directories\n    const filters = [\n      options.convention,\n      options.dataBase,\n      options.equalisation,\n      options.sampleRate,\n      options.sosOrder, // in file name\n    ];\n\n    // any where in URL\n    const freePattern = (typeof options.freePattern === 'number'\n                         ? options.freePattern.toString()\n                         : options.freePattern);\n\n    const pattern = filters.reduce( (global, local) => {\n      // partial filter inside slashes\n      return `${global}/` + (typeof local !== 'undefined'\n                             ? `[^/]*${local}[^/]*`\n                             : '[^/]*');\n    }, '');\n\n    let regExp = new RegExp(pattern, 'i');\n\n    let urls = this._urls.filter( (url) => {\n      return regExp.test(url);\n    });\n\n    if (typeof freePattern !== 'undefined') {\n      // split patterns with separators\n      const patterns = freePattern.split(/\\s+/);\n      patterns.forEach( (current) => {\n        regExp = new RegExp(current, 'i');\n\n        urls = urls.filter( (url) => {\n          return regExp.test(url);\n        });\n      });\n    }\n\n    return urls;\n  }\n\n  /**\n   * Get all source positions of a given URL.\n   *\n   * @param {String} sourceUrl is the complete SOFA URL, with the\n   * server, like\n   * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'\n   *\n   * @returns {Promise.<Object|String>} The promise will resolve after\n   * successfully loading, with definitions as * `{definition: {key: values}}`\n   * objects; the promise will reject is the transfer fails, with an error.\n   */\n  getDataSetDefinitions(sourceUrl) {\n    const promise = new Promise( (resolve, reject) => {\n      const url = `${sourceUrl}.dds`;\n      const request = new window.XMLHttpRequest();\n      request.open('GET', url);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${url}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n        resolve(parseDataSet(request.response) );\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n  /**\n   * Get all source positions of a given URL.\n   *\n   * @param {String} sourceUrl is the complete SOFA URL, with the\n   * server, like\n   * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'\n   *\n   * @returns {Promise.<Array<Array.<Number>>|Error>} The promise will resolve\n   * after successfully loading, with an array of positions (which are\n   * arrays of 3 numbers); the promise will reject is the transfer fails,\n   * with an error.\n   */\n  getSourcePositions(sourceUrl) {\n    const promise = new Promise( (resolve, reject) => {\n      const url = `${sourceUrl}.json?SourcePosition`;\n\n      const request = new window.XMLHttpRequest();\n      request.open('GET', url);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${url}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n\n        try {\n          const response = JSON.parse(request.response);\n          if (response.leaves[0].name !== 'SourcePosition') {\n            throw new Error('SourcePosition not found');\n          }\n\n          resolve(response.leaves[0].data);\n        } catch (error) {\n          // re-throw\n          reject(new Error(`Unable to parse response from ${url}. ${error.message}`) );\n        }\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n}\n\nexport default ServerDataBase;\n"
+    "content": "/**\n * @fileOverview Access a remote catalogue from a SOFA server, and get URLs\n * with filtering.\n *\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015-2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\nimport parseXml from './parseXml';\nimport { parseDataSet } from './parseDataSet';\n\n/**\n * SOFA remote data-base.\n */\nexport class ServerDataBase {\n  /**\n   * This is only a constructor, it does not load any thing.\n   *\n   * See {@link ServerDataBase#loadCatalogue}.\n   *\n   * @param {Object} [options]\n   * @param {String} [options.serverUrl] base URL of server, including\n   * protocol, eg. 'http://bili2.ircam.fr'.\n   */\n  constructor(options = {}) {\n    this._server = options.serverUrl;\n\n    if (typeof this._server === 'undefined') {\n      const protocol = (window.location.protocol === 'https:'\n                        ? 'https:'\n                        : 'http:');\n\n      this._server = `${protocol}//bili2.ircam.fr`;\n    }\n\n    this._catalogue = {};\n    this._urls = [];\n  }\n\n  /**\n   * Asynchronously load complete catalogue from the server, including the\n   * catalogue links found in any partial catalogue.\n   *\n   * @param {String} [sourceUrl] URL of the root catalogue, including the\n   * server, like 'http://bili2.ircam.fr/catalog.xml'.\n   *  Default is 'catalog.xml' at serverURL supplied at\n   * {@link ServerDataBase#constructor}.\n   * @param {Object} [destination] Catalogue to update. Default is\n   * internal.\n   * @returns {Promise.<String|Error>} The promise will resolve (with\n   * sourceUrl) when every sub-catalogue will successfully load, or will\n   * reject (with an error) as soon as one transfer fails.\n   */\n  loadCatalogue(sourceUrl = `${this._server}/catalog.xml`,\n                destination = this._catalogue) {\n    const promise = new Promise( (resolve, reject) => {\n      const request = new window.XMLHttpRequest();\n      request.open('GET', sourceUrl);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${sourceUrl}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n\n        const xml = parseXml(request.response);\n        const dataSet = xml.querySelector('dataset');\n\n        // recursive catalogues\n        const catalogueReferences = xml.querySelectorAll('dataset > catalogRef');\n\n        if (catalogueReferences.length === 0) {\n          // end of recursion\n          destination.urls = [];\n          const urls = xml.querySelectorAll('dataset > dataset');\n          for (let ref = 0; ref < urls.length; ++ref) {\n            // data set name already contains a leading slash\n            const url = this._server\n                    + dataSet.getAttribute('name') + '/'\n                    + urls[ref].getAttribute('name');\n            this._urls.push(url);\n            destination.urls.push(url);\n          }\n\n          resolve(sourceUrl);\n        } else {\n          // recursion\n          const promises = [];\n          for (let ref = 0; ref < catalogueReferences.length; ++ref) {\n            const name = catalogueReferences[ref].getAttribute('name');\n            const recursiveUrl = this._server\n                    + dataSet.getAttribute('name') + '/'\n                    + catalogueReferences[ref].getAttribute('xlink:href');\n            destination[name] = {};\n            promises.push(this.loadCatalogue(recursiveUrl, destination[name]) );\n          }\n\n          Promise.all(promises)\n            .then( () => {\n              this._urls.sort();\n              resolve(sourceUrl);\n            })\n            .catch( (error) => {\n              reject(error);\n            });\n        }\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n  /**\n   * Get URLs, possibly filtered.\n   *\n   * Any filter can be partial, and is case-insensitive. The result must\n   * match every supplied filter. Undefined filters are not applied.\n   *\n   * @param {Object} [options] optional filters\n   * @param {String} [options.convention] 'HRIR' or 'SOS'\n   * @param {String} [options.dataBase] 'LISTEN', 'BILI', etc.\n   * @param {String} [options.equalisation] 'RAW','COMPENSATED'\n   * @param {String} [options.sampleRate] in Hertz\n   * @param {String} [options.sosOrder] '12order' or '24order'\n   * @param {String} [options.freePattern] any pattern matched\n   * globally. Use separators (spaces, tabs, etc.) to combine multiple\n   * patterns: '44100 listen' will restrict on URLs matching '44100' and\n   * 'listen'\n   * @returns {Array.<String>} URLs that match every filter.\n   */\n  getUrls(options = {}) {\n    // the number and the order of the filters in the following array must\n    // match the URL sub-directories\n    const filters = [\n      options.convention,\n      options.dataBase,\n      options.equalisation,\n      options.sampleRate,\n      options.sosOrder, // in file name\n    ];\n\n    // any where in URL\n    const freePattern = (typeof options.freePattern === 'number'\n                         ? options.freePattern.toString()\n                         : options.freePattern);\n\n    const pattern = filters.reduce( (global, local) => {\n      // partial filter inside slashes\n      return `${global}/` + (typeof local !== 'undefined'\n                             ? `[^/]*${local}[^/]*`\n                             : '[^/]*');\n    }, '');\n\n    let regExp = new RegExp(pattern, 'i');\n\n    let urls = this._urls.filter( (url) => {\n      return regExp.test(url);\n    });\n\n    if (typeof freePattern !== 'undefined') {\n      // split patterns with separators\n      const patterns = freePattern.split(/\\s+/);\n      patterns.forEach( (current) => {\n        regExp = new RegExp(current, 'i');\n\n        urls = urls.filter( (url) => {\n          return regExp.test(url);\n        });\n      });\n    }\n\n    return urls;\n  }\n\n  /**\n   * Get all source positions of a given URL.\n   *\n   * @param {String} sourceUrl is the complete SOFA URL, with the\n   * server, like\n   * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'\n   *\n   * @returns {Promise.<Object|String>} The promise will resolve after\n   * successfully loading, with definitions as * `{definition: {key: values}}`\n   * objects; the promise will reject is the transfer fails, with an error.\n   */\n  getDataSetDefinitions(sourceUrl) {\n    const promise = new Promise( (resolve, reject) => {\n      const url = `${sourceUrl}.dds`;\n      const request = new window.XMLHttpRequest();\n      request.open('GET', url);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${url}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n        resolve(parseDataSet(request.response) );\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n  /**\n   * Get all source positions of a given URL.\n   *\n   * @param {String} sourceUrl is the complete SOFA URL, with the\n   * server, like\n   * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'\n   *\n   * @returns {Promise.<Array<Array.<Number>>|Error>} The promise will resolve\n   * after successfully loading, with an array of positions (which are\n   * arrays of 3 numbers); the promise will reject is the transfer fails,\n   * with an error.\n   */\n  getSourcePositions(sourceUrl) {\n    const promise = new Promise( (resolve, reject) => {\n      const url = `${sourceUrl}.json?SourcePosition`;\n\n      const request = new window.XMLHttpRequest();\n      request.open('GET', url);\n      request.onerror = () => {\n        reject(new Error(`Unable to GET ${url}, status ${request.status} `\n                         + `${request.responseText}`) );\n      };\n\n      request.onload = () => {\n        if (request.status < 200 || request.status >= 300) {\n          request.onerror();\n          return;\n        }\n\n        try {\n          const response = JSON.parse(request.response);\n          if (response.leaves[0].name !== 'SourcePosition') {\n            throw new Error('SourcePosition not found');\n          }\n\n          resolve(response.leaves[0].data);\n        } catch (error) {\n          // re-throw\n          reject(new Error(`Unable to parse response from ${url}. ${error.message}`) );\n        }\n      }; // request.onload\n\n      request.send();\n    });\n\n    return promise;\n  }\n\n}\n\nexport default ServerDataBase;\n"
   },
   {
     "__docId__": 174,
@@ -5691,12 +5691,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_catalogue",
+    "name": "_server",
     "memberof": "src/sofa/ServerDataBase.js~ServerDataBase",
-    "longname": "src/sofa/ServerDataBase.js~ServerDataBase#_catalogue",
+    "longname": "src/sofa/ServerDataBase.js~ServerDataBase#_server",
     "access": null,
     "description": null,
-    "lineNumber": 31,
+    "lineNumber": 34,
     "undocument": true,
     "type": {
       "types": [
@@ -5709,12 +5709,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "_urls",
+    "name": "_catalogue",
     "memberof": "src/sofa/ServerDataBase.js~ServerDataBase",
-    "longname": "src/sofa/ServerDataBase.js~ServerDataBase#_urls",
+    "longname": "src/sofa/ServerDataBase.js~ServerDataBase#_catalogue",
     "access": null,
     "description": null,
-    "lineNumber": 32,
+    "lineNumber": 37,
     "undocument": true,
     "type": {
       "types": [
@@ -5724,6 +5724,24 @@
   },
   {
     "__docId__": 179,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_urls",
+    "memberof": "src/sofa/ServerDataBase.js~ServerDataBase",
+    "longname": "src/sofa/ServerDataBase.js~ServerDataBase#_urls",
+    "access": null,
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 180,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -5732,7 +5750,7 @@
     "longname": "src/sofa/ServerDataBase.js~ServerDataBase#loadCatalogue",
     "access": null,
     "description": "Asynchronously load complete catalogue from the server, including the\ncatalogue links found in any partial catalogue.",
-    "lineNumber": 49,
+    "lineNumber": 55,
     "unknown": [
       {
         "tagName": "@returns",
@@ -5773,7 +5791,7 @@
     "generator": false
   },
   {
-    "__docId__": 180,
+    "__docId__": 181,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -5782,7 +5800,7 @@
     "longname": "src/sofa/ServerDataBase.js~ServerDataBase#getUrls",
     "access": null,
     "description": "Get URLs, possibly filtered.\nAny filter can be partial, and is case-insensitive. The result must\nmatch every supplied filter. Undefined filters are not applied.",
-    "lineNumber": 132,
+    "lineNumber": 138,
     "unknown": [
       {
         "tagName": "@returns",
@@ -5872,7 +5890,7 @@
     "generator": false
   },
   {
-    "__docId__": 181,
+    "__docId__": 182,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -5881,7 +5899,7 @@
     "longname": "src/sofa/ServerDataBase.js~ServerDataBase#getDataSetDefinitions",
     "access": null,
     "description": "Get all source positions of a given URL.",
-    "lineNumber": 187,
+    "lineNumber": 193,
     "unknown": [
       {
         "tagName": "@returns",
@@ -5912,7 +5930,7 @@
     "generator": false
   },
   {
-    "__docId__": 182,
+    "__docId__": 183,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -5921,7 +5939,7 @@
     "longname": "src/sofa/ServerDataBase.js~ServerDataBase#getSourcePositions",
     "access": null,
     "description": "Get all source positions of a given URL.",
-    "lineNumber": 223,
+    "lineNumber": 229,
     "unknown": [
       {
         "tagName": "@returns",
@@ -5952,7 +5970,7 @@
     "generator": false
   },
   {
-    "__docId__": 183,
+    "__docId__": 184,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -5965,7 +5983,7 @@
     "content": "/**\n * @fileOverview Utility classes to handle the loading of HRTF files form a\n * SOFA server.\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015-2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\nimport HrtfSet from './HrtfSet';\nimport ServerDataBase from './ServerDataBase';\n\nexport default {\n  HrtfSet,\n  ServerDataBase,\n};\n"
   },
   {
-    "__docId__": 184,
+    "__docId__": 185,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -5978,7 +5996,7 @@
     "content": "/**\n * @fileOverview Parser for DDS files\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015-2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\n// '[R = 2]'\nconst _dimensionPattern = '\\\\[\\\\s*(\\\\w+)\\\\s*=\\\\s*(\\\\d+)\\\\s*\\\\]';\nconst _dimensionMatch = new RegExp(_dimensionPattern, 'g');\nconst _dimensionSplit = new RegExp(_dimensionPattern);\n\n// 'Float64 ReceiverPosition[R = 2][C = 3][I = 1];'\n//\n// do not re-use dimension pattern (for grouping)\nconst _definitionPattern = '\\\\s*(\\\\w+)\\\\s*([\\\\w.]+)\\\\s*'\n  + '((?:\\\\[[^\\\\]]+\\\\]\\\\s*)+)'\n  + ';\\\\s*';\nconst _definitionMatch = new RegExp(_definitionPattern, 'g');\nconst _definitionSplit = new RegExp(_definitionPattern);\n\n// `Dataset {\n//   Float64 ListenerPosition[I = 1][C = 3];\n//   Float64 ListenerUp[I = 1][C = 3];\n//   Float64 ListenerView[I = 1][C = 3];\n//   Float64 ReceiverPosition[R = 2][C = 3][I = 1];\n//   Float64 SourcePosition[M = 1680][C = 3];\n//   Float64 EmitterPosition[E = 1][C = 3][I = 1];\n//   Float64 Data.SamplingRate[I = 1];\n//   Float64 Data.Delay[I = 1][R = 2];\n//   Float64 Data.IR[M = 1680][R = 2][N = 941];\n//   Float64 RoomVolume[I = 1];\n// } IRC_1100_C_HRIR.sofa;`\n//\n// do not re-use definition pattern (for grouping)\nconst _dataSetPattern = '\\\\s*Dataset\\\\s*\\\\{\\\\s*'\n  + '((?:[^;]+;\\\\s*)*)'\n  + '\\\\s*\\\\}\\\\s*[\\\\w.]+\\\\s*;\\\\s*';\nconst _dataSetSplit = new RegExp(_dataSetPattern);\n\n/**\n * Parses dimension strings into an array of [key, value] pairs.\n *\n * @private\n * @param {String} input is single or multiple dimension\n * @returns {Array.<Array.<String>>} object [key, value] pairs\n *\n * @example\n * _parseDimension('[R = 2]');\n * // [ [ 'R', 2 ] ]\n *\n * _parseDimension('[R = 2][C = 3][I = 1]');\n * // [ [ 'R', 2 ], [ 'C', 3 ], [ 'I', 1 ] ]\n */\nexport function _parseDimension(input) {\n  const parse = [];\n  const inputs = input.match(_dimensionMatch);\n  if (inputs !== null) {\n    inputs.forEach( (inputSingle) => {\n      const parts = _dimensionSplit.exec(inputSingle);\n      if (parts !== null && parts.length > 2) {\n        parse.push([parts[1], Number(parts[2]) ]);\n      }\n    });\n  }\n  return parse;\n}\n\n/**\n * Parse definition strings into an array of [key, {values}] pairs.\n *\n * @param {String} input is single or multiple definition\n * @returns {Array.<Array<String,Object>>} [key, {values}] pairs\n *\n * @private\n * @example\n * _parseDefinition('Float64 ReceiverPosition[R = 2][C = 3][I = 1];');\n * // [ [ 'ReceiverPosition',\n * //     { type: 'Float64', R: 2, C: 3, I: 1 } ] ]\n *\n * _parseDefinition(\n * `    Float64 ReceiverPosition[R = 2][C = 3][I = 1];\n *      Float64 SourcePosition[M = 1680][C = 3];\n *      Float64 EmitterPosition[E = 1][C = 3][I = 1];`);\n * // [ [ 'ReceiverPosition',\n * //      { type: 'Float64', R: 2, C: 3, I: 1 } ],\n * //   [ 'SourcePosition', { type: 'Float64', M: 1680, C: 3 } ],\n * //   [ 'EmitterPosition',\n * //     { type: 'Float64', E: 1, C: 3, I: 1 } ] ]\n */\nexport function _parseDefinition(input) {\n  const parse = [];\n  const inputs = input.match(_definitionMatch);\n  if (inputs !== null) {\n    inputs.forEach( (inputSingle) => {\n      const parts = _definitionSplit.exec(inputSingle);\n      if (parts !== null && parts.length > 3) {\n        const current = [];\n        current[0] = parts[2];\n        current[1] = {};\n        current[1].type = parts[1];\n        _parseDimension(parts[3]).forEach( (dimension) => {\n          current[1][dimension[0] ] = dimension[1];\n        });\n        parse.push(current);\n      }\n    });\n  }\n  return parse;\n}\n\n/**\n * Parse data set meta data into an object of `{definition: {key: values}}` objects.\n *\n * @param {String} input data set DDS-like.\n * @returns {Object} definitions as `{definition: {key: values}}` objects.\n *\n * @example\n * _parseDataSet(\n * `Dataset {\n *      Float64 ReceiverPosition[R = 2][C = 3][I = 1];\n *      Float64 SourcePosition[M = 1680][C = 3];\n *      Float64 EmitterPosition[E = 1][C = 3][I = 1];\n *      Float64 Data.SamplingRate[I = 1];\n * } IRC_1100_C_HRIR.sofa;`);\n * //  { ReceiverPosition: { type: 'Float64', R: 2, C: 3, I: 1 },\n * //    SourcePosition: { type: 'Float64', M: 1680, C: 3 },\n * //    EmitterPosition: { type: 'Float64', E: 1, C: 3, I: 1 }\n * //    'Data.SamplingRate': { type: 'Float64', I: 1 } }\n */\nexport function parseDataSet(input) {\n  const parse = {};\n  const definitions = _dataSetSplit.exec(input);\n  if (definitions !== null && definitions.length > 1) {\n    _parseDefinition(definitions[1]).forEach( (definition) => {\n      parse[definition[0] ] = definition[1];\n    });\n  }\n  return parse;\n}\n\nexport default parseDataSet;\n"
   },
   {
-    "__docId__": 185,
+    "__docId__": 186,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6016,7 +6034,7 @@
     }
   },
   {
-    "__docId__": 186,
+    "__docId__": 187,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6037,7 +6055,7 @@
     }
   },
   {
-    "__docId__": 187,
+    "__docId__": 188,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6058,7 +6076,7 @@
     }
   },
   {
-    "__docId__": 188,
+    "__docId__": 189,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6079,7 +6097,7 @@
     }
   },
   {
-    "__docId__": 189,
+    "__docId__": 190,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6100,7 +6118,7 @@
     }
   },
   {
-    "__docId__": 190,
+    "__docId__": 191,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6121,7 +6139,7 @@
     }
   },
   {
-    "__docId__": 191,
+    "__docId__": 192,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6142,7 +6160,7 @@
     }
   },
   {
-    "__docId__": 192,
+    "__docId__": 193,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -6163,7 +6181,7 @@
     }
   },
   {
-    "__docId__": 193,
+    "__docId__": 194,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -6208,7 +6226,7 @@
     "generator": false
   },
   {
-    "__docId__": 194,
+    "__docId__": 195,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -6253,7 +6271,7 @@
     "generator": false
   },
   {
-    "__docId__": 195,
+    "__docId__": 196,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -6298,7 +6316,7 @@
     "generator": false
   },
   {
-    "__docId__": 196,
+    "__docId__": 197,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -6311,7 +6329,7 @@
     "content": "/**\n * @fileOverview Parser functions for SOFA files\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\n/**\n * Parses a SOFA JSON string with into an object with `data` and `metaData`\n * attributes.\n *\n * @param {String} sofaString\n * @returns {Object} with `data` and `metaData` attributes\n * @throws {Error} when the parsing fails\n */\nexport function parseSofa(sofaString) {\n  try {\n    const sofa = JSON.parse(sofaString);\n    const hrtf = {};\n\n    hrtf.name = sofa.name;\n\n    if (typeof sofa.attributes !== 'undefined') {\n      hrtf.metaData = {};\n      const metaData = sofa.attributes.find( (e) => {\n        return e.name === 'NC_GLOBAL';\n      });\n      if (typeof metaData !== 'undefined') {\n        metaData.attributes.forEach( (e) => {\n          hrtf.metaData[e.name] = e.value[0];\n        });\n      }\n    }\n\n    if (typeof sofa.leaves !== 'undefined') {\n      const data = sofa.leaves;\n      data.forEach( (d) => {\n        hrtf[d.name] = {};\n        d.attributes.forEach( (a) => {\n          hrtf[d.name][a.name] = a.value[0];\n        });\n        hrtf[d.name].shape = d.shape;\n        hrtf[d.name].data = d.data;\n      });\n    }\n\n    return hrtf;\n  } catch (error) {\n    throw new Error(`Unable to parse SOFA string. ${error.message}`);\n  }\n}\n\n/**\n * Prefix SOFA coordinates type with `sofa`.\n *\n * @param {String} sofaType : either `cartesian` or `spherical`\n * @returns {String} either `sofaCartesian` or `sofaSpherical`\n * @throws {Error} if sofaType is unknown\n */\nexport function conformSofaType(sofaType) {\n  let type;\n\n  switch (sofaType) {\n    case ('cartesian'):\n      type = 'sofaCartesian';\n      break;\n\n    case ('spherical'):\n      type = 'sofaSpherical';\n      break;\n\n    default:\n      throw new Error(`Bad SOFA type ${sofaType}`);\n  }\n  return type;\n}\n\nexport default {\n  parseSofa,\n  conformSofaType,\n};\n"
   },
   {
-    "__docId__": 197,
+    "__docId__": 198,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -6361,7 +6379,7 @@
     "generator": false
   },
   {
-    "__docId__": 198,
+    "__docId__": 199,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -6411,7 +6429,7 @@
     "generator": false
   },
   {
-    "__docId__": 199,
+    "__docId__": 200,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -6424,7 +6442,7 @@
     "content": "/**\n * @fileOverview Simple XML parser, as a DOM parser.\n * @author Jean-Philippe.Lambert@ircam.fr\n * @copyright 2015-2016 IRCAM, Paris, France\n * @license BSD-3-Clause\n */\n\n/**\n * Parse an XML string into an XMLDocument object, using native browser DOM\n * parser.\n *\n * It requires a browser environment.\n *\n * @function parseXml\n * @param {String} xmlStr full valid XML data.\n * @returns {Object} XMLDocument, DOM-like. (Use any selector.)\n *\n * @example\n * const request = new window.XMLHttpRequest();\n * request.open('GET', 'http://bili2.ircam.fr/catalog.xml');\n * request.onerror =  () => {\n *    throw new Error(`Unable to GET: ${request.status}`);\n * };\n * request.onload = () => {\n *   const xml = parseXml(request.response);\n *   const catalogueReferences = xml.querySelector('dataset > catalogRef');\n *   console.log(catalogueReferences);\n * }\n * request.send();\n */\nexport let parseXml;\n\nif (typeof window.DOMParser !== 'undefined') {\n  parseXml = function parseXmlDOM(xmlStr) {\n    return (new window.DOMParser()).parseFromString(xmlStr, 'text/xml');\n  };\n} else if (typeof window.ActiveXObject !== 'undefined' &&\n           new window.ActiveXObject('Microsoft.XMLDOM')) {\n  parseXml = function parseXmlActiveX(xmlStr) {\n    const xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM');\n    xmlDoc.async = 'false';\n    xmlDoc.loadXML(xmlStr);\n    return xmlDoc;\n  };\n} else {\n  throw new Error('No XML parser found');\n}\n\nexport default parseXml;\n"
   },
   {
-    "__docId__": 201,
+    "__docId__": 202,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6437,7 +6455,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 202,
+    "__docId__": 203,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6450,7 +6468,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 203,
+    "__docId__": 204,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6463,7 +6481,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 204,
+    "__docId__": 205,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6476,7 +6494,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 205,
+    "__docId__": 206,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6489,7 +6507,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 206,
+    "__docId__": 207,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6502,7 +6520,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 207,
+    "__docId__": 208,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6515,7 +6533,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 208,
+    "__docId__": 209,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6528,7 +6546,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 209,
+    "__docId__": 210,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6541,7 +6559,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 210,
+    "__docId__": 211,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6554,7 +6572,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 211,
+    "__docId__": 212,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6567,7 +6585,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 212,
+    "__docId__": 213,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6580,7 +6598,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 213,
+    "__docId__": 214,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6593,7 +6611,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 214,
+    "__docId__": 215,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6606,7 +6624,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 215,
+    "__docId__": 216,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6619,7 +6637,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 216,
+    "__docId__": 217,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6632,7 +6650,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 217,
+    "__docId__": 218,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6645,7 +6663,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 218,
+    "__docId__": 219,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6658,7 +6676,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 219,
+    "__docId__": 220,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6671,7 +6689,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 220,
+    "__docId__": 221,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6684,7 +6702,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 221,
+    "__docId__": 222,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6697,7 +6715,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 222,
+    "__docId__": 223,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6710,7 +6728,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 223,
+    "__docId__": 224,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6723,7 +6741,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 224,
+    "__docId__": 225,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6736,7 +6754,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 225,
+    "__docId__": 226,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6749,7 +6767,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 226,
+    "__docId__": 227,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6762,7 +6780,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 227,
+    "__docId__": 228,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6775,7 +6793,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 228,
+    "__docId__": 229,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6788,7 +6806,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 229,
+    "__docId__": 230,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6801,7 +6819,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 230,
+    "__docId__": 231,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6814,7 +6832,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 231,
+    "__docId__": 232,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6827,7 +6845,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 232,
+    "__docId__": 233,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6840,7 +6858,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 233,
+    "__docId__": 234,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6853,7 +6871,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 234,
+    "__docId__": 235,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6866,7 +6884,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 235,
+    "__docId__": 236,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6879,7 +6897,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 236,
+    "__docId__": 237,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6892,7 +6910,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 237,
+    "__docId__": 238,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6905,7 +6923,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 238,
+    "__docId__": 239,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6918,7 +6936,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 239,
+    "__docId__": 240,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6931,7 +6949,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 240,
+    "__docId__": 241,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6944,7 +6962,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 241,
+    "__docId__": 242,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6957,7 +6975,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 242,
+    "__docId__": 243,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6970,7 +6988,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 243,
+    "__docId__": 244,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6983,7 +7001,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 244,
+    "__docId__": 245,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -6996,7 +7014,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 245,
+    "__docId__": 246,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7009,7 +7027,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 246,
+    "__docId__": 247,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7022,7 +7040,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 247,
+    "__docId__": 248,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7035,7 +7053,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 249,
+    "__docId__": 250,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7048,7 +7066,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 250,
+    "__docId__": 251,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7061,7 +7079,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 251,
+    "__docId__": 252,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7074,7 +7092,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 252,
+    "__docId__": 253,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7087,7 +7105,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 253,
+    "__docId__": 254,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7100,7 +7118,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 254,
+    "__docId__": 255,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7113,7 +7131,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 255,
+    "__docId__": 256,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -7126,7 +7144,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 256,
+    "__docId__": 257,
     "kind": "external",
     "static": true,
     "variation": null,

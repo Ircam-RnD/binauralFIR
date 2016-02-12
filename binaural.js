@@ -1,3059 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.binaural = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.BinauralPanner = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Multi-source binaural panner.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license CECILL-2.1
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
-
-var _glMatrix = require('gl-matrix');
-
-var _glMatrix2 = _interopRequireDefault(_glMatrix);
-
-var _coordinates = require('../geometry/coordinates');
-
-var _HrtfSet = require('../sofa/HrtfSet');
-
-var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
-
-var _Source = require('./Source');
-
-var _Source2 = _interopRequireDefault(_Source);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Binaural panner with multiple sources and a listener.
- */
-
-var BinauralPanner = exports.BinauralPanner = function () {
-
-  /**
-   * Constructs an HRTF set. Note that the filter positions are applied
-   * during the load of an HRTF URL.
-   *
-   * See {@link HrtfSet}.
-   * See {@link BinauralPanner#loadHrtfSet}.
-   *
-   * @param {Object} options
-   * @param {AudioContext} options.audioContext mandatory for the creation
-   * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link BinauralPanner#positionsType}
-   * @param {Number} [options.sourceCount=1]
-   * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
-   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
-   * @param {Number} [options.crossfadeDuration] in seconds.
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link BinauralPanner#filterPositionsType}
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
-   * array of positions to filter. Use undefined to use all positions from the HRTF set.
-   * {@link BinauralPanner#filterPositions}
-   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
-   * full load of SOFA file
-   * @param {coordinates} [options.listenerPosition=[0,0,0]]
-   * {@link BinauralPanner#listenerPosition}
-   * @param {coordinates} [options.listenerUp=[0,1,0]]
-   * {@link BinauralPanner#listenerUp}
-   * @param {coordinates} [options.listenerView=[0,0,-1]]
-   * {@link BinauralPanner#listenerView}
-   */
-
-  function BinauralPanner() {
-    var _this = this;
-
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, BinauralPanner);
-
-    this._audioContext = options.audioContext;
-
-    this.positionsType = options.positionsType;
-
-    var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
-
-    this._listenerOutdated = true;
-    this._listenerLookAt = [];
-
-    this._listenerPosition = [];
-    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this.positionsType);
-
-    this._listenerUp = [];
-    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this.positionsType);
-
-    this._listenerView = [];
-    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this.positionsType);
-
-    this._sourcesOutdated = new Array(sourceCount).fill(true);
-
-    this._sources = this._sourcesOutdated.map(function () {
-      return new _Source2.default({
-        audioContext: _this._audioContext,
-        crossfadeDuration: options.crossfadeDuration
-      });
-    });
-
-    this._sourcePositionsAbsolute = this._sourcesOutdated.map(function () {
-      return [0, 0, 1]; // allocation and default value
-    });
-
-    this._sourcePositionsRelative = this._sourcesOutdated.map(function () {
-      return [0, 0, 1]; // allocation and default value
-    });
-
-    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
-      audioContext: this._audioContext,
-      positionsType: 'gl'
-    });
-
-    this.filterPositionsType = options.filterPositionsType;
-    this.filterPositions = options.filterPositions;
-    this.filterAfterLoad = options.filterAfterLoad;
-
-    if (typeof options.sourcePositions !== 'undefined') {
-      this.sourcePositions = options.sourcePositions;
-    }
-
-    this.update();
-  }
-
-  // ----------- accessors
-
-  /**
-   * Set coordinates type for positions.
-   *
-   * @param {coordinatesType} [type='gl']
-   */
-
-
-  _createClass(BinauralPanner, [{
-    key: 'setSourcePositionByIndex',
-
-
-    /**
-     * Set the position of one source. It will update the corresponding
-     * relative position after a call to the update method.
-     *
-     * See {@link BinauralPanner#update}.
-     *
-     * @param {Number} index
-     * @param {coordinates} positionRequest
-     * @returns {this}
-     */
-    value: function setSourcePositionByIndex(index, positionRequest) {
-      this._sourcesOutdated[index] = true;
-      (0, _coordinates.typedToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.positionsType);
-
-      return this;
-    }
-
-    /**
-     * Get the position of one source.
-     *
-     * @param {Number} index
-     * @returns {coordinates}
-     */
-
-  }, {
-    key: 'getSourcePositionByIndex',
-    value: function getSourcePositionByIndex(index) {
-      return (0, _coordinates.glToTyped)([], this._sourcePositionsAbsolute[index], this.positionsType);
-    }
-
-    // ----------- public methods
-
-    /**
-     * Load an HRTF set form an URL, and update sources.
-     *
-     * See {@link HrtfSet#load}.
-     *
-     * @param {String} sourceUrl
-     * @returns {Promise.<this|Error>} resolve when URL successfully
-     * loaded.
-     */
-
-  }, {
-    key: 'loadHrtfSet',
-    value: function loadHrtfSet(sourceUrl) {
-      var _this2 = this;
-
-      return this._hrtfSet.load(sourceUrl).then(function () {
-        _this2._sourcesOutdated.fill(true);
-        _this2.update();
-        return _this2;
-      });
-    }
-
-    /**
-     * Connect the input of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectInputByIndex',
-    value: function connectInputByIndex(index, nodesToConnect, output, input) {
-      this._sources[index].connectInput(nodesToConnect, output, input);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of one source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInputByIndex',
-    value: function disconnectInputByIndex(index, nodesToDisconnect) {
-      this._sources[index].disconnectInput(nodesToDisconnect);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of each source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInputs',
-    value: function disconnectInputs(nodesToDisconnect) {
-      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-      this._sources.forEach(function (source, index) {
-        source.disconnectInput(nodes[index]);
-      });
-
-      return this;
-    }
-
-    /**
-     * Connect the output of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutputByIndex',
-    value: function connectOutputByIndex(index, nodesToConnect, output, input) {
-      this._sources[index].connectOutput(nodesToConnect, output, input);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutputByIndex',
-    value: function disconnectOutputByIndex(index, nodesToDisconnect) {
-      this._sources[index].disconnectOutput(nodesToDisconnect);
-
-      return this;
-    }
-
-    /**
-     * Connect each output of each source. Note that the number of nodes to
-     * connect must match the number of sources.
-     *
-     * See {@link BinauralPanner#connectOutputByIndex}.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutputs',
-    value: function connectOutputs(nodesToConnect, output, input) {
-      this._sources.forEach(function (source) {
-        source.connectOutput(nodesToConnect, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of each source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutputs',
-    value: function disconnectOutputs(nodesToDisconnect) {
-      this._sources.forEach(function (source) {
-        source.disconnectOutput(nodesToDisconnect);
-      });
-
-      return this;
-    }
-
-    /**
-     * Update the sources filters, according to possible changes in listener,
-     * and source positions.
-     *
-     * @returns {this}
-     */
-
-  }, {
-    key: 'update',
-    value: function update() {
-      var _this3 = this;
-
-      if (this._listenerOutdated) {
-        _glMatrix2.default.mat4.lookAt(this._listenerLookAt, this._listenerPosition, this._listenerView, this._listenerUp);
-
-        this._sourcesOutdated.fill(true);
-      }
-
-      if (this._hrtfSet.isReady) {
-        this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
-          if (_this3._sourcesOutdated[index]) {
-            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listenerLookAt);
-
-            _this3._sources[index].position = _this3._sourcePositionsRelative[index];
-
-            _this3._sourcesOutdated[index] = false;
-          }
-        });
-      }
-
-      return this;
-    }
-  }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
-    }
-
-    /**
-     * Get coordinates type for positions.
-     *
-     * @returns {coordinatesType}
-     */
-    ,
-    get: function get() {
-      return this._positionsType;
-    }
-
-    /**
-     * Refer an external HRTF set, and update sources. Its positions
-     * coordinate type must be 'gl'.
-     *
-     * See {@link HrtfSet}.
-     * See {@link BinauralPanner#update}.
-     *
-     * @param {HrtfSet} hrtfSet
-     * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
-     * not 'gl'.
-     */
-
-  }, {
-    key: 'hrtfSet',
-    set: function set(hrtfSet) {
-      var _this4 = this;
-
-      if (typeof hrtfSet !== 'undefined') {
-        if (hrtfSet.positionsType !== 'gl') {
-          throw new Error('positions type of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.positionsType + '\') ')(_templateObject));
-        }
-        this._hrtfSet = hrtfSet;
-      } else {
-        throw new Error('Undefined HRTF set for BinauralPanner');
-      }
-
-      // update HRTF set references
-      this._sourcesOutdated.fill(true);
-      this._sources.forEach(function (source) {
-        source.hrtfSet = _this4._hrtfSet;
-      });
-
-      this.update();
-    }
-
-    /**
-     * Get the HrtfSet.
-     *
-     * @returns {HrtfSet}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet;
-    }
-
-    // ------------- HRTF set proxies
-
-    /**
-     * Set the filter positions of the HRTF set
-     *
-     * See {@link HrtfSet#filterPositions}.
-     *
-     * @param {Array.<coordinates>} positions
-     */
-
-  }, {
-    key: 'filterPositions',
-    set: function set(positions) {
-      this._hrtfSet.filterPositions = positions;
-    }
-
-    /**
-     * Get the filter positions of the HRTF set
-     *
-     * See {@link HrtfSet#filterPositions}.
-     *
-     * @return {Array.<coordinates>} positions
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterPositions;
-    }
-
-    /**
-     * Set coordinates type for positions.
-     *
-     * @param {coordinatesType} [type='gl']
-     */
-
-  }, {
-    key: 'filterPositionsType',
-    set: function set(type) {
-      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
-    }
-
-    /**
-     * Get coordinates type for filters.
-     *
-     * @returns {coordinatesType}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterPositionsType;
-    }
-
-    /**
-     * Set post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @param {Boolean} [post=false]
-     */
-
-  }, {
-    key: 'filterAfterLoad',
-    set: function set(post) {
-      this._hrtfSet.filterAfterLoad = post;
-    }
-
-    /**
-     * Get post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @returns {Boolean}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterAfterLoad;
-    }
-
-    /**
-     * Set listener position. It will update the relative positions of the
-     * sources after a call to the update method.
-     *
-     * Default value is [0, 0, 0] in 'gl' coordinates.
-     *
-     * See {@link BinauralPanner#update}.
-     *
-     * @param {coordinates} positionRequest
-     */
-
-  }, {
-    key: 'listenerPosition',
-    set: function set(positionRequest) {
-      (0, _coordinates.typedToGl)(this._listenerPosition, positionRequest, this._positionsType);
-      this._listenerOutdated = true;
-    }
-
-    /**
-     * Get listener position.
-     *
-     * @returns {coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerPosition, this._positionsType);
-    }
-
-    /**
-     * Set listener up direction (not an absolute position). It will update
-     * the relative positions of the sources after a call to the update
-     * method.
-     *
-     * Default value is [0, 1, 0] in 'gl' coordinates.
-     *
-     * See {@link BinauralPanner#update}.
-     *
-     * @param {coordinates} positionRequest
-     */
-
-  }, {
-    key: 'listenerUp',
-    set: function set(upRequest) {
-      (0, _coordinates.typedToGl)(this._listenerUp, upRequest, this._positionsType);
-      this._listenerOutdated = true;
-    }
-
-    /**
-     * Get listener up direction.
-     *
-     * @returns {coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerUp, this._positionsType);
-    }
-
-    /**
-     * Set listener view, as an aiming position. It is an absolute position,
-     * and not a direction. It will update the relative positions of the
-     * sources after a call to the update method.
-     *
-     * Default value is [0, 0, -1] in 'gl' coordinates.
-     *
-     * See {@link BinauralPanner#update}.
-     *
-     * @param {coordinates} positionRequest
-     */
-
-  }, {
-    key: 'listenerView',
-    set: function set(viewRequest) {
-      (0, _coordinates.typedToGl)(this._listenerView, viewRequest, this._positionsType);
-      this._listenerOutdated = true;
-    }
-
-    /**
-     * Get listener view direction.
-     *
-     * @returns {coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerView, this._positionsType);
-    }
-
-    /**
-     * Set the sources positions. It will update the relative positions after
-     * a call to the update method.
-     *
-     * See {@link BinauralPanner#update}.
-     * See {@link BinauralPanner#setSourcePositionByIndex}.
-     *
-     * @param {Array.<coordinates>} positionsRequest
-     * @throws {Error} if the length of positionsRequest is not the same as
-     * the number of sources
-     */
-
-  }, {
-    key: 'sourcePositions',
-    set: function set(positionsRequest) {
-      var _this5 = this;
-
-      if (positionsRequest.length !== this._sources.length) {
-        throw new Error('Bad number of source positions: ' + (positionsRequest.length + ' ') + ('instead of ' + this._sources.length));
-      }
-
-      positionsRequest.forEach(function (position, index) {
-        _this5._sourcesOutdated[index] = true;
-        _this5.setSourcePositionByIndex(index, position);
-      });
-    }
-
-    /**
-     * Get the source positions.
-     *
-     * @returns {Array.<coordinates>}
-     */
-    ,
-    get: function get() {
-      var _this6 = this;
-
-      return this._sourcePositionsAbsolute.map(function (position) {
-        return (0, _coordinates.glToTyped)([], position, _this6.positionsType);
-      });
-    }
-  }]);
-
-  return BinauralPanner;
-}();
-
-exports.default = BinauralPanner;
-},{"../geometry/coordinates":8,"../sofa/HrtfSet":12,"./Source":2,"gl-matrix":18}],2:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @fileOverview Source for binaural processing.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Single source.
- *
- * See {@link BinauralPanner}.
- */
-
-var Source = exports.Source = function () {
-
-  /**
-   * Construct a source, with and AudioContext and an HrtfSet.
-   *
-   * See {@link HrtfSet}.
-   *
-   * @param {Object} options
-   * @param {AudioContext} options.audioContext mandatory for the creation
-   * of FIR audio buffers
-   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.
-   * {@link Source#position}
-   * @param {Number} [crossfadeDuration] in seconds
-   * {@link Source#crossfadeDuration}
-   */
-
-  function Source() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, Source);
-
-    this._audioContext = options.audioContext;
-    this._hrtfSet = options.hrtfSet;
-
-    this._convolverCurrent = this._audioContext.createConvolver();
-    this._convolverCurrent.normalize = false;
-
-    this._gainCurrent = this._audioContext.createGain();
-    this._convolverCurrent.connect(this._gainCurrent);
-
-    this._convolverNext = this._audioContext.createConvolver();
-    this._convolverNext.normalize = false;
-
-    this._gainNext = this._audioContext.createGain();
-    this._convolverNext.connect(this._gainNext);
-
-    this.crossfadeDuration = options.crossfadeDuration;
-
-    this._crossfadeAfterTime = this._audioContext.currentTime;
-    this._crossfadeTimeout = undefined;
-
-    // set position when everything is ready
-    if (typeof options.position !== 'undefined') {
-      this.position = options.position;
-    }
-  }
-
-  // ----------- accessors
-
-  /**
-   * Set the crossfade duration when the position changes.
-   *
-   * @param {Number} [duration=0.02] in seconds
-   */
-
-
-  _createClass(Source, [{
-    key: 'connectInput',
-
-
-    // ----------- public methods
-
-    /**
-     * Connect the input of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-    value: function connectInput(nodesToConnect, output, input) {
-      var _this = this;
-
-      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
-
-      nodes.forEach(function (node) {
-        node.connect(_this._convolverCurrent, output, input);
-        node.connect(_this._convolverNext, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInput',
-    value: function disconnectInput(nodesToDisconnect) {
-      var _this2 = this;
-
-      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-      nodes.forEach(function (node) {
-        node.disconnect(_this2._convolverCurrent);
-        node.disconnect(_this2._convolverNext);
-      });
-
-      return this;
-    }
-
-    /**
-     * Connect the output of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutput',
-    value: function connectOutput(nodesToConnect, output, input) {
-      var _this3 = this;
-
-      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
-
-      nodes.forEach(function (node) {
-        _this3._gainCurrent.connect(node, output, input);
-        _this3._gainNext.connect(node, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutput',
-    value: function disconnectOutput(nodesToDisconnect) {
-      var _this4 = this;
-
-      if (typeof nodesToDisconnect === 'undefined') {
-        // disconnect all
-        this._gainCurrent.disconnect();
-        this._gainNext.disconnect();
-      } else {
-        var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-        nodes.forEach(function (node) {
-          _this4._gainCurrent.disconnect(node);
-          _this4._gainNext.disconnect(node);
-        });
-      }
-
-      return this;
-    }
-  }, {
-    key: 'crossfadeDuration',
-    set: function set() {
-      var duration = arguments.length <= 0 || arguments[0] === undefined ? 0.02 : arguments[0];
-
-      this._crossfadeDuration = duration;
-    }
-
-    /**
-     * Get the crossfade duration when the position changes.
-     *
-     * @returns {Number} in seconds
-     */
-    ,
-    get: function get() {
-      return this._crossfadeDuration;
-    }
-
-    /**
-     * Refer an external HRTF set.
-     *
-     * @param {HrtfSet} hrtfSet
-     */
-
-  }, {
-    key: 'hrtfSet',
-    set: function set(hrtfSet) {
-      this._hrtfSet = hrtfSet;
-    }
-
-    /**
-     * Get the HrtfSet.
-     *
-     * @returns {HrtfSet}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet;
-    }
-
-    /**
-     * Set the position of the source and updates.
-     *
-     * @param {coordinates} positionRequest
-     */
-
-  }, {
-    key: 'position',
-    set: function set(positionRequest) {
-      var _this5 = this;
-
-      clearTimeout(this._crossfadeTimeout);
-      var now = this._audioContext.currentTime;
-      if (now >= this._crossfadeAfterTime) {
-        this._crossfadeAfterTime = now + this._crossfadeDuration;
-
-        // swap
-        var tmp = this._convolverCurrent;
-        this._convolverCurrent = this._convolverNext;
-        this._convolverNext = tmp;
-
-        tmp = this._gainCurrent;
-        this._gainCurrent = this._gainNext;
-        this._gainNext = tmp;
-
-        this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);
-
-        // fade in next
-        this._gainNext.gain.cancelScheduledValues(now);
-        this._gainNext.gain.setValueAtTime(0, now);
-        this._gainNext.gain.linearRampToValueAtTime(1, now + this._crossfadeDuration);
-
-        // fade out current
-        this._gainCurrent.gain.cancelScheduledValues(now);
-        this._gainCurrent.gain.setValueAtTime(1, now);
-        this._gainCurrent.gain.linearRampToValueAtTime(0, now + this._crossfadeDuration);
-      } else {
-        // re-schedule later
-        this._crossfadeTimeout = setTimeout(function () {
-          _this5.position = positionRequest;
-        }, 0.02);
-      }
-    }
-  }]);
-
-  return Source;
-}();
-
-exports.default = Source;
-},{}],3:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _BinauralPanner = require('./BinauralPanner');
-
-var _BinauralPanner2 = _interopRequireDefault(_BinauralPanner);
-
-var _utilities = require('./utilities');
-
-var _utilities2 = _interopRequireDefault(_utilities);
-
-var _Source = require('./Source');
-
-var _Source2 = _interopRequireDefault(_Source);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  BinauralPanner: _BinauralPanner2.default,
-  Source: _Source2.default,
-  utilities: _utilities2.default
-};
-},{"./BinauralPanner":1,"./Source":2,"./utilities":4}],4:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-exports.dBToLin = dBToLin;
-exports.createDiracBuffer = createDiracBuffer;
-exports.createNoiseBuffer = createNoiseBuffer;
-exports.resampleFloat32Array = resampleFloat32Array;
-/**
- * @fileOverview Audio utilities
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Convert a dB value to a linear amplitude, i.e. -20dB gives 0.1
- *
- * @param {Number} dBValue
- * @returns {Number}
- */
-function dBToLin(dBValue) {
-  var factor = 1 / 20;
-  return Math.pow(10, dBValue * factor);
-}
-
-/**
- * Create a Dirac buffer, zero-padded.
- *
- * Warning: the default length is 2 samples,
- * to by-pass a bug in Safari ≤ 9.
- *
- * @param {Object} options
- * @param {AudioContext} options.audioContext must be defined
- * @param {Number} [options.channelCount=1]
- * @param {Number} [options.gain=0] in dB
- * @param {Number} [options.length=2] in samples
- * @returns {AudioBuffer}
- */
-function createDiracBuffer() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  var context = options.audioContext;
-
-  var length = typeof options.length !== 'undefined' ? options.length : 2; // Safari ≤9 needs one more
-  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : 1;
-  var gain = typeof options.gain !== 'undefined' ? options.gain : 0; // dB
-
-  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
-  var data = buffer.getChannelData(0);
-
-  var amplitude = dBToLin(gain);
-  data[0] = amplitude;
-  // already padded with zeroes
-
-  return buffer;
-}
-
-/**
- * Create a noise buffer.
- *
- * @param {Object} options
- * @param {AudioContext} options.audioContext must be defined
- * @param {Number} [options.channelCount=1]
- * @param {Number} [options.duration=5] in seconds
- * @param {Number} [options.gain=-30] in dB
- * @returns {AudioBuffer}
- */
-function createNoiseBuffer() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  var context = options.audioContext;
-  var duration = typeof options.duration !== 'undefined' ? options.duration : 5;
-
-  var gain = typeof options.gain !== 'undefined' ? options.gain : -30; // dB
-
-  var channelCount = _typeof(options.channelCount) ? options.channelCount : context.destination.channelCount;
-
-  var length = duration * context.sampleRate;
-  var amplitude = dBToLin(gain);
-  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
-  for (var c = 0; c < channelCount; ++c) {
-    var data = buffer.getChannelData(c);
-    for (var i = 0; i < length; ++i) {
-      data[i] = amplitude * (Math.random() * 2 - 1);
-    }
-  }
-  return buffer;
-}
-
-/**
- * Convert an array, typed or not, to a Float32Array, with possible re-sampling.
- *
- * @param {Object} options
- * @param {Array} options.inputSamples input array
- * @param {Number} options.inputSampleRate in Hertz
- * @param {Number} [options.outputSampleRate=options.inputSampleRate]
- * @returns {Promise.<Float32Array|Error>}
- */
-function resampleFloat32Array() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  var promise = new Promise(function (resolve, reject) {
-    var inputSamples = options.inputSamples;
-    var inputSampleRate = options.inputSampleRate;
-
-    var outputSampleRate = typeof options.outputSampleRate !== 'undefined' ? options.outputSampleRate : inputSampleRate;
-
-    if (inputSampleRate === outputSampleRate) {
-      resolve(new Float32Array(inputSamples));
-    } else {
-      try {
-        var outputSamplesNb = Math.ceil(inputSamples.length * outputSampleRate / inputSampleRate);
-
-        var context = new window.OfflineAudioContext(1, outputSamplesNb, outputSampleRate);
-
-        var inputBuffer = context.createBuffer(1, inputSamples.length, inputSampleRate);
-
-        inputBuffer.getChannelData(0).set(inputSamples);
-
-        var source = context.createBufferSource();
-        source.buffer = inputBuffer;
-        source.connect(context.destination);
-
-        source.start(); // will start with offline context
-
-        context.oncomplete = function (event) {
-          var outputSamples = event.renderedBuffer.getChannelData(0);
-          resolve(outputSamples);
-        };
-
-        context.startRendering();
-      } catch (error) {
-        reject(new Error('Unable to re-sample Float32Array. ' + error.message));
-      }
-    }
-  });
-
-  return promise;
-}
-
-exports.default = {
-  dBToLin: dBToLin,
-  createDiracBuffer: createDiracBuffer,
-  createNoiseBuffer: createNoiseBuffer,
-  resampleFloat32Array: resampleFloat32Array
-};
-},{}],5:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _utilities = require('./utilities');
-
-var _utilities2 = _interopRequireDefault(_utilities);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  utilities: _utilities2.default
-};
-},{"./utilities":6}],6:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.almostEquals = almostEquals;
-exports.almostEqualsModulo = almostEqualsModulo;
-/**
- * @fileOverview Common utilities
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Test whether a value is around a reference, given a tolerance.
- *
- * @param {Number} value
- * @param {Number} reference
- * @param {Number} [tolerance=Number.EPSILON]
- * @returns {Number} Math.abs(value - reference) <= tolerance;
- */
-function almostEquals(value, reference) {
-  var tolerance = arguments.length <= 2 || arguments[2] === undefined ? Number.EPSILON : arguments[2];
-
-  return Math.abs(value - reference) <= tolerance;
-}
-
-/**
- * Test whether a value is around a reference, given a tolerance and a
- * modulo.
- *
- * @param {Number} value
- * @param {Number} reference
- * @param {Number} modulo
- * @param {Number} [tolerance=Number.EPSILON]
- * @returns {Number} Math.abs(value - reference) % modulo <= tolerance;
- */
-function almostEqualsModulo(value, reference, modulo) {
-  var tolerance = arguments.length <= 3 || arguments[3] === undefined ? Number.EPSILON : arguments[3];
-
-  return Math.abs(value - reference) % modulo <= tolerance;
-}
-
-exports.default = {
-  almostEquals: almostEquals,
-  almostEqualsModulo: almostEqualsModulo
-};
-},{}],7:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.tree = undefined;
-exports.distanceSquared = distanceSquared;
-exports.distance = distance;
-
-var _kd = require('kd.tree');
-
-var _kd2 = _interopRequireDefault(_kd);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.tree = _kd2.default;
-
-/**
- * Get the squared distance between to points.
- *
- * (Avoid computing the square-root when unnecessary.)
- *
- * @param {Object} a in cartesian coordinates.
- * @param {Number} a.x
- * @param {Number} a.y
- * @param {Number} a.z
- * @param {Object} b in cartesian coordinates.
- * @param {Number} b.x
- * @param {Number} b.y
- * @param {Number} b.z
- * @returns {Number}
- */
-/**
- * @fileOverview Helpers for k-d tree.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-function distanceSquared(a, b) {
-  var x = b.x - a.x;
-  var y = b.y - a.y;
-  var z = b.z - a.z;
-  return x * x + y * y + z * z;
-}
-
-/**
- * Get the distance between to points.
- *
- * @param {Object} a in cartesian coordinates.
- * @param {Number} a.x
- * @param {Number} a.y
- * @param {Number} a.z
- * @param {Object} b in cartesian coordinates.
- * @param {Number} b.x
- * @param {Number} b.y
- * @param {Number} b.z
- * @returns {Number}
- */
-function distance(a, b) {
-  return Math.sqrt(this.distanceSquared(a, b));
-}
-
-exports.default = {
-  distance: distance,
-  distanceSquared: distanceSquared,
-  tree: _kd2.default
-};
-},{"kd.tree":28}],8:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sofaCartesianToGl = sofaCartesianToGl;
-exports.glToSofaCartesian = glToSofaCartesian;
-exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
-exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
-exports.sofaSphericalToGl = sofaSphericalToGl;
-exports.glToSofaSpherical = glToSofaSpherical;
-exports.typedToSofaCartesian = typedToSofaCartesian;
-exports.typedToGl = typedToGl;
-exports.glToTyped = glToTyped;
-
-var _degree = require('./degree');
-
-var _degree2 = _interopRequireDefault(_degree);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Coordinates as an array of 3 values:
- * [x, y, z] or [azimuth, elevation, distance], depending on type
- *
- * @typedef coordinates
- * @type {vec3}
- */
-
-/**
- * Coordinates system type: sofaCartesian', 'sofaSpherical', or'gl'.
- *
- * @typedef coordinatesType
- * @type {String}
- */
-
-/**
- * Convert SOFA cartesian coordinates to openGL.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-function sofaCartesianToGl(out, a) {
-  // copy to handle in-place
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-
-  out[0] = -y;
-  out[1] = z;
-  out[2] = -x;
-
-  return out;
-}
-
-/**
- * Convert openGL coordinates to SOFA cartesian.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-/**
- * @fileOverview SOFA convention to and from openGL convention.
- *
- * SOFA distances are in metres, angles in degrees.
- *
- * <pre>
- *
- * SOFA          +z  +x             openGL    +y
- *                | /                          |
- *                |/                           |
- *         +y ----o                            o---- +x
- *                                            /
- *                                           /
- *                                          +z
- *
- * SOFA.x = -openGL.z               openGL.x = -SOFA.y
- * SOFA.y = -openGL.x               openGL.y =  SOFA.z
- * SOFA.z =  openGL.y               openGL.z = -SOFA.x
- *
- * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
- * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
- * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
- *
- * </pre>
- *
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-function glToSofaCartesian(out, a) {
-  // copy to handle in-place
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-
-  out[0] = -z;
-  out[1] = -x;
-  out[2] = y;
-
-  return out;
-}
-
-/**
- * Convert SOFA cartesian coordinates to SOFA spherical.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-function sofaCartesianToSofaSpherical(out, a) {
-  // copy to handle in-place
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-
-  var x2y2 = x * x + y * y;
-
-  // from [-180, 180] to [0, 360);
-  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
-
-  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
-  out[2] = Math.sqrt(x2y2 + z * z);
-
-  return out;
-}
-
-/**
- * Convert SOFA spherical coordinates to SOFA spherical.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-function sofaSphericalToSofaCartesian(out, a) {
-  // copy to handle in-place
-  var azimuth = a[0];
-  var elevation = a[1];
-  var distance = a[2];
-
-  var cosE = _degree2.default.cos(elevation);
-  out[0] = distance * cosE * _degree2.default.cos(azimuth); // SOFA.x
-  out[1] = distance * cosE * _degree2.default.sin(azimuth); // SOFA.y
-  out[2] = distance * _degree2.default.sin(elevation); // SOFA.z
-
-  return out;
-}
-
-/**
- * Convert SOFA spherical coordinates to openGL.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-function sofaSphericalToGl(out, a) {
-  // copy to handle in-place
-  var azimuth = a[0];
-  var elevation = a[1];
-  var distance = a[2];
-
-  var cosE = _degree2.default.cos(elevation);
-  out[0] = -distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
-  out[1] = distance * _degree2.default.sin(elevation); // SOFA.z
-  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
-
-  return out;
-}
-
-/**
- * Convert openGL coordinates to SOFA spherical.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
- */
-function glToSofaSpherical(out, a) {
-  // copy to handle in-place
-  // difference to avoid generating -0 out of 0
-  var x = 0 - a[2]; // -openGL.z
-  var y = 0 - a[0]; // -openGL.x
-  var z = a[1]; // openGL.y
-
-  var x2y2 = x * x + y * y;
-
-  // from [-180, 180] to [0, 360);
-  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
-
-  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
-  out[2] = Math.sqrt(x2y2 + z * z);
-
-  return out;
-}
-
-/**
- * Convert typed coordinates to SOFA cartesian.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
- */
-function typedToSofaCartesian(out, a, type) {
-  switch (type) {
-    case 'sofaCartesian':
-      out[0] = a[0];
-      out[1] = a[1];
-      out[2] = a[2];
-      break;
-
-    case 'sofaSpherical':
-      sofaSphericalToSofaCartesian(out, a);
-      break;
-
-    default:
-      throw new Error('Bad SOFA type');
-  }
-  return out;
-}
-
-/**
- * Convert typed coordinates to openGL.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
- */
-function typedToGl(out, a, type) {
-  switch (type) {
-    case 'gl':
-      out[0] = a[0];
-      out[1] = a[1];
-      out[2] = a[2];
-      break;
-
-    case 'sofaCartesian':
-      sofaCartesianToGl(out, a);
-      break;
-
-    case 'sofaSpherical':
-      sofaSphericalToGl(out, a);
-      break;
-
-    default:
-      throw new Error('Bad SOFA type');
-  }
-  return out;
-}
-
-/**
- * Convert openGL coordinates to typed ones.
- *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
- */
-function glToTyped(out, a, type) {
-  switch (type) {
-    case 'gl':
-      out[0] = a[0];
-      out[1] = a[1];
-      out[2] = a[2];
-      break;
-
-    case 'sofaCartesian':
-      glToSofaCartesian(out, a);
-      break;
-
-    case 'sofaSpherical':
-      glToSofaSpherical(out, a);
-      break;
-
-    default:
-      throw new Error('Bad SOFA type');
-  }
-  return out;
-}
-
-exports.default = {
-  sofaCartesianToGl: sofaCartesianToGl,
-  sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
-  glToSofaCartesian: glToSofaCartesian,
-  glToSofaSpherical: glToSofaSpherical,
-  glToTyped: glToTyped,
-  sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
-  sofaSphericalToGl: sofaSphericalToGl,
-  typedToSofaCartesian: typedToSofaCartesian,
-  typedToGl: typedToGl
-};
-},{"./degree":9}],9:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.toRadian = toRadian;
-exports.fromRadian = fromRadian;
-exports.cos = cos;
-exports.sin = sin;
-exports.atan2 = atan2;
-/**
- * @fileOverview Convert to and from degree
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Degree to radian multiplication factor.
- */
-var toRadianFactor = exports.toRadianFactor = Math.PI / 180;
-
-/**
- * Radian to degree multiplication factor.
- */
-var fromRadianFactor = exports.fromRadianFactor = 1 / toRadianFactor;
-
-/**
- * Convert an angle in degrees to radians.
- *
- * @param {Number} angle in degrees
- * @returns {Number} angle in radians
- */
-function toRadian(angle) {
-  return angle * toRadianFactor;
-}
-
-/**
- * Convert an angle in radians to degrees.
- *
- * @param {Number} angle in radians
- * @returns {Number} angle in degrees
- */
-function fromRadian(angle) {
-  return angle * fromRadianFactor;
-}
-
-/**
- * Get the cosinus of an angle in degrees.
- *
- * @param {Number} angle
- * @returns {Number}
- */
-function cos(angle) {
-  return Math.cos(angle * toRadianFactor);
-}
-
-/**
- * Get the sinus of an angle in degrees.
- *
- * @param {Number} angle
- * @returns {Number}
- */
-function sin(angle) {
-  return Math.sin(angle * toRadianFactor);
-}
-
-/**
- * Get the arc-tangent (2 arguments) of 2 angles in degrees.
- *
- * @param {Number} y
- * @param {Number} x
- * @returns {Number}
- */
-function atan2(y, x) {
-  return Math.atan2(y, x) * fromRadianFactor;
-}
-
-exports.default = {
-  atan2: atan2,
-  cos: cos,
-  fromRadian: fromRadian,
-  fromRadianFactor: fromRadianFactor,
-  sin: sin,
-  toRadian: toRadian,
-  toRadianFactor: toRadianFactor
-};
-},{}],10:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _coordinates = require('./coordinates');
-
-var _coordinates2 = _interopRequireDefault(_coordinates);
-
-var _degree = require('./degree');
-
-var _degree2 = _interopRequireDefault(_degree);
-
-var _KdTree = require('./KdTree');
-
-var _KdTree2 = _interopRequireDefault(_KdTree);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  coordinates: _coordinates2.default,
-  degree: _degree2.default,
-  KdTree: _KdTree2.default
-};
-},{"./KdTree":7,"./coordinates":8,"./degree":9}],11:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sofa = exports.geometry = exports.common = exports.audio = undefined;
-
-var _audio = require('./audio');
-
-var _audio2 = _interopRequireDefault(_audio);
-
-var _common = require('./common');
-
-var _common2 = _interopRequireDefault(_common);
-
-var _geometry = require('./geometry');
-
-var _geometry2 = _interopRequireDefault(_geometry);
-
-var _sofa = require('./sofa');
-
-var _sofa2 = _interopRequireDefault(_sofa);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.audio = _audio2.default;
-exports.common = _common2.default;
-exports.geometry = _geometry2.default;
-exports.sofa = _sofa2.default;
-exports.default = {
-  audio: _audio2.default,
-  common: _common2.default,
-  geometry: _geometry2.default,
-  sofa: _sofa2.default
-};
-},{"./audio":3,"./common":5,"./geometry":10,"./sofa":14}],12:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HrtfSet = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Container for HRTF set: load a set from an URL and get
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * filters from corresponding positions.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2015-2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-var _glMatrix = require('gl-matrix');
-
-var _glMatrix2 = _interopRequireDefault(_glMatrix);
-
-var _parseDataSet = require('./parseDataSet');
-
-var _parseSofa = require('./parseSofa');
-
-var _coordinates = require('../geometry/coordinates');
-
-var _coordinates2 = _interopRequireDefault(_coordinates);
-
-var _KdTree = require('../geometry/KdTree');
-
-var _KdTree2 = _interopRequireDefault(_KdTree);
-
-var _utilities = require('../audio/utilities');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Container for HRTF set.
- */
-
-var HrtfSet = exports.HrtfSet = function () {
-
-  /**
-   * Constructs an HRTF set. Note that the filter positions are applied
-   * during the load of an URL.
-   *
-   * See {@link HrtfSet#load}.
-   *
-   * @param {Object} options
-   * @param {AudioContext} options.audioContext mandatory for the creation
-   * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link HrtfSet#positionsType}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link HrtfSet#filterPositionsType}
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
-   * {@link HrtfSet#filterPositions}
-   * array of positions to filter. Use undefined to use all positions.
-   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
-   * full load of SOFA file
-   * {@link HrtfSet#filterAfterLoad}
-   */
-
-  function HrtfSet() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, HrtfSet);
-
-    this._audioContext = options.audioContext;
-
-    this._ready = false;
-
-    this.positionsType = options.positionsType;
-
-    this.filterPositionsType = options.filterPositionsType;
-    this.filterPositions = options.filterPositions;
-
-    this.filterAfterLoad = options.filterAfterLoad;
-  }
-
-  // ------------ accessors
-
-  /**
-   * Set coordinates type for positions.
-   * @param {coordinatesType} [type='gl']
-   */
-
-
-  _createClass(HrtfSet, [{
-    key: 'applyFilterPositions',
-
-
-    // ------------- public methods
-
-    /**
-     * Apply filter positions to an existing set of HRTF. (After a successful
-     * load.)
-     *
-     * This is destructive.
-     *
-     * See {@link HrtfSet#load}.
-     */
-    value: function applyFilterPositions() {
-      var _this = this;
-
-      // do not use getter for gl positions
-      var filteredPositions = this._filterPositions.map(function (current) {
-        return _this._kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0]; // nearest data
-      });
-
-      // filter out duplicates
-      filteredPositions = [].concat(_toConsumableArray(new Set(filteredPositions)));
-
-      this._kdt = _KdTree2.default.tree.createKdTree(filteredPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
-    }
-
-    /**
-     * Load an URL and generate the corresponding set of IR buffers.
-     *
-     * @param {String} sourceUrl
-     * @returns {Promise.<this|Error>} resolve when the URL sucessfully
-     * loaded.
-     */
-
-  }, {
-    key: 'load',
-    value: function load(sourceUrl) {
-      var _this2 = this;
-
-      var extension = sourceUrl.split('.').pop();
-
-      var url = extension === 'sofa' ? sourceUrl + '.json' : sourceUrl;
-
-      var promise = undefined;
-
-      // need a server for partial downloading ("sofa" extension may be naive)
-      var preFilter = typeof this._filterPositions !== 'undefined' && !this.filterAfterLoad && extension === 'sofa';
-      if (preFilter) {
-        promise = Promise.all([this._loadMetaAndPositions(sourceUrl), this._loadDataSet(sourceUrl)]).then(function (indicesAndDataSet) {
-          var indices = indicesAndDataSet[0];
-          var dataSet = indicesAndDataSet[1];
-          return _this2._loadSofaPartial(sourceUrl, indices, dataSet).then(function () {
-            _this2._ready = true;
-            return _this2; // final resolve
-          });
-        }).catch(function () {
-          // when pre-fitering fails, for any reason, try to post-filter
-          // console.log(`Error while partial loading of ${sourceUrl}. `
-          //             + `${error.message}. `
-          //             + `Load full and post-filtering, instead.`);
-          return _this2._loadSofaFull(url).then(function () {
-            _this2.applyFilterPositions();
-            _this2._ready = true;
-            return _this2; // final resolve
-          });
-        });
-      } else {
-          promise = this._loadSofaFull(url).then(function () {
-            if (typeof _this2._filterPositions !== 'undefined' && _this2.filterAfterLoad) {
-              _this2.applyFilterPositions();
-            }
-            _this2._ready = true;
-            return _this2; // final resolve
-          });
-        }
-
-      return promise;
-    }
-
-    /**
-     * @typedef HrtfSet.nearestType
-     * @type {Object}
-     * @property {Number} distance from the request
-     * @property {AudioBuffer} fir 2-channels impulse response
-     * @property {Number} index original index in the SOFA set
-     * @property {coordinates} position using positionsType coordinates
-     * system.
-     */
-
-    /**
-     * Get the nearest point in the HRTF set, after a successful load.
-     *
-     * See {@link HrtfSet#load}.
-     *
-     * @param {coordinates} positionRequest
-     * @returns {HrtfSet.nearestType}
-     */
-
-  }, {
-    key: 'nearest',
-    value: function nearest(positionRequest) {
-      var position = _coordinates2.default.typedToGl([], positionRequest, this.positionsType);
-      var nearest = this._kdt.nearest({
-        x: position[0],
-        y: position[1],
-        z: position[2]
-      }, 1).pop(); // nearest only
-      var data = nearest[0];
-      _coordinates2.default.glToTyped(position, [data.x, data.y, data.z], this.positionsType);
-      return {
-        distance: nearest[1],
-        fir: data.fir,
-        index: data.index,
-        position: position
-      };
-    }
-
-    /**
-     * Get the FIR AudioBuffer that corresponds to the closest position in
-     * the set.
-     * @param {coordinates} positionRequest
-     * @returns {AudioBuffer}
-     */
-
-  }, {
-    key: 'nearestFir',
-    value: function nearestFir(positionRequest) {
-      return this.nearest(positionRequest).fir;
-    }
-
-    // ----------- private methods
-
-    /**
-     * Creates a kd-tree out of the specified indices, positions, and FIR.
-     *
-     * @private
-     *
-     * @param {Array}
-     * indicesPositionsFirs
-     * @returns {this}
-     */
-
-  }, {
-    key: '_createKdTree',
-    value: function _createKdTree(indicesPositionsFirs) {
-      var _this3 = this;
-
-      var positions = indicesPositionsFirs.map(function (value) {
-        var impulseResponses = value[2];
-        var fir = _this3._audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this3._audioContext.sampleRate);
-        impulseResponses.forEach(function (samples, channel) {
-          // do not use copyToChannel because of Safari <= 9
-          fir.getChannelData(channel).set(samples);
-        });
-
-        return {
-          index: value[0],
-          x: value[1][0],
-          y: value[1][1],
-          z: value[1][2],
-          fir: fir
-        };
-      });
-
-      this._kdt = _KdTree2.default.tree.createKdTree(positions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
-      return this;
-    }
-
-    /**
-     * Asynchronously create Float32Arrays, with possible re-sampling.
-     *
-     * @private
-     *
-     * @param {Array.<Number>} indices
-     * @param {Array.<coordinates>} positions
-     * @param {Array.<Float32Array>} firs
-     * @returns {Promise.<Array|Error>}
-     * @throws {Error} assertion that the channel count is 2
-     */
-
-  }, {
-    key: '_generateIndicesPositionsFirs',
-    value: function _generateIndicesPositionsFirs(indices, positions, firs) {
-      var _this4 = this;
-
-      var sofaFirsPromises = firs.map(function (sofaFirChannels, index) {
-        var channelCount = sofaFirChannels.length;
-        if (channelCount !== 2) {
-          throw new Error('Bad number of channels' + (' for IR index ' + indices[index]) + (' (' + channelCount + ' instead of 2)'));
-        }
-
-        var sofaFirsChannelsPromises = sofaFirChannels.map(function (fir) {
-          return (0, _utilities.resampleFloat32Array)({
-            inputSamples: fir,
-            inputSampleRate: _this4._sofaSampleRate,
-            outputSampleRate: _this4._audioContext.sampleRate
-          });
-        });
-        return Promise.all(sofaFirsChannelsPromises).then(function (firChannels) {
-          return [indices[index], positions[index], firChannels];
-        }).catch(function (error) {
-          // re-throw
-          throw new Error('Unable to re-sample impulse response ' + index + '. ' + error.message);
-        });
-      });
-      return Promise.all(sofaFirsPromises);
-    }
-
-    /**
-     * Try to load a data set from a SOFA URL.
-     *
-     * @private
-     *
-     * @param {String} sourceUrl
-     * @returns {Promise.<Object|Error>}
-     */
-
-  }, {
-    key: '_loadDataSet',
-    value: function _loadDataSet(sourceUrl) {
-      var promise = new Promise(function (resolve, reject) {
-        var ddsUrl = sourceUrl + '.dds';
-        var request = new window.XMLHttpRequest();
-        request.open('GET', ddsUrl);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + ddsUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-
-          try {
-            var dds = (0, _parseDataSet.parseDataSet)(request.response);
-            resolve(dds);
-          } catch (error) {
-            // re-throw
-            reject(new Error('Unable to parse ' + ddsUrl + '. ' + error.message));
-          }
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-
-    /**
-     * Try to load meta-data and positions from a SOFA URL, to get the
-     * indices closest to the filter positions.
-     *
-     * @private
-     *
-     * @param {String} sourceUrl
-     * @returns {Promise.<Array.<Number>|Error>}
-     */
-
-  }, {
-    key: '_loadMetaAndPositions',
-    value: function _loadMetaAndPositions(sourceUrl) {
-      var _this5 = this;
-
-      var promise = new Promise(function (resolve, reject) {
-        var positionsUrl = sourceUrl + '.json?' + 'ListenerPosition,ListenerUp,ListenerView,SourcePosition,' + 'Data.Delay,Data.SamplingRate,' + 'EmitterPosition,ReceiverPosition,RoomVolume'; // meta
-
-        var request = new window.XMLHttpRequest();
-        request.open('GET', positionsUrl);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + positionsUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-
-          try {
-            (function () {
-              var data = (0, _parseSofa.parseSofa)(request.response);
-              _this5._setMetaData(data);
-
-              var sourcePositions = _this5._sourcePositionsToGl(data);
-              var hrtfPositions = sourcePositions.map(function (position, index) {
-                return {
-                  x: position[0],
-                  y: position[1],
-                  z: position[2],
-                  index: index
-                };
-              });
-
-              var kdt = _KdTree2.default.tree.createKdTree(hrtfPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
-
-              var nearestIndices = _this5._filterPositions.map(function (current) {
-                return kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0] // nearest data
-                .index;
-              });
-
-              // filter out duplicates
-              nearestIndices = [].concat(_toConsumableArray(new Set(nearestIndices)));
-
-              _this5._sofaUrl = sourceUrl;
-              resolve(nearestIndices);
-            })();
-          } catch (error) {
-            // re-throw
-            reject(new Error('Unable to parse ' + positionsUrl + '. ' + error.message));
-          }
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-
-    /**
-     * Try to load full SOFA URL.
-     *
-     * @private
-     *
-     * @param {String} url
-     * @returns {Promise.<this|Error>}
-     */
-
-  }, {
-    key: '_loadSofaFull',
-    value: function _loadSofaFull(url) {
-      var _this6 = this;
-
-      var promise = new Promise(function (resolve, reject) {
-        var request = new window.XMLHttpRequest();
-        request.open('GET', url);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-
-          try {
-            var data = (0, _parseSofa.parseSofa)(request.response);
-            _this6._setMetaData(data);
-            var sourcePositions = _this6._sourcePositionsToGl(data);
-            _this6._generateIndicesPositionsFirs(sourcePositions.map(function (position, index) {
-              return index;
-            }), // full
-            sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
-              _this6._createKdTree(indicesPositionsFirs);
-              _this6._sofaUrl = url;
-              resolve(_this6);
-            });
-          } catch (error) {
-            // re-throw
-            reject(new Error('Unable to parse ' + url + '. ' + error.message));
-          }
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-
-    /**
-     * Try to load partial data from a SOFA URL.
-     *
-     * @private
-     *
-     * @param {Array.<String>} sourceUrl
-     * @param {Array.<Number>} indices
-     * @param {Object} dataSet
-     * @returns {Promise.<this|Error>}
-     */
-
-  }, {
-    key: '_loadSofaPartial',
-    value: function _loadSofaPartial(sourceUrl, indices, dataSet) {
-      var _this7 = this;
-
-      var urlPromises = indices.map(function (index) {
-        var urlPromise = new Promise(function (resolve, reject) {
-          var positionUrl = sourceUrl + '.json?' + ('SourcePosition[' + index + '][0:1:' + (dataSet.SourcePosition.C - 1) + '],') + ('Data.IR[' + index + '][0:1:' + (dataSet['Data.IR'].R - 1) + ']') + ('[0:1:' + (dataSet['Data.IR'].N - 1) + ']');
-
-          var request = new window.XMLHttpRequest();
-          request.open('GET', positionUrl);
-          request.onerror = function () {
-            reject(new Error('Unable to GET ' + positionUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
-          };
-
-          request.onload = function () {
-            if (request.status < 200 || request.status >= 300) {
-              request.onerror();
-            }
-
-            try {
-              var data = (0, _parseSofa.parseSofa)(request.response);
-              // (meta-data is already loaded)
-
-              var sourcePositions = _this7._sourcePositionsToGl(data);
-              _this7._generateIndicesPositionsFirs([index], sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
-                // One position per URL here
-                // Array made of multiple promises, later
-                resolve(indicesPositionsFirs[0]);
-              });
-            } catch (error) {
-              // re-throw
-              reject(new Error('Unable to parse ' + positionUrl + '. ' + error.message));
-            }
-          }; // request.onload
-
-          request.send();
-        });
-
-        return urlPromise;
-      });
-
-      return Promise.all(urlPromises).then(function (indicesPositionsFirs) {
-        _this7._createKdTree(indicesPositionsFirs);
-        return _this7; // final resolve
-      });
-    }
-
-    /**
-     * Set meta-data.
-     *
-     * @private
-     *
-     * @param {Object} data
-     * @throws {Error} assertion for FIR data.
-     */
-
-  }, {
-    key: '_setMetaData',
-    value: function _setMetaData(data) {
-      if (data.metaData.DataType !== 'FIR') {
-        throw new Error('SOFA data type is not FIR');
-      }
-
-      this._sofaMetaData = data.metaData;
-      this._sofaSampleRate = data['Data.SamplingRate'].data[0];
-
-      // Convert listener position, up, and view to SOFA cartesian,
-      // to generate a SOFA-to-GL look-at mat4.
-      // Default SOFA type is 'cartesian' (see table D.4A).
-
-      var listenerPosition = _coordinates2.default.typedToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaType)(data.ListenerPosition.Type || 'cartesian'));
-
-      var listenerView = _coordinates2.default.typedToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaType)(data.ListenerView.Type || 'cartesian'));
-
-      var listenerUp = _coordinates2.default.typedToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaType)(data.ListenerUp.Type || 'cartesian'));
-
-      this._sofaToGl = _glMatrix2.default.mat4.lookAt([], listenerPosition, listenerView, listenerUp);
-    }
-
-    /**
-     * Convert to GL coordinates, in-place.
-     *
-     * @private
-     *
-     * @param {Object} data
-     * @returns {Array.<coordinates>}
-     * @throws {Error}
-     */
-
-  }, {
-    key: '_sourcePositionsToGl',
-    value: function _sourcePositionsToGl(data) {
-      var _this8 = this;
-
-      var sourcePositions = data.SourcePosition.data; // reference
-      var sourcePositionsType = typeof data.SourcePosition.Type !== 'undefined' ? data.SourcePosition.Type : 'spherical'; // default (SOFA Table D.4C)
-      switch (sourcePositionsType) {
-        case 'cartesian':
-          sourcePositions.forEach(function (position) {
-            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
-          });
-          break;
-
-        case 'spherical':
-          sourcePositions.forEach(function (position) {
-            _coordinates2.default.sofaSphericalToSofaCartesian(position, position); // in-place
-            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
-          });
-          break;
-
-        default:
-          throw new Error('Bad source position type');
-      }
-
-      return sourcePositions;
-    }
-  }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
-    }
-
-    /**
-     * Get coordinates type for positions.
-     *
-     * @returns {coordinatesType}
-     */
-    ,
-    get: function get() {
-      return this._positionsType;
-    }
-
-    /**
-     * Set coordinates type for filter positions.
-     *
-     * @param {coordinatesType} [type] undefined to use positionsType
-     */
-
-  }, {
-    key: 'filterPositionsType',
-    set: function set(type) {
-      this._filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
-    }
-
-    /**
-     * Get coordinates type for filter positions.
-     *
-     * @param {coordinatesType} type
-     */
-    ,
-    get: function get() {
-      return this._filterPositionsType;
-    }
-
-    /**
-     * Set filter positions.
-     *
-     * @param {Array.<coordinates>} [positions] undefined for no filtering.
-     */
-
-  }, {
-    key: 'filterPositions',
-    set: function set(positions) {
-      if (typeof positions === 'undefined') {
-        this._filterPositions = undefined;
-      } else {
-        switch (this.filterPositionsType) {
-          case 'gl':
-            this._filterPositions = positions.map(function (current) {
-              return current.slice(0); // copy
-            });
-            break;
-
-          case 'sofaCartesian':
-            this._filterPositions = positions.map(function (current) {
-              return _coordinates2.default.sofaCartesianToGl([], current);
-            });
-            break;
-
-          case 'sofaSpherical':
-            this._filterPositions = positions.map(function (current) {
-              return _coordinates2.default.sofaSphericalToGl([], current);
-            });
-            break;
-
-          default:
-            throw new Error('Bad filter type');
-        }
-      }
-    }
-
-    /**
-     * Get filter positions.
-     *
-     * @param {Array.<coordinates>} positions
-     */
-    ,
-    get: function get() {
-      var positions = undefined;
-      if (typeof this._filterPositions !== 'undefined') {
-        switch (this.filterPositionsType) {
-          case 'gl':
-            positions = this._filterPositions.map(function (current) {
-              return current.slice(0); // copy
-            });
-            break;
-
-          case 'sofaCartesian':
-            positions = this._filterPositions.map(function (current) {
-              return _coordinates2.default.glToSofaCartesian([], current);
-            });
-            break;
-
-          case 'sofaSpherical':
-            positions = this._filterPositions.map(function (current) {
-              return _coordinates2.default.glToSofaSpherical([], current);
-            });
-            break;
-
-          default:
-            throw new Error('Bad filter type');
-        }
-      }
-      return positions;
-    }
-
-    /**
-     * Set post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @param {Boolean} [post=false]
-     */
-
-  }, {
-    key: 'filterAfterLoad',
-    set: function set(post) {
-      this._filterAfterLoad = typeof post !== 'undefined' ? post : false;
-    }
-
-    /**
-     * Get post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @returns {Boolean}
-     */
-    ,
-    get: function get() {
-      return this._filterAfterLoad;
-    }
-
-    /**
-     * Test whether an HRTF set is actually loaded.
-     *
-     * See {@link HrtfSet#load}.
-     *
-     * @returns {Boolean} false before any successful load, true after.
-     *
-     */
-
-  }, {
-    key: 'isReady',
-    get: function get() {
-      return this._ready;
-    }
-
-    /**
-     * Get the URL used to actually load the HRTF set.
-     *
-     * @returns {String} that is undefined before a successfully load.
-     */
-
-  }, {
-    key: 'sofaUrl',
-    get: function get() {
-      return this._sofaUrl;
-    }
-
-    /**
-     * Get the original sample-rate from the SOFA URL already loaded.
-     *
-     * @returns {Number} that is undefined before a successfully load.
-     */
-
-  }, {
-    key: 'sofaSampleRate',
-    get: function get() {
-      return this._sofaSampleRate;
-    }
-
-    /**
-     * Get the meta-data from the SOFA URL already loaded.
-     *
-     * @returns {Object} that is undefined before a successfully load.
-     */
-
-  }, {
-    key: 'sofaMetaData',
-    get: function get() {
-      return this._sofaMetaData;
-    }
-  }]);
-
-  return HrtfSet;
-}();
-
-exports.default = HrtfSet;
-},{"../audio/utilities":4,"../geometry/KdTree":7,"../geometry/coordinates":8,"./parseDataSet":15,"./parseSofa":16,"gl-matrix":18}],13:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ServerDataBase = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Access a remote catalogue from a SOFA server, and get URLs
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * with filtering.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2015-2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-var _parseXml = require('./parseXml');
-
-var _parseXml2 = _interopRequireDefault(_parseXml);
-
-var _parseDataSet = require('./parseDataSet');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * SOFA remote data-base.
- */
-
-var ServerDataBase = exports.ServerDataBase = function () {
-  /**
-   * This is only a constructor, it does not load any thing.
-   *
-   * See {@link ServerDataBase#loadCatalogue}.
-   *
-   * @param {Object} [options]
-   * @param {String} [options.serverUrl] base URL of server, including
-   * protocol, eg. 'http://bili2.ircam.fr'.
-   */
-
-  function ServerDataBase() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, ServerDataBase);
-
-    this._server = typeof options.serverUrl !== 'undefined' ? options.serverUrl : 'http://bili2.ircam.fr';
-
-    this._catalogue = {};
-    this._urls = [];
-  }
-
-  /**
-   * Asynchronously load complete catalogue from the server, including the
-   * catalogue links found in any partial catalogue.
-   *
-   * @param {String} [sourceUrl] URL of the root catalogue, including the
-   * server, like 'http://bili2.ircam.fr/catalog.xml'.
-   *  Default is 'catalog.xml' at serverURL supplied at
-   * {@link ServerDataBase#constructor}.
-   * @param {Object} [destination] Catalogue to update. Default is
-   * internal.
-   * @returns {Promise.<String|Error>} The promise will resolve (with
-   * sourceUrl) when every sub-catalogue will successfully load, or will
-   * reject (with an error) as soon as one transfer fails.
-   */
-
-
-  _createClass(ServerDataBase, [{
-    key: 'loadCatalogue',
-    value: function loadCatalogue() {
-      var _this = this;
-
-      var sourceUrl = arguments.length <= 0 || arguments[0] === undefined ? this._server + '/catalog.xml' : arguments[0];
-      var destination = arguments.length <= 1 || arguments[1] === undefined ? this._catalogue : arguments[1];
-
-      var promise = new Promise(function (resolve, reject) {
-        var request = new window.XMLHttpRequest();
-        request.open('GET', sourceUrl);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + sourceUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-
-          var xml = (0, _parseXml2.default)(request.response);
-          var dataSet = xml.querySelector('dataset');
-
-          // recursive catalogues
-          var catalogueReferences = xml.querySelectorAll('dataset > catalogRef');
-
-          if (catalogueReferences.length === 0) {
-            // end of recursion
-            destination.urls = [];
-            var urls = xml.querySelectorAll('dataset > dataset');
-            for (var ref = 0; ref < urls.length; ++ref) {
-              // data set name already contains a leading slash
-              var url = _this._server + dataSet.getAttribute('name') + '/' + urls[ref].getAttribute('name');
-              _this._urls.push(url);
-              destination.urls.push(url);
-            }
-
-            resolve(sourceUrl);
-          } else {
-            // recursion
-            var promises = [];
-            for (var ref = 0; ref < catalogueReferences.length; ++ref) {
-              var name = catalogueReferences[ref].getAttribute('name');
-              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[ref].getAttribute('xlink:href');
-              destination[name] = {};
-              promises.push(_this.loadCatalogue(recursiveUrl, destination[name]));
-            }
-
-            Promise.all(promises).then(function () {
-              _this._urls.sort();
-              resolve(sourceUrl);
-            }).catch(function (error) {
-              reject(error);
-            });
-          }
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-
-    /**
-     * Get URLs, possibly filtered.
-     *
-     * Any filter can be partial, and is case-insensitive. The result must
-     * match every supplied filter. Undefined filters are not applied.
-     *
-     * @param {Object} [options] optional filters
-     * @param {String} [options.convention] 'HRIR' or 'SOS'
-     * @param {String} [options.dataBase] 'LISTEN', 'BILI', etc.
-     * @param {String} [options.equalisation] 'RAW','COMPENSATED'
-     * @param {String} [options.sampleRate] in Hertz
-     * @param {String} [options.sosOrder] '12order' or '24order'
-     * @param {String} [options.freePattern] any pattern matched
-     * globally. Use separators (spaces, tabs, etc.) to combine multiple
-     * patterns: '44100 listen' will restrict on URLs matching '44100' and
-     * 'listen'
-     * @returns {Array.<String>} URLs that match every filter.
-     */
-
-  }, {
-    key: 'getUrls',
-    value: function getUrls() {
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      // the number and the order of the filters in the following array must
-      // match the URL sub-directories
-      var filters = [options.convention, options.dataBase, options.equalisation, options.sampleRate, options.sosOrder];
-
-      // any where in URL
-      // in file name
-      var freePattern = typeof options.freePattern === 'number' ? options.freePattern.toString() : options.freePattern;
-
-      var pattern = filters.reduce(function (global, local) {
-        // partial filter inside slashes
-        return global + '/' + (typeof local !== 'undefined' ? '[^/]*' + local + '[^/]*' : '[^/]*');
-      }, '');
-
-      var regExp = new RegExp(pattern, 'i');
-
-      var urls = this._urls.filter(function (url) {
-        return regExp.test(url);
-      });
-
-      if (typeof freePattern !== 'undefined') {
-        // split patterns with separators
-        var patterns = freePattern.split(/\s+/);
-        patterns.forEach(function (current) {
-          regExp = new RegExp(current, 'i');
-
-          urls = urls.filter(function (url) {
-            return regExp.test(url);
-          });
-        });
-      }
-
-      return urls;
-    }
-
-    /**
-     * Get all source positions of a given URL.
-     *
-     * @param {String} sourceUrl is the complete SOFA URL, with the
-     * server, like
-     * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
-     *
-     * @returns {Promise.<Object|String>} The promise will resolve after
-     * successfully loading, with definitions as * `{definition: {key: values}}`
-     * objects; the promise will reject is the transfer fails, with an error.
-     */
-
-  }, {
-    key: 'getDataSetDefinitions',
-    value: function getDataSetDefinitions(sourceUrl) {
-      var promise = new Promise(function (resolve, reject) {
-        var url = sourceUrl + '.dds';
-        var request = new window.XMLHttpRequest();
-        request.open('GET', url);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-          resolve((0, _parseDataSet.parseDataSet)(request.response));
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-
-    /**
-     * Get all source positions of a given URL.
-     *
-     * @param {String} sourceUrl is the complete SOFA URL, with the
-     * server, like
-     * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
-     *
-     * @returns {Promise.<Array<Array.<Number>>|Error>} The promise will resolve
-     * after successfully loading, with an array of positions (which are
-     * arrays of 3 numbers); the promise will reject is the transfer fails,
-     * with an error.
-     */
-
-  }, {
-    key: 'getSourcePositions',
-    value: function getSourcePositions(sourceUrl) {
-      var promise = new Promise(function (resolve, reject) {
-        var url = sourceUrl + '.json?SourcePosition';
-
-        var request = new window.XMLHttpRequest();
-        request.open('GET', url);
-        request.onerror = function () {
-          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
-        };
-
-        request.onload = function () {
-          if (request.status < 200 || request.status >= 300) {
-            request.onerror();
-            return;
-          }
-
-          try {
-            var response = JSON.parse(request.response);
-            if (response.leaves[0].name !== 'SourcePosition') {
-              throw new Error('SourcePosition not found');
-            }
-
-            resolve(response.leaves[0].data);
-          } catch (error) {
-            // re-throw
-            reject(new Error('Unable to parse response from ' + url + '. ' + error.message));
-          }
-        }; // request.onload
-
-        request.send();
-      });
-
-      return promise;
-    }
-  }]);
-
-  return ServerDataBase;
-}();
-
-exports.default = ServerDataBase;
-},{"./parseDataSet":15,"./parseXml":17}],14:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _HrtfSet = require('./HrtfSet');
-
-var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
-
-var _ServerDataBase = require('./ServerDataBase');
-
-var _ServerDataBase2 = _interopRequireDefault(_ServerDataBase);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @fileOverview Utility classes to handle the loading of HRTF files form a
- * SOFA server.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-exports.default = {
-  HrtfSet: _HrtfSet2.default,
-  ServerDataBase: _ServerDataBase2.default
-};
-},{"./HrtfSet":12,"./ServerDataBase":13}],15:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports._parseDimension = _parseDimension;
-exports._parseDefinition = _parseDefinition;
-exports.parseDataSet = parseDataSet;
-/**
- * @fileOverview Parser for DDS files
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-// '[R = 2]'
-var _dimensionPattern = '\\[\\s*(\\w+)\\s*=\\s*(\\d+)\\s*\\]';
-var _dimensionMatch = new RegExp(_dimensionPattern, 'g');
-var _dimensionSplit = new RegExp(_dimensionPattern);
-
-// 'Float64 ReceiverPosition[R = 2][C = 3][I = 1];'
-//
-// do not re-use dimension pattern (for grouping)
-var _definitionPattern = '\\s*(\\w+)\\s*([\\w.]+)\\s*' + '((?:\\[[^\\]]+\\]\\s*)+)' + ';\\s*';
-var _definitionMatch = new RegExp(_definitionPattern, 'g');
-var _definitionSplit = new RegExp(_definitionPattern);
-
-// `Dataset {
-//   Float64 ListenerPosition[I = 1][C = 3];
-//   Float64 ListenerUp[I = 1][C = 3];
-//   Float64 ListenerView[I = 1][C = 3];
-//   Float64 ReceiverPosition[R = 2][C = 3][I = 1];
-//   Float64 SourcePosition[M = 1680][C = 3];
-//   Float64 EmitterPosition[E = 1][C = 3][I = 1];
-//   Float64 Data.SamplingRate[I = 1];
-//   Float64 Data.Delay[I = 1][R = 2];
-//   Float64 Data.IR[M = 1680][R = 2][N = 941];
-//   Float64 RoomVolume[I = 1];
-// } IRC_1100_C_HRIR.sofa;`
-//
-// do not re-use definition pattern (for grouping)
-var _dataSetPattern = '\\s*Dataset\\s*\\{\\s*' + '((?:[^;]+;\\s*)*)' + '\\s*\\}\\s*[\\w.]+\\s*;\\s*';
-var _dataSetSplit = new RegExp(_dataSetPattern);
-
-/**
- * Parses dimension strings into an array of [key, value] pairs.
- *
- * @private
- * @param {String} input is single or multiple dimension
- * @returns {Array.<Array.<String>>} object [key, value] pairs
- *
- * @example
- * _parseDimension('[R = 2]');
- * // [ [ 'R', 2 ] ]
- *
- * _parseDimension('[R = 2][C = 3][I = 1]');
- * // [ [ 'R', 2 ], [ 'C', 3 ], [ 'I', 1 ] ]
- */
-function _parseDimension(input) {
-  var parse = [];
-  var inputs = input.match(_dimensionMatch);
-  if (inputs !== null) {
-    inputs.forEach(function (inputSingle) {
-      var parts = _dimensionSplit.exec(inputSingle);
-      if (parts !== null && parts.length > 2) {
-        parse.push([parts[1], Number(parts[2])]);
-      }
-    });
-  }
-  return parse;
-}
-
-/**
- * Parse definition strings into an array of [key, {values}] pairs.
- *
- * @param {String} input is single or multiple definition
- * @returns {Array.<Array<String,Object>>} [key, {values}] pairs
- *
- * @private
- * @example
- * _parseDefinition('Float64 ReceiverPosition[R = 2][C = 3][I = 1];');
- * // [ [ 'ReceiverPosition',
- * //     { type: 'Float64', R: 2, C: 3, I: 1 } ] ]
- *
- * _parseDefinition(
- * `    Float64 ReceiverPosition[R = 2][C = 3][I = 1];
- *      Float64 SourcePosition[M = 1680][C = 3];
- *      Float64 EmitterPosition[E = 1][C = 3][I = 1];`);
- * // [ [ 'ReceiverPosition',
- * //      { type: 'Float64', R: 2, C: 3, I: 1 } ],
- * //   [ 'SourcePosition', { type: 'Float64', M: 1680, C: 3 } ],
- * //   [ 'EmitterPosition',
- * //     { type: 'Float64', E: 1, C: 3, I: 1 } ] ]
- */
-function _parseDefinition(input) {
-  var parse = [];
-  var inputs = input.match(_definitionMatch);
-  if (inputs !== null) {
-    inputs.forEach(function (inputSingle) {
-      var parts = _definitionSplit.exec(inputSingle);
-      if (parts !== null && parts.length > 3) {
-        (function () {
-          var current = [];
-          current[0] = parts[2];
-          current[1] = {};
-          current[1].type = parts[1];
-          _parseDimension(parts[3]).forEach(function (dimension) {
-            current[1][dimension[0]] = dimension[1];
-          });
-          parse.push(current);
-        })();
-      }
-    });
-  }
-  return parse;
-}
-
-/**
- * Parse data set meta data into an object of `{definition: {key: values}}` objects.
- *
- * @param {String} input data set DDS-like.
- * @returns {Object} definitions as `{definition: {key: values}}` objects.
- *
- * @example
- * _parseDataSet(
- * `Dataset {
- *      Float64 ReceiverPosition[R = 2][C = 3][I = 1];
- *      Float64 SourcePosition[M = 1680][C = 3];
- *      Float64 EmitterPosition[E = 1][C = 3][I = 1];
- *      Float64 Data.SamplingRate[I = 1];
- * } IRC_1100_C_HRIR.sofa;`);
- * //  { ReceiverPosition: { type: 'Float64', R: 2, C: 3, I: 1 },
- * //    SourcePosition: { type: 'Float64', M: 1680, C: 3 },
- * //    EmitterPosition: { type: 'Float64', E: 1, C: 3, I: 1 }
- * //    'Data.SamplingRate': { type: 'Float64', I: 1 } }
- */
-function parseDataSet(input) {
-  var parse = {};
-  var definitions = _dataSetSplit.exec(input);
-  if (definitions !== null && definitions.length > 1) {
-    _parseDefinition(definitions[1]).forEach(function (definition) {
-      parse[definition[0]] = definition[1];
-    });
-  }
-  return parse;
-}
-
-exports.default = parseDataSet;
-},{}],16:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-exports.parseSofa = parseSofa;
-exports.conformSofaType = conformSofaType;
-/**
- * @fileOverview Parser functions for SOFA files
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Parses a SOFA JSON string with into an object with `data` and `metaData`
- * attributes.
- *
- * @param {String} sofaString
- * @returns {Object} with `data` and `metaData` attributes
- * @throws {Error} when the parsing fails
- */
-function parseSofa(sofaString) {
-  try {
-    var _ret = function () {
-      var sofa = JSON.parse(sofaString);
-      var hrtf = {};
-
-      hrtf.name = sofa.name;
-
-      if (typeof sofa.attributes !== 'undefined') {
-        hrtf.metaData = {};
-        var metaData = sofa.attributes.find(function (e) {
-          return e.name === 'NC_GLOBAL';
-        });
-        if (typeof metaData !== 'undefined') {
-          metaData.attributes.forEach(function (e) {
-            hrtf.metaData[e.name] = e.value[0];
-          });
-        }
-      }
-
-      if (typeof sofa.leaves !== 'undefined') {
-        var data = sofa.leaves;
-        data.forEach(function (d) {
-          hrtf[d.name] = {};
-          d.attributes.forEach(function (a) {
-            hrtf[d.name][a.name] = a.value[0];
-          });
-          hrtf[d.name].shape = d.shape;
-          hrtf[d.name].data = d.data;
-        });
-      }
-
-      return {
-        v: hrtf
-      };
-    }();
-
-    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-  } catch (error) {
-    throw new Error('Unable to parse SOFA string. ' + error.message);
-  }
-}
-
-/**
- * Prefix SOFA coordinates type with `sofa`.
- *
- * @param {String} sofaType : either `cartesian` or `spherical`
- * @returns {String} either `sofaCartesian` or `sofaSpherical`
- * @throws {Error} if sofaType is unknown
- */
-function conformSofaType(sofaType) {
-  var type = undefined;
-
-  switch (sofaType) {
-    case 'cartesian':
-      type = 'sofaCartesian';
-      break;
-
-    case 'spherical':
-      type = 'sofaSpherical';
-      break;
-
-    default:
-      throw new Error('Bad SOFA type ' + sofaType);
-  }
-  return type;
-}
-
-exports.default = {
-  parseSofa: parseSofa,
-  conformSofaType: conformSofaType
-};
-},{}],17:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/**
- * @fileOverview Simple XML parser, as a DOM parser.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Parse an XML string into an XMLDocument object, using native browser DOM
- * parser.
- *
- * It requires a browser environment.
- *
- * @function parseXml
- * @param {String} xmlStr full valid XML data.
- * @returns {Object} XMLDocument, DOM-like. (Use any selector.)
- *
- * @example
- * const request = new window.XMLHttpRequest();
- * request.open('GET', 'http://bili2.ircam.fr/catalog.xml');
- * request.onerror =  () => {
- *    throw new Error(`Unable to GET: ${request.status}`);
- * };
- * request.onload = () => {
- *   const xml = parseXml(request.response);
- *   const catalogueReferences = xml.querySelector('dataset > catalogRef');
- *   console.log(catalogueReferences);
- * }
- * request.send();
- */
-var parseXml = exports.parseXml = undefined;
-
-if (typeof window.DOMParser !== 'undefined') {
-  exports.parseXml = parseXml = function parseXmlDOM(xmlStr) {
-    return new window.DOMParser().parseFromString(xmlStr, 'text/xml');
-  };
-} else if (typeof window.ActiveXObject !== 'undefined' && new window.ActiveXObject('Microsoft.XMLDOM')) {
-  exports.parseXml = parseXml = function parseXmlActiveX(xmlStr) {
-    var xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM');
-    xmlDoc.async = 'false';
-    xmlDoc.loadXML(xmlStr);
-    return xmlDoc;
-  };
-} else {
-  throw new Error('No XML parser found');
-}
-
-exports.default = parseXml;
-},{}],18:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -3091,7 +36,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":19,"./gl-matrix/mat2.js":20,"./gl-matrix/mat2d.js":21,"./gl-matrix/mat3.js":22,"./gl-matrix/mat4.js":23,"./gl-matrix/quat.js":24,"./gl-matrix/vec2.js":25,"./gl-matrix/vec3.js":26,"./gl-matrix/vec4.js":27}],19:[function(require,module,exports){
+},{"./gl-matrix/common.js":2,"./gl-matrix/mat2.js":3,"./gl-matrix/mat2d.js":4,"./gl-matrix/mat3.js":5,"./gl-matrix/mat4.js":6,"./gl-matrix/quat.js":7,"./gl-matrix/vec2.js":8,"./gl-matrix/vec3.js":9,"./gl-matrix/vec4.js":10}],2:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3145,7 +90,7 @@ glMatrix.toRadian = function(a){
 
 module.exports = glMatrix;
 
-},{}],20:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3449,7 +394,7 @@ mat2.LDU = function (L, D, U, a) {
 
 module.exports = mat2;
 
-},{"./common.js":19}],21:[function(require,module,exports){
+},{"./common.js":2}],4:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3768,7 +713,7 @@ mat2d.frob = function (a) {
 
 module.exports = mat2d;
 
-},{"./common.js":19}],22:[function(require,module,exports){
+},{"./common.js":2}],5:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4335,7 +1280,7 @@ mat3.frob = function (a) {
 
 module.exports = mat3;
 
-},{"./common.js":19}],23:[function(require,module,exports){
+},{"./common.js":2}],6:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5620,7 +2565,7 @@ mat4.frob = function (a) {
 
 module.exports = mat4;
 
-},{"./common.js":19}],24:[function(require,module,exports){
+},{"./common.js":2}],7:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6175,7 +3120,7 @@ quat.str = function (a) {
 
 module.exports = quat;
 
-},{"./common.js":19,"./mat3.js":22,"./vec3.js":26,"./vec4.js":27}],25:[function(require,module,exports){
+},{"./common.js":2,"./mat3.js":5,"./vec3.js":9,"./vec4.js":10}],8:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6700,7 +3645,7 @@ vec2.str = function (a) {
 
 module.exports = vec2;
 
-},{"./common.js":19}],26:[function(require,module,exports){
+},{"./common.js":2}],9:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7411,7 +4356,7 @@ vec3.str = function (a) {
 
 module.exports = vec3;
 
-},{"./common.js":19}],27:[function(require,module,exports){
+},{"./common.js":2}],10:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7950,7 +4895,7 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":19}],28:[function(require,module,exports){
+},{"./common.js":2}],11:[function(require,module,exports){
 /**
  * AUTHOR OF INITIAL JS LIBRARY
  * k-d Tree JavaScript - V 1.0
@@ -8409,5 +5354,3086 @@ module.exports = {
   }
 }
 
-},{}]},{},[11])(11)
+},{}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BinauralPanner = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Multi-source binaural panner.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license CECILL-2.1
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
+
+var _glMatrix = require('gl-matrix');
+
+var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+var _coordinates = require('../geometry/coordinates');
+
+var _HrtfSet = require('../sofa/HrtfSet');
+
+var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
+
+var _Source = require('./Source');
+
+var _Source2 = _interopRequireDefault(_Source);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Binaural panner with multiple sources and a listener.
+ */
+
+var BinauralPanner = exports.BinauralPanner = function () {
+
+  /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an HRTF URL.
+   *
+   * See {@link HrtfSet}.
+   * See {@link BinauralPanner#loadHrtfSet}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {coordinatesType} [options.positionsType='gl']
+   * {@link BinauralPanner#positionsType}
+   * @param {Number} [options.sourceCount=1]
+   * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
+   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
+   * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link BinauralPanner#filterPositionsType}
+   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * array of positions to filter. Use undefined to use all positions from the HRTF set.
+   * {@link BinauralPanner#filterPositions}
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * {@link BinauralPanner#listenerPosition}
+   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * {@link BinauralPanner#listenerUp}
+   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * {@link BinauralPanner#listenerView}
+   */
+
+  function BinauralPanner() {
+    var _this = this;
+
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, BinauralPanner);
+
+    this._audioContext = options.audioContext;
+
+    this.positionsType = options.positionsType;
+
+    var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
+
+    this._listenerOutdated = true;
+    this._listenerLookAt = [];
+
+    this._listenerPosition = [];
+    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this.positionsType);
+
+    this._listenerUp = [];
+    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this.positionsType);
+
+    this._listenerView = [];
+    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this.positionsType);
+
+    this._sourcesOutdated = new Array(sourceCount).fill(true);
+
+    this._sources = this._sourcesOutdated.map(function () {
+      return new _Source2.default({
+        audioContext: _this._audioContext,
+        crossfadeDuration: options.crossfadeDuration
+      });
+    });
+
+    this._sourcePositionsAbsolute = this._sourcesOutdated.map(function () {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this._sourcePositionsRelative = this._sourcesOutdated.map(function () {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
+      audioContext: this._audioContext,
+      positionsType: 'gl'
+    });
+
+    this.filterPositionsType = options.filterPositionsType;
+    this.filterPositions = options.filterPositions;
+    this.filterAfterLoad = options.filterAfterLoad;
+
+    if (typeof options.sourcePositions !== 'undefined') {
+      this.sourcePositions = options.sourcePositions;
+    }
+
+    this.update();
+  }
+
+  // ----------- accessors
+
+  /**
+   * Set coordinates type for positions.
+   *
+   * @param {coordinatesType} [type='gl']
+   */
+
+
+  _createClass(BinauralPanner, [{
+    key: 'setSourcePositionByIndex',
+
+
+    /**
+     * Set the position of one source. It will update the corresponding
+     * relative position after a call to the update method.
+     *
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {Number} index
+     * @param {coordinates} positionRequest
+     * @returns {this}
+     */
+    value: function setSourcePositionByIndex(index, positionRequest) {
+      this._sourcesOutdated[index] = true;
+      (0, _coordinates.typedToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.positionsType);
+
+      return this;
+    }
+
+    /**
+     * Get the position of one source.
+     *
+     * @param {Number} index
+     * @returns {coordinates}
+     */
+
+  }, {
+    key: 'getSourcePositionByIndex',
+    value: function getSourcePositionByIndex(index) {
+      return (0, _coordinates.glToTyped)([], this._sourcePositionsAbsolute[index], this.positionsType);
+    }
+
+    // ----------- public methods
+
+    /**
+     * Load an HRTF set form an URL, and update sources.
+     *
+     * See {@link HrtfSet#load}.
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<this|Error>} resolve when URL successfully
+     * loaded.
+     */
+
+  }, {
+    key: 'loadHrtfSet',
+    value: function loadHrtfSet(sourceUrl) {
+      var _this2 = this;
+
+      return this._hrtfSet.load(sourceUrl).then(function () {
+        _this2._sourcesOutdated.fill(true);
+        _this2.update();
+        return _this2;
+      });
+    }
+
+    /**
+     * Connect the input of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectInputByIndex',
+    value: function connectInputByIndex(index, nodesToConnect, output, input) {
+      this._sources[index].connectInput(nodesToConnect, output, input);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of one source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInputByIndex',
+    value: function disconnectInputByIndex(index, nodesToDisconnect) {
+      this._sources[index].disconnectInput(nodesToDisconnect);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInputs',
+    value: function disconnectInputs(nodesToDisconnect) {
+      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+      this._sources.forEach(function (source, index) {
+        source.disconnectInput(nodes[index]);
+      });
+
+      return this;
+    }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutputByIndex',
+    value: function connectOutputByIndex(index, nodesToConnect, output, input) {
+      this._sources[index].connectOutput(nodesToConnect, output, input);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutputByIndex',
+    value: function disconnectOutputByIndex(index, nodesToDisconnect) {
+      this._sources[index].disconnectOutput(nodesToDisconnect);
+
+      return this;
+    }
+
+    /**
+     * Connect each output of each source. Note that the number of nodes to
+     * connect must match the number of sources.
+     *
+     * See {@link BinauralPanner#connectOutputByIndex}.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutputs',
+    value: function connectOutputs(nodesToConnect, output, input) {
+      this._sources.forEach(function (source) {
+        source.connectOutput(nodesToConnect, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutputs',
+    value: function disconnectOutputs(nodesToDisconnect) {
+      this._sources.forEach(function (source) {
+        source.disconnectOutput(nodesToDisconnect);
+      });
+
+      return this;
+    }
+
+    /**
+     * Update the sources filters, according to possible changes in listener,
+     * and source positions.
+     *
+     * @returns {this}
+     */
+
+  }, {
+    key: 'update',
+    value: function update() {
+      var _this3 = this;
+
+      if (this._listenerOutdated) {
+        _glMatrix2.default.mat4.lookAt(this._listenerLookAt, this._listenerPosition, this._listenerView, this._listenerUp);
+
+        this._sourcesOutdated.fill(true);
+      }
+
+      if (this._hrtfSet.isReady) {
+        this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
+          if (_this3._sourcesOutdated[index]) {
+            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listenerLookAt);
+
+            _this3._sources[index].position = _this3._sourcePositionsRelative[index];
+
+            _this3._sourcesOutdated[index] = false;
+          }
+        });
+      }
+
+      return this;
+    }
+  }, {
+    key: 'positionsType',
+    set: function set(type) {
+      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    }
+
+    /**
+     * Get coordinates type for positions.
+     *
+     * @returns {coordinatesType}
+     */
+    ,
+    get: function get() {
+      return this._positionsType;
+    }
+
+    /**
+     * Refer an external HRTF set, and update sources. Its positions
+     * coordinate type must be 'gl'.
+     *
+     * See {@link HrtfSet}.
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {HrtfSet} hrtfSet
+     * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+     * not 'gl'.
+     */
+
+  }, {
+    key: 'hrtfSet',
+    set: function set(hrtfSet) {
+      var _this4 = this;
+
+      if (typeof hrtfSet !== 'undefined') {
+        if (hrtfSet.positionsType !== 'gl') {
+          throw new Error('positions type of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.positionsType + '\') ')(_templateObject));
+        }
+        this._hrtfSet = hrtfSet;
+      } else {
+        throw new Error('Undefined HRTF set for BinauralPanner');
+      }
+
+      // update HRTF set references
+      this._sourcesOutdated.fill(true);
+      this._sources.forEach(function (source) {
+        source.hrtfSet = _this4._hrtfSet;
+      });
+
+      this.update();
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet;
+    }
+
+    // ------------- HRTF set proxies
+
+    /**
+     * Set the filter positions of the HRTF set
+     *
+     * See {@link HrtfSet#filterPositions}.
+     *
+     * @param {Array.<coordinates>} positions
+     */
+
+  }, {
+    key: 'filterPositions',
+    set: function set(positions) {
+      this._hrtfSet.filterPositions = positions;
+    }
+
+    /**
+     * Get the filter positions of the HRTF set
+     *
+     * See {@link HrtfSet#filterPositions}.
+     *
+     * @return {Array.<coordinates>} positions
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterPositions;
+    }
+
+    /**
+     * Set coordinates type for positions.
+     *
+     * @param {coordinatesType} [type='gl']
+     */
+
+  }, {
+    key: 'filterPositionsType',
+    set: function set(type) {
+      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
+    }
+
+    /**
+     * Get coordinates type for filters.
+     *
+     * @returns {coordinatesType}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterPositionsType;
+    }
+
+    /**
+     * Set post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @param {Boolean} [post=false]
+     */
+
+  }, {
+    key: 'filterAfterLoad',
+    set: function set(post) {
+      this._hrtfSet.filterAfterLoad = post;
+    }
+
+    /**
+     * Get post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @returns {Boolean}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterAfterLoad;
+    }
+
+    /**
+     * Set listener position. It will update the relative positions of the
+     * sources after a call to the update method.
+     *
+     * Default value is [0, 0, 0] in 'gl' coordinates.
+     *
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {coordinates} positionRequest
+     */
+
+  }, {
+    key: 'listenerPosition',
+    set: function set(positionRequest) {
+      (0, _coordinates.typedToGl)(this._listenerPosition, positionRequest, this._positionsType);
+      this._listenerOutdated = true;
+    }
+
+    /**
+     * Get listener position.
+     *
+     * @returns {coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToTyped)([], this._listenerPosition, this._positionsType);
+    }
+
+    /**
+     * Set listener up direction (not an absolute position). It will update
+     * the relative positions of the sources after a call to the update
+     * method.
+     *
+     * Default value is [0, 1, 0] in 'gl' coordinates.
+     *
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {coordinates} positionRequest
+     */
+
+  }, {
+    key: 'listenerUp',
+    set: function set(upRequest) {
+      (0, _coordinates.typedToGl)(this._listenerUp, upRequest, this._positionsType);
+      this._listenerOutdated = true;
+    }
+
+    /**
+     * Get listener up direction.
+     *
+     * @returns {coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToTyped)([], this._listenerUp, this._positionsType);
+    }
+
+    /**
+     * Set listener view, as an aiming position. It is an absolute position,
+     * and not a direction. It will update the relative positions of the
+     * sources after a call to the update method.
+     *
+     * Default value is [0, 0, -1] in 'gl' coordinates.
+     *
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {coordinates} positionRequest
+     */
+
+  }, {
+    key: 'listenerView',
+    set: function set(viewRequest) {
+      (0, _coordinates.typedToGl)(this._listenerView, viewRequest, this._positionsType);
+      this._listenerOutdated = true;
+    }
+
+    /**
+     * Get listener view direction.
+     *
+     * @returns {coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToTyped)([], this._listenerView, this._positionsType);
+    }
+
+    /**
+     * Set the sources positions. It will update the relative positions after
+     * a call to the update method.
+     *
+     * See {@link BinauralPanner#update}.
+     * See {@link BinauralPanner#setSourcePositionByIndex}.
+     *
+     * @param {Array.<coordinates>} positionsRequest
+     * @throws {Error} if the length of positionsRequest is not the same as
+     * the number of sources
+     */
+
+  }, {
+    key: 'sourcePositions',
+    set: function set(positionsRequest) {
+      var _this5 = this;
+
+      if (positionsRequest.length !== this._sources.length) {
+        throw new Error('Bad number of source positions: ' + (positionsRequest.length + ' ') + ('instead of ' + this._sources.length));
+      }
+
+      positionsRequest.forEach(function (position, index) {
+        _this5._sourcesOutdated[index] = true;
+        _this5.setSourcePositionByIndex(index, position);
+      });
+    }
+
+    /**
+     * Get the source positions.
+     *
+     * @returns {Array.<coordinates>}
+     */
+    ,
+    get: function get() {
+      var _this6 = this;
+
+      return this._sourcePositionsAbsolute.map(function (position) {
+        return (0, _coordinates.glToTyped)([], position, _this6.positionsType);
+      });
+    }
+  }]);
+
+  return BinauralPanner;
+}();
+
+exports.default = BinauralPanner;
+
+},{"../geometry/coordinates":19,"../sofa/HrtfSet":23,"./Source":13,"gl-matrix":1}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @fileOverview Source for binaural processing.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Single source.
+ *
+ * See {@link BinauralPanner}.
+ */
+
+var Source = exports.Source = function () {
+
+  /**
+   * Construct a source, with and AudioContext and an HrtfSet.
+   *
+   * See {@link HrtfSet}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.
+   * {@link Source#position}
+   * @param {Number} [crossfadeDuration] in seconds
+   * {@link Source#crossfadeDuration}
+   */
+
+  function Source() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, Source);
+
+    this._audioContext = options.audioContext;
+    this._hrtfSet = options.hrtfSet;
+
+    this._convolverCurrent = this._audioContext.createConvolver();
+    this._convolverCurrent.normalize = false;
+
+    this._gainCurrent = this._audioContext.createGain();
+    this._convolverCurrent.connect(this._gainCurrent);
+
+    this._convolverNext = this._audioContext.createConvolver();
+    this._convolverNext.normalize = false;
+
+    this._gainNext = this._audioContext.createGain();
+    this._convolverNext.connect(this._gainNext);
+
+    this.crossfadeDuration = options.crossfadeDuration;
+
+    this._crossfadeAfterTime = this._audioContext.currentTime;
+    this._crossfadeTimeout = undefined;
+
+    // set position when everything is ready
+    if (typeof options.position !== 'undefined') {
+      this.position = options.position;
+    }
+  }
+
+  // ----------- accessors
+
+  /**
+   * Set the crossfade duration when the position changes.
+   *
+   * @param {Number} [duration=0.02] in seconds
+   */
+
+
+  _createClass(Source, [{
+    key: 'connectInput',
+
+
+    // ----------- public methods
+
+    /**
+     * Connect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+    value: function connectInput(nodesToConnect, output, input) {
+      var _this = this;
+
+      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
+
+      nodes.forEach(function (node) {
+        node.connect(_this._convolverCurrent, output, input);
+        node.connect(_this._convolverNext, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInput',
+    value: function disconnectInput(nodesToDisconnect) {
+      var _this2 = this;
+
+      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+      nodes.forEach(function (node) {
+        node.disconnect(_this2._convolverCurrent);
+        node.disconnect(_this2._convolverNext);
+      });
+
+      return this;
+    }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutput',
+    value: function connectOutput(nodesToConnect, output, input) {
+      var _this3 = this;
+
+      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
+
+      nodes.forEach(function (node) {
+        _this3._gainCurrent.connect(node, output, input);
+        _this3._gainNext.connect(node, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutput',
+    value: function disconnectOutput(nodesToDisconnect) {
+      var _this4 = this;
+
+      if (typeof nodesToDisconnect === 'undefined') {
+        // disconnect all
+        this._gainCurrent.disconnect();
+        this._gainNext.disconnect();
+      } else {
+        var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+        nodes.forEach(function (node) {
+          _this4._gainCurrent.disconnect(node);
+          _this4._gainNext.disconnect(node);
+        });
+      }
+
+      return this;
+    }
+  }, {
+    key: 'crossfadeDuration',
+    set: function set() {
+      var duration = arguments.length <= 0 || arguments[0] === undefined ? 0.02 : arguments[0];
+
+      this._crossfadeDuration = duration;
+    }
+
+    /**
+     * Get the crossfade duration when the position changes.
+     *
+     * @returns {Number} in seconds
+     */
+    ,
+    get: function get() {
+      return this._crossfadeDuration;
+    }
+
+    /**
+     * Refer an external HRTF set.
+     *
+     * @param {HrtfSet} hrtfSet
+     */
+
+  }, {
+    key: 'hrtfSet',
+    set: function set(hrtfSet) {
+      this._hrtfSet = hrtfSet;
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet;
+    }
+
+    /**
+     * Set the position of the source and updates.
+     *
+     * @param {coordinates} positionRequest
+     */
+
+  }, {
+    key: 'position',
+    set: function set(positionRequest) {
+      var _this5 = this;
+
+      clearTimeout(this._crossfadeTimeout);
+      var now = this._audioContext.currentTime;
+      if (now >= this._crossfadeAfterTime) {
+        // swap
+        var tmp = this._convolverCurrent;
+        this._convolverCurrent = this._convolverNext;
+        this._convolverNext = tmp;
+
+        tmp = this._gainCurrent;
+        this._gainCurrent = this._gainNext;
+        this._gainNext = tmp;
+
+        this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);
+
+        // reschedule after setting the buffer, as it may take time
+        // (currentTime updates at least on Chrome 48)
+        now = this._audioContext.currentTime;
+        this._crossfadeAfterTime = now + this._crossfadeDuration;
+
+        // fade in next
+        this._gainNext.gain.cancelScheduledValues(now);
+        this._gainNext.gain.setValueAtTime(0, now);
+        this._gainNext.gain.linearRampToValueAtTime(1, now + this._crossfadeDuration);
+
+        // fade out current
+        this._gainCurrent.gain.cancelScheduledValues(now);
+        this._gainCurrent.gain.setValueAtTime(1, now);
+        this._gainCurrent.gain.linearRampToValueAtTime(0, now + this._crossfadeDuration);
+      } else {
+        // re-schedule later
+        this._crossfadeTimeout = setTimeout(function () {
+          _this5.position = positionRequest;
+        }, 0.02);
+      }
+    }
+  }]);
+
+  return Source;
+}();
+
+exports.default = Source;
+
+},{}],14:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _BinauralPanner = require('./BinauralPanner');
+
+var _BinauralPanner2 = _interopRequireDefault(_BinauralPanner);
+
+var _utilities = require('./utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+var _Source = require('./Source');
+
+var _Source2 = _interopRequireDefault(_Source);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  BinauralPanner: _BinauralPanner2.default,
+  Source: _Source2.default,
+  utilities: _utilities2.default
+};
+
+},{"./BinauralPanner":12,"./Source":13,"./utilities":15}],15:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+exports.dBToLin = dBToLin;
+exports.createDiracBuffer = createDiracBuffer;
+exports.createNoiseBuffer = createNoiseBuffer;
+exports.resampleFloat32Array = resampleFloat32Array;
+/**
+ * @fileOverview Audio utilities
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Convert a dB value to a linear amplitude, i.e. -20dB gives 0.1
+ *
+ * @param {Number} dBValue
+ * @returns {Number}
+ */
+function dBToLin(dBValue) {
+  var factor = 1 / 20;
+  return Math.pow(10, dBValue * factor);
+}
+
+/**
+ * Create a Dirac buffer, zero-padded.
+ *
+ * Warning: the default length is 2 samples,
+ * to by-pass a bug in Safari ≤ 9.
+ *
+ * @param {Object} options
+ * @param {AudioContext} options.audioContext must be defined
+ * @param {Number} [options.channelCount=1]
+ * @param {Number} [options.gain=0] in dB
+ * @param {Number} [options.length=2] in samples
+ * @returns {AudioBuffer}
+ */
+function createDiracBuffer() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var context = options.audioContext;
+
+  var length = typeof options.length !== 'undefined' ? options.length : 2; // Safari ≤9 needs one more
+  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : 1;
+  var gain = typeof options.gain !== 'undefined' ? options.gain : 0; // dB
+
+  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
+  var data = buffer.getChannelData(0);
+
+  var amplitude = dBToLin(gain);
+  data[0] = amplitude;
+  // already padded with zeroes
+
+  return buffer;
+}
+
+/**
+ * Create a noise buffer.
+ *
+ * @param {Object} options
+ * @param {AudioContext} options.audioContext must be defined
+ * @param {Number} [options.channelCount=1]
+ * @param {Number} [options.duration=5] in seconds
+ * @param {Number} [options.gain=-30] in dB
+ * @returns {AudioBuffer}
+ */
+function createNoiseBuffer() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var context = options.audioContext;
+  var duration = typeof options.duration !== 'undefined' ? options.duration : 5;
+
+  var gain = typeof options.gain !== 'undefined' ? options.gain : -30; // dB
+
+  var channelCount = _typeof(options.channelCount) ? options.channelCount : context.destination.channelCount;
+
+  var length = duration * context.sampleRate;
+  var amplitude = dBToLin(gain);
+  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
+  for (var c = 0; c < channelCount; ++c) {
+    var data = buffer.getChannelData(c);
+    for (var i = 0; i < length; ++i) {
+      data[i] = amplitude * (Math.random() * 2 - 1);
+    }
+  }
+  return buffer;
+}
+
+/**
+ * Convert an array, typed or not, to a Float32Array, with possible re-sampling.
+ *
+ * @param {Object} options
+ * @param {Array} options.inputSamples input array
+ * @param {Number} options.inputSampleRate in Hertz
+ * @param {Number} [options.outputSampleRate=options.inputSampleRate]
+ * @returns {Promise.<Float32Array|Error>}
+ */
+function resampleFloat32Array() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var promise = new Promise(function (resolve, reject) {
+    var inputSamples = options.inputSamples;
+    var inputSampleRate = options.inputSampleRate;
+
+    var outputSampleRate = typeof options.outputSampleRate !== 'undefined' ? options.outputSampleRate : inputSampleRate;
+
+    if (inputSampleRate === outputSampleRate) {
+      resolve(new Float32Array(inputSamples));
+    } else {
+      try {
+        var outputSamplesNb = Math.ceil(inputSamples.length * outputSampleRate / inputSampleRate);
+
+        var context = new window.OfflineAudioContext(1, outputSamplesNb, outputSampleRate);
+
+        var inputBuffer = context.createBuffer(1, inputSamples.length, inputSampleRate);
+
+        inputBuffer.getChannelData(0).set(inputSamples);
+
+        var source = context.createBufferSource();
+        source.buffer = inputBuffer;
+        source.connect(context.destination);
+
+        source.start(); // will start with offline context
+
+        context.oncomplete = function (event) {
+          var outputSamples = event.renderedBuffer.getChannelData(0);
+          resolve(outputSamples);
+        };
+
+        context.startRendering();
+      } catch (error) {
+        reject(new Error('Unable to re-sample Float32Array. ' + error.message));
+      }
+    }
+  });
+
+  return promise;
+}
+
+exports.default = {
+  dBToLin: dBToLin,
+  createDiracBuffer: createDiracBuffer,
+  createNoiseBuffer: createNoiseBuffer,
+  resampleFloat32Array: resampleFloat32Array
+};
+
+},{}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _utilities = require('./utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  utilities: _utilities2.default
+};
+
+},{"./utilities":17}],17:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.almostEquals = almostEquals;
+exports.almostEqualsModulo = almostEqualsModulo;
+/**
+ * @fileOverview Common utilities
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Test whether a value is around a reference, given a tolerance.
+ *
+ * @param {Number} value
+ * @param {Number} reference
+ * @param {Number} [tolerance=Number.EPSILON]
+ * @returns {Number} Math.abs(value - reference) <= tolerance;
+ */
+function almostEquals(value, reference) {
+  var tolerance = arguments.length <= 2 || arguments[2] === undefined ? Number.EPSILON : arguments[2];
+
+  return Math.abs(value - reference) <= tolerance;
+}
+
+/**
+ * Test whether a value is around a reference, given a tolerance and a
+ * modulo.
+ *
+ * @param {Number} value
+ * @param {Number} reference
+ * @param {Number} modulo
+ * @param {Number} [tolerance=Number.EPSILON]
+ * @returns {Number} Math.abs(value - reference) % modulo <= tolerance;
+ */
+function almostEqualsModulo(value, reference, modulo) {
+  var tolerance = arguments.length <= 3 || arguments[3] === undefined ? Number.EPSILON : arguments[3];
+
+  return Math.abs(value - reference) % modulo <= tolerance;
+}
+
+exports.default = {
+  almostEquals: almostEquals,
+  almostEqualsModulo: almostEqualsModulo
+};
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tree = undefined;
+exports.distanceSquared = distanceSquared;
+exports.distance = distance;
+
+var _kd = require('kd.tree');
+
+var _kd2 = _interopRequireDefault(_kd);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.tree = _kd2.default;
+
+/**
+ * Get the squared distance between to points.
+ *
+ * (Avoid computing the square-root when unnecessary.)
+ *
+ * @param {Object} a in cartesian coordinates.
+ * @param {Number} a.x
+ * @param {Number} a.y
+ * @param {Number} a.z
+ * @param {Object} b in cartesian coordinates.
+ * @param {Number} b.x
+ * @param {Number} b.y
+ * @param {Number} b.z
+ * @returns {Number}
+ */
+/**
+ * @fileOverview Helpers for k-d tree.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+function distanceSquared(a, b) {
+  var x = b.x - a.x;
+  var y = b.y - a.y;
+  var z = b.z - a.z;
+  return x * x + y * y + z * z;
+}
+
+/**
+ * Get the distance between to points.
+ *
+ * @param {Object} a in cartesian coordinates.
+ * @param {Number} a.x
+ * @param {Number} a.y
+ * @param {Number} a.z
+ * @param {Object} b in cartesian coordinates.
+ * @param {Number} b.x
+ * @param {Number} b.y
+ * @param {Number} b.z
+ * @returns {Number}
+ */
+function distance(a, b) {
+  return Math.sqrt(this.distanceSquared(a, b));
+}
+
+exports.default = {
+  distance: distance,
+  distanceSquared: distanceSquared,
+  tree: _kd2.default
+};
+
+},{"kd.tree":11}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sofaCartesianToGl = sofaCartesianToGl;
+exports.glToSofaCartesian = glToSofaCartesian;
+exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
+exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
+exports.sofaSphericalToGl = sofaSphericalToGl;
+exports.glToSofaSpherical = glToSofaSpherical;
+exports.typedToSofaCartesian = typedToSofaCartesian;
+exports.typedToGl = typedToGl;
+exports.glToTyped = glToTyped;
+
+var _degree = require('./degree');
+
+var _degree2 = _interopRequireDefault(_degree);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Coordinates as an array of 3 values:
+ * [x, y, z] or [azimuth, elevation, distance], depending on type
+ *
+ * @typedef coordinates
+ * @type {vec3}
+ */
+
+/**
+ * Coordinates system type: sofaCartesian', 'sofaSpherical', or'gl'.
+ *
+ * @typedef coordinatesType
+ * @type {String}
+ */
+
+/**
+ * Convert SOFA cartesian coordinates to openGL.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+function sofaCartesianToGl(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = -y;
+  out[1] = z;
+  out[2] = -x;
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to SOFA cartesian.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+/**
+ * @fileOverview SOFA convention to and from openGL convention.
+ *
+ * SOFA distances are in metres, angles in degrees.
+ *
+ * <pre>
+ *
+ * SOFA          +z  +x             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *         +y ----o                            o---- +x
+ *                                            /
+ *                                           /
+ *                                          +z
+ *
+ * SOFA.x = -openGL.z               openGL.x = -SOFA.y
+ * SOFA.y = -openGL.x               openGL.y =  SOFA.z
+ * SOFA.z =  openGL.y               openGL.z = -SOFA.x
+ *
+ * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
+ * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
+ * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
+ *
+ * </pre>
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+function glToSofaCartesian(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = -z;
+  out[1] = -x;
+  out[2] = y;
+
+  return out;
+}
+
+/**
+ * Convert SOFA cartesian coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+function sofaCartesianToSofaSpherical(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  var x2y2 = x * x + y * y;
+
+  // from [-180, 180] to [0, 360);
+  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
+
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert SOFA spherical coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+function sofaSphericalToSofaCartesian(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.cos(azimuth); // SOFA.x
+  out[1] = distance * cosE * _degree2.default.sin(azimuth); // SOFA.y
+  out[2] = distance * _degree2.default.sin(elevation); // SOFA.z
+
+  return out;
+}
+
+/**
+ * Convert SOFA spherical coordinates to openGL.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+function sofaSphericalToGl(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = -distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
+  out[1] = distance * _degree2.default.sin(elevation); // SOFA.z
+  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to SOFA spherical.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @returns {coordinates} out
+ */
+function glToSofaSpherical(out, a) {
+  // copy to handle in-place
+  // difference to avoid generating -0 out of 0
+  var x = 0 - a[2]; // -openGL.z
+  var y = 0 - a[0]; // -openGL.x
+  var z = a[1]; // openGL.y
+
+  var x2y2 = x * x + y * y;
+
+  // from [-180, 180] to [0, 360);
+  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
+
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert typed coordinates to SOFA cartesian.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
+function typedToSofaCartesian(out, a, type) {
+  switch (type) {
+    case 'sofaCartesian':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaSpherical':
+      sofaSphericalToSofaCartesian(out, a);
+      break;
+
+    default:
+      throw new Error('Bad SOFA type');
+  }
+  return out;
+}
+
+/**
+ * Convert typed coordinates to openGL.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
+function typedToGl(out, a, type) {
+  switch (type) {
+    case 'gl':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaCartesian':
+      sofaCartesianToGl(out, a);
+      break;
+
+    case 'sofaSpherical':
+      sofaSphericalToGl(out, a);
+      break;
+
+    default:
+      throw new Error('Bad SOFA type');
+  }
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to typed ones.
+ *
+ * @param {coordinates} out in-place if out === a.
+ * @param {coordinates} a
+ * @param {coordinatesType} type
+ * @returns {coordinates} out
+ * @throws {Error} when the type is unknown.
+ */
+function glToTyped(out, a, type) {
+  switch (type) {
+    case 'gl':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaCartesian':
+      glToSofaCartesian(out, a);
+      break;
+
+    case 'sofaSpherical':
+      glToSofaSpherical(out, a);
+      break;
+
+    default:
+      throw new Error('Bad SOFA type');
+  }
+  return out;
+}
+
+exports.default = {
+  sofaCartesianToGl: sofaCartesianToGl,
+  sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
+  glToSofaCartesian: glToSofaCartesian,
+  glToSofaSpherical: glToSofaSpherical,
+  glToTyped: glToTyped,
+  sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  sofaSphericalToGl: sofaSphericalToGl,
+  typedToSofaCartesian: typedToSofaCartesian,
+  typedToGl: typedToGl
+};
+
+},{"./degree":20}],20:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.toRadian = toRadian;
+exports.fromRadian = fromRadian;
+exports.cos = cos;
+exports.sin = sin;
+exports.atan2 = atan2;
+/**
+ * @fileOverview Convert to and from degree
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Degree to radian multiplication factor.
+ */
+var toRadianFactor = exports.toRadianFactor = Math.PI / 180;
+
+/**
+ * Radian to degree multiplication factor.
+ */
+var fromRadianFactor = exports.fromRadianFactor = 1 / toRadianFactor;
+
+/**
+ * Convert an angle in degrees to radians.
+ *
+ * @param {Number} angle in degrees
+ * @returns {Number} angle in radians
+ */
+function toRadian(angle) {
+  return angle * toRadianFactor;
+}
+
+/**
+ * Convert an angle in radians to degrees.
+ *
+ * @param {Number} angle in radians
+ * @returns {Number} angle in degrees
+ */
+function fromRadian(angle) {
+  return angle * fromRadianFactor;
+}
+
+/**
+ * Get the cosinus of an angle in degrees.
+ *
+ * @param {Number} angle
+ * @returns {Number}
+ */
+function cos(angle) {
+  return Math.cos(angle * toRadianFactor);
+}
+
+/**
+ * Get the sinus of an angle in degrees.
+ *
+ * @param {Number} angle
+ * @returns {Number}
+ */
+function sin(angle) {
+  return Math.sin(angle * toRadianFactor);
+}
+
+/**
+ * Get the arc-tangent (2 arguments) of 2 angles in degrees.
+ *
+ * @param {Number} y
+ * @param {Number} x
+ * @returns {Number}
+ */
+function atan2(y, x) {
+  return Math.atan2(y, x) * fromRadianFactor;
+}
+
+exports.default = {
+  atan2: atan2,
+  cos: cos,
+  fromRadian: fromRadian,
+  fromRadianFactor: fromRadianFactor,
+  sin: sin,
+  toRadian: toRadian,
+  toRadianFactor: toRadianFactor
+};
+
+},{}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _coordinates = require('./coordinates');
+
+var _coordinates2 = _interopRequireDefault(_coordinates);
+
+var _degree = require('./degree');
+
+var _degree2 = _interopRequireDefault(_degree);
+
+var _KdTree = require('./KdTree');
+
+var _KdTree2 = _interopRequireDefault(_KdTree);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  coordinates: _coordinates2.default,
+  degree: _degree2.default,
+  KdTree: _KdTree2.default
+};
+
+},{"./KdTree":18,"./coordinates":19,"./degree":20}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sofa = exports.geometry = exports.common = exports.audio = undefined;
+
+var _audio = require('./audio');
+
+var _audio2 = _interopRequireDefault(_audio);
+
+var _common = require('./common');
+
+var _common2 = _interopRequireDefault(_common);
+
+var _geometry = require('./geometry');
+
+var _geometry2 = _interopRequireDefault(_geometry);
+
+var _sofa = require('./sofa');
+
+var _sofa2 = _interopRequireDefault(_sofa);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.audio = _audio2.default;
+exports.common = _common2.default;
+exports.geometry = _geometry2.default;
+exports.sofa = _sofa2.default;
+exports.default = {
+  audio: _audio2.default,
+  common: _common2.default,
+  geometry: _geometry2.default,
+  sofa: _sofa2.default
+};
+
+},{"./audio":14,"./common":16,"./geometry":21,"./sofa":25}],23:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HrtfSet = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Container for HRTF set: load a set from an URL and get
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * filters from corresponding positions.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2015-2016 IRCAM, Paris, France
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _glMatrix = require('gl-matrix');
+
+var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+var _parseDataSet = require('./parseDataSet');
+
+var _parseSofa = require('./parseSofa');
+
+var _coordinates = require('../geometry/coordinates');
+
+var _coordinates2 = _interopRequireDefault(_coordinates);
+
+var _KdTree = require('../geometry/KdTree');
+
+var _KdTree2 = _interopRequireDefault(_KdTree);
+
+var _utilities = require('../audio/utilities');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Container for HRTF set.
+ */
+
+var HrtfSet = exports.HrtfSet = function () {
+
+  /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an URL.
+   *
+   * See {@link HrtfSet#load}.
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {coordinatesType} [options.positionsType='gl']
+   * {@link HrtfSet#positionsType}
+   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
+   * {@link HrtfSet#filterPositionsType}
+   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * {@link HrtfSet#filterPositions}
+   * array of positions to filter. Use undefined to use all positions.
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * {@link HrtfSet#filterAfterLoad}
+   */
+
+  function HrtfSet() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, HrtfSet);
+
+    this._audioContext = options.audioContext;
+
+    this._ready = false;
+
+    this.positionsType = options.positionsType;
+
+    this.filterPositionsType = options.filterPositionsType;
+    this.filterPositions = options.filterPositions;
+
+    this.filterAfterLoad = options.filterAfterLoad;
+  }
+
+  // ------------ accessors
+
+  /**
+   * Set coordinates type for positions.
+   * @param {coordinatesType} [type='gl']
+   */
+
+
+  _createClass(HrtfSet, [{
+    key: 'applyFilterPositions',
+
+
+    // ------------- public methods
+
+    /**
+     * Apply filter positions to an existing set of HRTF. (After a successful
+     * load.)
+     *
+     * This is destructive.
+     *
+     * See {@link HrtfSet#load}.
+     */
+    value: function applyFilterPositions() {
+      var _this = this;
+
+      // do not use getter for gl positions
+      var filteredPositions = this._filterPositions.map(function (current) {
+        return _this._kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0]; // nearest data
+      });
+
+      // filter out duplicates
+      filteredPositions = [].concat(_toConsumableArray(new Set(filteredPositions)));
+
+      this._kdt = _KdTree2.default.tree.createKdTree(filteredPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
+    }
+
+    /**
+     * Load an URL and generate the corresponding set of IR buffers.
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<this|Error>} resolve when the URL sucessfully
+     * loaded.
+     */
+
+  }, {
+    key: 'load',
+    value: function load(sourceUrl) {
+      var _this2 = this;
+
+      var extension = sourceUrl.split('.').pop();
+
+      var url = extension === 'sofa' ? sourceUrl + '.json' : sourceUrl;
+
+      var promise = undefined;
+
+      // need a server for partial downloading ("sofa" extension may be naive)
+      var preFilter = typeof this._filterPositions !== 'undefined' && !this.filterAfterLoad && extension === 'sofa';
+      if (preFilter) {
+        promise = Promise.all([this._loadMetaAndPositions(sourceUrl), this._loadDataSet(sourceUrl)]).then(function (indicesAndDataSet) {
+          var indices = indicesAndDataSet[0];
+          var dataSet = indicesAndDataSet[1];
+          return _this2._loadSofaPartial(sourceUrl, indices, dataSet).then(function () {
+            _this2._ready = true;
+            return _this2; // final resolve
+          });
+        }).catch(function () {
+          // when pre-fitering fails, for any reason, try to post-filter
+          // console.log(`Error while partial loading of ${sourceUrl}. `
+          //             + `${error.message}. `
+          //             + `Load full and post-filtering, instead.`);
+          return _this2._loadSofaFull(url).then(function () {
+            _this2.applyFilterPositions();
+            _this2._ready = true;
+            return _this2; // final resolve
+          });
+        });
+      } else {
+          promise = this._loadSofaFull(url).then(function () {
+            if (typeof _this2._filterPositions !== 'undefined' && _this2.filterAfterLoad) {
+              _this2.applyFilterPositions();
+            }
+            _this2._ready = true;
+            return _this2; // final resolve
+          });
+        }
+
+      return promise;
+    }
+
+    /**
+     * @typedef HrtfSet.nearestType
+     * @type {Object}
+     * @property {Number} distance from the request
+     * @property {AudioBuffer} fir 2-channels impulse response
+     * @property {Number} index original index in the SOFA set
+     * @property {coordinates} position using positionsType coordinates
+     * system.
+     */
+
+    /**
+     * Get the nearest point in the HRTF set, after a successful load.
+     *
+     * See {@link HrtfSet#load}.
+     *
+     * @param {coordinates} positionRequest
+     * @returns {HrtfSet.nearestType}
+     */
+
+  }, {
+    key: 'nearest',
+    value: function nearest(positionRequest) {
+      var position = _coordinates2.default.typedToGl([], positionRequest, this.positionsType);
+      var nearest = this._kdt.nearest({
+        x: position[0],
+        y: position[1],
+        z: position[2]
+      }, 1).pop(); // nearest only
+      var data = nearest[0];
+      _coordinates2.default.glToTyped(position, [data.x, data.y, data.z], this.positionsType);
+      return {
+        distance: nearest[1],
+        fir: data.fir,
+        index: data.index,
+        position: position
+      };
+    }
+
+    /**
+     * Get the FIR AudioBuffer that corresponds to the closest position in
+     * the set.
+     * @param {coordinates} positionRequest
+     * @returns {AudioBuffer}
+     */
+
+  }, {
+    key: 'nearestFir',
+    value: function nearestFir(positionRequest) {
+      return this.nearest(positionRequest).fir;
+    }
+
+    // ----------- private methods
+
+    /**
+     * Creates a kd-tree out of the specified indices, positions, and FIR.
+     *
+     * @private
+     *
+     * @param {Array}
+     * indicesPositionsFirs
+     * @returns {this}
+     */
+
+  }, {
+    key: '_createKdTree',
+    value: function _createKdTree(indicesPositionsFirs) {
+      var _this3 = this;
+
+      var positions = indicesPositionsFirs.map(function (value) {
+        var impulseResponses = value[2];
+        var fir = _this3._audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this3._audioContext.sampleRate);
+        impulseResponses.forEach(function (samples, channel) {
+          // do not use copyToChannel because of Safari <= 9
+          fir.getChannelData(channel).set(samples);
+        });
+
+        return {
+          index: value[0],
+          x: value[1][0],
+          y: value[1][1],
+          z: value[1][2],
+          fir: fir
+        };
+      });
+
+      this._kdt = _KdTree2.default.tree.createKdTree(positions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
+      return this;
+    }
+
+    /**
+     * Asynchronously create Float32Arrays, with possible re-sampling.
+     *
+     * @private
+     *
+     * @param {Array.<Number>} indices
+     * @param {Array.<coordinates>} positions
+     * @param {Array.<Float32Array>} firs
+     * @returns {Promise.<Array|Error>}
+     * @throws {Error} assertion that the channel count is 2
+     */
+
+  }, {
+    key: '_generateIndicesPositionsFirs',
+    value: function _generateIndicesPositionsFirs(indices, positions, firs) {
+      var _this4 = this;
+
+      var sofaFirsPromises = firs.map(function (sofaFirChannels, index) {
+        var channelCount = sofaFirChannels.length;
+        if (channelCount !== 2) {
+          throw new Error('Bad number of channels' + (' for IR index ' + indices[index]) + (' (' + channelCount + ' instead of 2)'));
+        }
+
+        var sofaFirsChannelsPromises = sofaFirChannels.map(function (fir) {
+          return (0, _utilities.resampleFloat32Array)({
+            inputSamples: fir,
+            inputSampleRate: _this4._sofaSampleRate,
+            outputSampleRate: _this4._audioContext.sampleRate
+          });
+        });
+        return Promise.all(sofaFirsChannelsPromises).then(function (firChannels) {
+          return [indices[index], positions[index], firChannels];
+        }).catch(function (error) {
+          // re-throw
+          throw new Error('Unable to re-sample impulse response ' + index + '. ' + error.message);
+        });
+      });
+      return Promise.all(sofaFirsPromises);
+    }
+
+    /**
+     * Try to load a data set from a SOFA URL.
+     *
+     * @private
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<Object|Error>}
+     */
+
+  }, {
+    key: '_loadDataSet',
+    value: function _loadDataSet(sourceUrl) {
+      var promise = new Promise(function (resolve, reject) {
+        var ddsUrl = sourceUrl + '.dds';
+        var request = new window.XMLHttpRequest();
+        request.open('GET', ddsUrl);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + ddsUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+
+          try {
+            var dds = (0, _parseDataSet.parseDataSet)(request.response);
+            resolve(dds);
+          } catch (error) {
+            // re-throw
+            reject(new Error('Unable to parse ' + ddsUrl + '. ' + error.message));
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+
+    /**
+     * Try to load meta-data and positions from a SOFA URL, to get the
+     * indices closest to the filter positions.
+     *
+     * @private
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<Array.<Number>|Error>}
+     */
+
+  }, {
+    key: '_loadMetaAndPositions',
+    value: function _loadMetaAndPositions(sourceUrl) {
+      var _this5 = this;
+
+      var promise = new Promise(function (resolve, reject) {
+        var positionsUrl = sourceUrl + '.json?' + 'ListenerPosition,ListenerUp,ListenerView,SourcePosition,' + 'Data.Delay,Data.SamplingRate,' + 'EmitterPosition,ReceiverPosition,RoomVolume'; // meta
+
+        var request = new window.XMLHttpRequest();
+        request.open('GET', positionsUrl);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + positionsUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+
+          try {
+            (function () {
+              var data = (0, _parseSofa.parseSofa)(request.response);
+              _this5._setMetaData(data);
+
+              var sourcePositions = _this5._sourcePositionsToGl(data);
+              var hrtfPositions = sourcePositions.map(function (position, index) {
+                return {
+                  x: position[0],
+                  y: position[1],
+                  z: position[2],
+                  index: index
+                };
+              });
+
+              var kdt = _KdTree2.default.tree.createKdTree(hrtfPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
+
+              var nearestIndices = _this5._filterPositions.map(function (current) {
+                return kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0] // nearest data
+                .index;
+              });
+
+              // filter out duplicates
+              nearestIndices = [].concat(_toConsumableArray(new Set(nearestIndices)));
+
+              _this5._sofaUrl = sourceUrl;
+              resolve(nearestIndices);
+            })();
+          } catch (error) {
+            // re-throw
+            reject(new Error('Unable to parse ' + positionsUrl + '. ' + error.message));
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+
+    /**
+     * Try to load full SOFA URL.
+     *
+     * @private
+     *
+     * @param {String} url
+     * @returns {Promise.<this|Error>}
+     */
+
+  }, {
+    key: '_loadSofaFull',
+    value: function _loadSofaFull(url) {
+      var _this6 = this;
+
+      var promise = new Promise(function (resolve, reject) {
+        var request = new window.XMLHttpRequest();
+        request.open('GET', url);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+
+          try {
+            var data = (0, _parseSofa.parseSofa)(request.response);
+            _this6._setMetaData(data);
+            var sourcePositions = _this6._sourcePositionsToGl(data);
+            _this6._generateIndicesPositionsFirs(sourcePositions.map(function (position, index) {
+              return index;
+            }), // full
+            sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
+              _this6._createKdTree(indicesPositionsFirs);
+              _this6._sofaUrl = url;
+              resolve(_this6);
+            });
+          } catch (error) {
+            // re-throw
+            reject(new Error('Unable to parse ' + url + '. ' + error.message));
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+
+    /**
+     * Try to load partial data from a SOFA URL.
+     *
+     * @private
+     *
+     * @param {Array.<String>} sourceUrl
+     * @param {Array.<Number>} indices
+     * @param {Object} dataSet
+     * @returns {Promise.<this|Error>}
+     */
+
+  }, {
+    key: '_loadSofaPartial',
+    value: function _loadSofaPartial(sourceUrl, indices, dataSet) {
+      var _this7 = this;
+
+      var urlPromises = indices.map(function (index) {
+        var urlPromise = new Promise(function (resolve, reject) {
+          var positionUrl = sourceUrl + '.json?' + ('SourcePosition[' + index + '][0:1:' + (dataSet.SourcePosition.C - 1) + '],') + ('Data.IR[' + index + '][0:1:' + (dataSet['Data.IR'].R - 1) + ']') + ('[0:1:' + (dataSet['Data.IR'].N - 1) + ']');
+
+          var request = new window.XMLHttpRequest();
+          request.open('GET', positionUrl);
+          request.onerror = function () {
+            reject(new Error('Unable to GET ' + positionUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
+          };
+
+          request.onload = function () {
+            if (request.status < 200 || request.status >= 300) {
+              request.onerror();
+            }
+
+            try {
+              var data = (0, _parseSofa.parseSofa)(request.response);
+              // (meta-data is already loaded)
+
+              var sourcePositions = _this7._sourcePositionsToGl(data);
+              _this7._generateIndicesPositionsFirs([index], sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
+                // One position per URL here
+                // Array made of multiple promises, later
+                resolve(indicesPositionsFirs[0]);
+              });
+            } catch (error) {
+              // re-throw
+              reject(new Error('Unable to parse ' + positionUrl + '. ' + error.message));
+            }
+          }; // request.onload
+
+          request.send();
+        });
+
+        return urlPromise;
+      });
+
+      return Promise.all(urlPromises).then(function (indicesPositionsFirs) {
+        _this7._createKdTree(indicesPositionsFirs);
+        return _this7; // final resolve
+      });
+    }
+
+    /**
+     * Set meta-data.
+     *
+     * @private
+     *
+     * @param {Object} data
+     * @throws {Error} assertion for FIR data.
+     */
+
+  }, {
+    key: '_setMetaData',
+    value: function _setMetaData(data) {
+      if (data.metaData.DataType !== 'FIR') {
+        throw new Error('SOFA data type is not FIR');
+      }
+
+      this._sofaMetaData = data.metaData;
+      this._sofaSampleRate = data['Data.SamplingRate'].data[0];
+
+      // Convert listener position, up, and view to SOFA cartesian,
+      // to generate a SOFA-to-GL look-at mat4.
+      // Default SOFA type is 'cartesian' (see table D.4A).
+
+      var listenerPosition = _coordinates2.default.typedToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaType)(data.ListenerPosition.Type || 'cartesian'));
+
+      var listenerView = _coordinates2.default.typedToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaType)(data.ListenerView.Type || 'cartesian'));
+
+      var listenerUp = _coordinates2.default.typedToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaType)(data.ListenerUp.Type || 'cartesian'));
+
+      this._sofaToGl = _glMatrix2.default.mat4.lookAt([], listenerPosition, listenerView, listenerUp);
+    }
+
+    /**
+     * Convert to GL coordinates, in-place.
+     *
+     * @private
+     *
+     * @param {Object} data
+     * @returns {Array.<coordinates>}
+     * @throws {Error}
+     */
+
+  }, {
+    key: '_sourcePositionsToGl',
+    value: function _sourcePositionsToGl(data) {
+      var _this8 = this;
+
+      var sourcePositions = data.SourcePosition.data; // reference
+      var sourcePositionsType = typeof data.SourcePosition.Type !== 'undefined' ? data.SourcePosition.Type : 'spherical'; // default (SOFA Table D.4C)
+      switch (sourcePositionsType) {
+        case 'cartesian':
+          sourcePositions.forEach(function (position) {
+            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
+          });
+          break;
+
+        case 'spherical':
+          sourcePositions.forEach(function (position) {
+            _coordinates2.default.sofaSphericalToSofaCartesian(position, position); // in-place
+            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
+          });
+          break;
+
+        default:
+          throw new Error('Bad source position type');
+      }
+
+      return sourcePositions;
+    }
+  }, {
+    key: 'positionsType',
+    set: function set(type) {
+      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    }
+
+    /**
+     * Get coordinates type for positions.
+     *
+     * @returns {coordinatesType}
+     */
+    ,
+    get: function get() {
+      return this._positionsType;
+    }
+
+    /**
+     * Set coordinates type for filter positions.
+     *
+     * @param {coordinatesType} [type] undefined to use positionsType
+     */
+
+  }, {
+    key: 'filterPositionsType',
+    set: function set(type) {
+      this._filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
+    }
+
+    /**
+     * Get coordinates type for filter positions.
+     *
+     * @param {coordinatesType} type
+     */
+    ,
+    get: function get() {
+      return this._filterPositionsType;
+    }
+
+    /**
+     * Set filter positions.
+     *
+     * @param {Array.<coordinates>} [positions] undefined for no filtering.
+     */
+
+  }, {
+    key: 'filterPositions',
+    set: function set(positions) {
+      if (typeof positions === 'undefined') {
+        this._filterPositions = undefined;
+      } else {
+        switch (this.filterPositionsType) {
+          case 'gl':
+            this._filterPositions = positions.map(function (current) {
+              return current.slice(0); // copy
+            });
+            break;
+
+          case 'sofaCartesian':
+            this._filterPositions = positions.map(function (current) {
+              return _coordinates2.default.sofaCartesianToGl([], current);
+            });
+            break;
+
+          case 'sofaSpherical':
+            this._filterPositions = positions.map(function (current) {
+              return _coordinates2.default.sofaSphericalToGl([], current);
+            });
+            break;
+
+          default:
+            throw new Error('Bad filter type');
+        }
+      }
+    }
+
+    /**
+     * Get filter positions.
+     *
+     * @param {Array.<coordinates>} positions
+     */
+    ,
+    get: function get() {
+      var positions = undefined;
+      if (typeof this._filterPositions !== 'undefined') {
+        switch (this.filterPositionsType) {
+          case 'gl':
+            positions = this._filterPositions.map(function (current) {
+              return current.slice(0); // copy
+            });
+            break;
+
+          case 'sofaCartesian':
+            positions = this._filterPositions.map(function (current) {
+              return _coordinates2.default.glToSofaCartesian([], current);
+            });
+            break;
+
+          case 'sofaSpherical':
+            positions = this._filterPositions.map(function (current) {
+              return _coordinates2.default.glToSofaSpherical([], current);
+            });
+            break;
+
+          default:
+            throw new Error('Bad filter type');
+        }
+      }
+      return positions;
+    }
+
+    /**
+     * Set post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @param {Boolean} [post=false]
+     */
+
+  }, {
+    key: 'filterAfterLoad',
+    set: function set(post) {
+      this._filterAfterLoad = typeof post !== 'undefined' ? post : false;
+    }
+
+    /**
+     * Get post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @returns {Boolean}
+     */
+    ,
+    get: function get() {
+      return this._filterAfterLoad;
+    }
+
+    /**
+     * Test whether an HRTF set is actually loaded.
+     *
+     * See {@link HrtfSet#load}.
+     *
+     * @returns {Boolean} false before any successful load, true after.
+     *
+     */
+
+  }, {
+    key: 'isReady',
+    get: function get() {
+      return this._ready;
+    }
+
+    /**
+     * Get the URL used to actually load the HRTF set.
+     *
+     * @returns {String} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaUrl',
+    get: function get() {
+      return this._sofaUrl;
+    }
+
+    /**
+     * Get the original sample-rate from the SOFA URL already loaded.
+     *
+     * @returns {Number} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaSampleRate',
+    get: function get() {
+      return this._sofaSampleRate;
+    }
+
+    /**
+     * Get the meta-data from the SOFA URL already loaded.
+     *
+     * @returns {Object} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaMetaData',
+    get: function get() {
+      return this._sofaMetaData;
+    }
+  }]);
+
+  return HrtfSet;
+}();
+
+exports.default = HrtfSet;
+
+},{"../audio/utilities":15,"../geometry/KdTree":18,"../geometry/coordinates":19,"./parseDataSet":26,"./parseSofa":27,"gl-matrix":1}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ServerDataBase = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Access a remote catalogue from a SOFA server, and get URLs
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * with filtering.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2015-2016 IRCAM, Paris, France
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _parseXml = require('./parseXml');
+
+var _parseXml2 = _interopRequireDefault(_parseXml);
+
+var _parseDataSet = require('./parseDataSet');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * SOFA remote data-base.
+ */
+
+var ServerDataBase = exports.ServerDataBase = function () {
+  /**
+   * This is only a constructor, it does not load any thing.
+   *
+   * See {@link ServerDataBase#loadCatalogue}.
+   *
+   * @param {Object} [options]
+   * @param {String} [options.serverUrl] base URL of server, including
+   * protocol, eg. 'http://bili2.ircam.fr'.
+   */
+
+  function ServerDataBase() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, ServerDataBase);
+
+    this._server = options.serverUrl;
+
+    if (typeof this._server === 'undefined') {
+      var protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+
+      this._server = protocol + '//bili2.ircam.fr';
+    }
+
+    this._catalogue = {};
+    this._urls = [];
+  }
+
+  /**
+   * Asynchronously load complete catalogue from the server, including the
+   * catalogue links found in any partial catalogue.
+   *
+   * @param {String} [sourceUrl] URL of the root catalogue, including the
+   * server, like 'http://bili2.ircam.fr/catalog.xml'.
+   *  Default is 'catalog.xml' at serverURL supplied at
+   * {@link ServerDataBase#constructor}.
+   * @param {Object} [destination] Catalogue to update. Default is
+   * internal.
+   * @returns {Promise.<String|Error>} The promise will resolve (with
+   * sourceUrl) when every sub-catalogue will successfully load, or will
+   * reject (with an error) as soon as one transfer fails.
+   */
+
+
+  _createClass(ServerDataBase, [{
+    key: 'loadCatalogue',
+    value: function loadCatalogue() {
+      var _this = this;
+
+      var sourceUrl = arguments.length <= 0 || arguments[0] === undefined ? this._server + '/catalog.xml' : arguments[0];
+      var destination = arguments.length <= 1 || arguments[1] === undefined ? this._catalogue : arguments[1];
+
+      var promise = new Promise(function (resolve, reject) {
+        var request = new window.XMLHttpRequest();
+        request.open('GET', sourceUrl);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + sourceUrl + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+
+          var xml = (0, _parseXml2.default)(request.response);
+          var dataSet = xml.querySelector('dataset');
+
+          // recursive catalogues
+          var catalogueReferences = xml.querySelectorAll('dataset > catalogRef');
+
+          if (catalogueReferences.length === 0) {
+            // end of recursion
+            destination.urls = [];
+            var urls = xml.querySelectorAll('dataset > dataset');
+            for (var ref = 0; ref < urls.length; ++ref) {
+              // data set name already contains a leading slash
+              var url = _this._server + dataSet.getAttribute('name') + '/' + urls[ref].getAttribute('name');
+              _this._urls.push(url);
+              destination.urls.push(url);
+            }
+
+            resolve(sourceUrl);
+          } else {
+            // recursion
+            var promises = [];
+            for (var ref = 0; ref < catalogueReferences.length; ++ref) {
+              var name = catalogueReferences[ref].getAttribute('name');
+              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[ref].getAttribute('xlink:href');
+              destination[name] = {};
+              promises.push(_this.loadCatalogue(recursiveUrl, destination[name]));
+            }
+
+            Promise.all(promises).then(function () {
+              _this._urls.sort();
+              resolve(sourceUrl);
+            }).catch(function (error) {
+              reject(error);
+            });
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+
+    /**
+     * Get URLs, possibly filtered.
+     *
+     * Any filter can be partial, and is case-insensitive. The result must
+     * match every supplied filter. Undefined filters are not applied.
+     *
+     * @param {Object} [options] optional filters
+     * @param {String} [options.convention] 'HRIR' or 'SOS'
+     * @param {String} [options.dataBase] 'LISTEN', 'BILI', etc.
+     * @param {String} [options.equalisation] 'RAW','COMPENSATED'
+     * @param {String} [options.sampleRate] in Hertz
+     * @param {String} [options.sosOrder] '12order' or '24order'
+     * @param {String} [options.freePattern] any pattern matched
+     * globally. Use separators (spaces, tabs, etc.) to combine multiple
+     * patterns: '44100 listen' will restrict on URLs matching '44100' and
+     * 'listen'
+     * @returns {Array.<String>} URLs that match every filter.
+     */
+
+  }, {
+    key: 'getUrls',
+    value: function getUrls() {
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      // the number and the order of the filters in the following array must
+      // match the URL sub-directories
+      var filters = [options.convention, options.dataBase, options.equalisation, options.sampleRate, options.sosOrder];
+
+      // any where in URL
+      // in file name
+      var freePattern = typeof options.freePattern === 'number' ? options.freePattern.toString() : options.freePattern;
+
+      var pattern = filters.reduce(function (global, local) {
+        // partial filter inside slashes
+        return global + '/' + (typeof local !== 'undefined' ? '[^/]*' + local + '[^/]*' : '[^/]*');
+      }, '');
+
+      var regExp = new RegExp(pattern, 'i');
+
+      var urls = this._urls.filter(function (url) {
+        return regExp.test(url);
+      });
+
+      if (typeof freePattern !== 'undefined') {
+        // split patterns with separators
+        var patterns = freePattern.split(/\s+/);
+        patterns.forEach(function (current) {
+          regExp = new RegExp(current, 'i');
+
+          urls = urls.filter(function (url) {
+            return regExp.test(url);
+          });
+        });
+      }
+
+      return urls;
+    }
+
+    /**
+     * Get all source positions of a given URL.
+     *
+     * @param {String} sourceUrl is the complete SOFA URL, with the
+     * server, like
+     * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
+     *
+     * @returns {Promise.<Object|String>} The promise will resolve after
+     * successfully loading, with definitions as * `{definition: {key: values}}`
+     * objects; the promise will reject is the transfer fails, with an error.
+     */
+
+  }, {
+    key: 'getDataSetDefinitions',
+    value: function getDataSetDefinitions(sourceUrl) {
+      var promise = new Promise(function (resolve, reject) {
+        var url = sourceUrl + '.dds';
+        var request = new window.XMLHttpRequest();
+        request.open('GET', url);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+          resolve((0, _parseDataSet.parseDataSet)(request.response));
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+
+    /**
+     * Get all source positions of a given URL.
+     *
+     * @param {String} sourceUrl is the complete SOFA URL, with the
+     * server, like
+     * 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/COMPENSATED/44100/IRC_1100_C_HRIR.sofa'
+     *
+     * @returns {Promise.<Array<Array.<Number>>|Error>} The promise will resolve
+     * after successfully loading, with an array of positions (which are
+     * arrays of 3 numbers); the promise will reject is the transfer fails,
+     * with an error.
+     */
+
+  }, {
+    key: 'getSourcePositions',
+    value: function getSourcePositions(sourceUrl) {
+      var promise = new Promise(function (resolve, reject) {
+        var url = sourceUrl + '.json?SourcePosition';
+
+        var request = new window.XMLHttpRequest();
+        request.open('GET', url);
+        request.onerror = function () {
+          reject(new Error('Unable to GET ' + url + ', status ' + request.status + ' ' + ('' + request.responseText)));
+        };
+
+        request.onload = function () {
+          if (request.status < 200 || request.status >= 300) {
+            request.onerror();
+            return;
+          }
+
+          try {
+            var response = JSON.parse(request.response);
+            if (response.leaves[0].name !== 'SourcePosition') {
+              throw new Error('SourcePosition not found');
+            }
+
+            resolve(response.leaves[0].data);
+          } catch (error) {
+            // re-throw
+            reject(new Error('Unable to parse response from ' + url + '. ' + error.message));
+          }
+        }; // request.onload
+
+        request.send();
+      });
+
+      return promise;
+    }
+  }]);
+
+  return ServerDataBase;
+}();
+
+exports.default = ServerDataBase;
+
+},{"./parseDataSet":26,"./parseXml":28}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _HrtfSet = require('./HrtfSet');
+
+var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
+
+var _ServerDataBase = require('./ServerDataBase');
+
+var _ServerDataBase2 = _interopRequireDefault(_ServerDataBase);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @fileOverview Utility classes to handle the loading of HRTF files form a
+ * SOFA server.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+exports.default = {
+  HrtfSet: _HrtfSet2.default,
+  ServerDataBase: _ServerDataBase2.default
+};
+
+},{"./HrtfSet":23,"./ServerDataBase":24}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._parseDimension = _parseDimension;
+exports._parseDefinition = _parseDefinition;
+exports.parseDataSet = parseDataSet;
+/**
+ * @fileOverview Parser for DDS files
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+// '[R = 2]'
+var _dimensionPattern = '\\[\\s*(\\w+)\\s*=\\s*(\\d+)\\s*\\]';
+var _dimensionMatch = new RegExp(_dimensionPattern, 'g');
+var _dimensionSplit = new RegExp(_dimensionPattern);
+
+// 'Float64 ReceiverPosition[R = 2][C = 3][I = 1];'
+//
+// do not re-use dimension pattern (for grouping)
+var _definitionPattern = '\\s*(\\w+)\\s*([\\w.]+)\\s*' + '((?:\\[[^\\]]+\\]\\s*)+)' + ';\\s*';
+var _definitionMatch = new RegExp(_definitionPattern, 'g');
+var _definitionSplit = new RegExp(_definitionPattern);
+
+// `Dataset {
+//   Float64 ListenerPosition[I = 1][C = 3];
+//   Float64 ListenerUp[I = 1][C = 3];
+//   Float64 ListenerView[I = 1][C = 3];
+//   Float64 ReceiverPosition[R = 2][C = 3][I = 1];
+//   Float64 SourcePosition[M = 1680][C = 3];
+//   Float64 EmitterPosition[E = 1][C = 3][I = 1];
+//   Float64 Data.SamplingRate[I = 1];
+//   Float64 Data.Delay[I = 1][R = 2];
+//   Float64 Data.IR[M = 1680][R = 2][N = 941];
+//   Float64 RoomVolume[I = 1];
+// } IRC_1100_C_HRIR.sofa;`
+//
+// do not re-use definition pattern (for grouping)
+var _dataSetPattern = '\\s*Dataset\\s*\\{\\s*' + '((?:[^;]+;\\s*)*)' + '\\s*\\}\\s*[\\w.]+\\s*;\\s*';
+var _dataSetSplit = new RegExp(_dataSetPattern);
+
+/**
+ * Parses dimension strings into an array of [key, value] pairs.
+ *
+ * @private
+ * @param {String} input is single or multiple dimension
+ * @returns {Array.<Array.<String>>} object [key, value] pairs
+ *
+ * @example
+ * _parseDimension('[R = 2]');
+ * // [ [ 'R', 2 ] ]
+ *
+ * _parseDimension('[R = 2][C = 3][I = 1]');
+ * // [ [ 'R', 2 ], [ 'C', 3 ], [ 'I', 1 ] ]
+ */
+function _parseDimension(input) {
+  var parse = [];
+  var inputs = input.match(_dimensionMatch);
+  if (inputs !== null) {
+    inputs.forEach(function (inputSingle) {
+      var parts = _dimensionSplit.exec(inputSingle);
+      if (parts !== null && parts.length > 2) {
+        parse.push([parts[1], Number(parts[2])]);
+      }
+    });
+  }
+  return parse;
+}
+
+/**
+ * Parse definition strings into an array of [key, {values}] pairs.
+ *
+ * @param {String} input is single or multiple definition
+ * @returns {Array.<Array<String,Object>>} [key, {values}] pairs
+ *
+ * @private
+ * @example
+ * _parseDefinition('Float64 ReceiverPosition[R = 2][C = 3][I = 1];');
+ * // [ [ 'ReceiverPosition',
+ * //     { type: 'Float64', R: 2, C: 3, I: 1 } ] ]
+ *
+ * _parseDefinition(
+ * `    Float64 ReceiverPosition[R = 2][C = 3][I = 1];
+ *      Float64 SourcePosition[M = 1680][C = 3];
+ *      Float64 EmitterPosition[E = 1][C = 3][I = 1];`);
+ * // [ [ 'ReceiverPosition',
+ * //      { type: 'Float64', R: 2, C: 3, I: 1 } ],
+ * //   [ 'SourcePosition', { type: 'Float64', M: 1680, C: 3 } ],
+ * //   [ 'EmitterPosition',
+ * //     { type: 'Float64', E: 1, C: 3, I: 1 } ] ]
+ */
+function _parseDefinition(input) {
+  var parse = [];
+  var inputs = input.match(_definitionMatch);
+  if (inputs !== null) {
+    inputs.forEach(function (inputSingle) {
+      var parts = _definitionSplit.exec(inputSingle);
+      if (parts !== null && parts.length > 3) {
+        (function () {
+          var current = [];
+          current[0] = parts[2];
+          current[1] = {};
+          current[1].type = parts[1];
+          _parseDimension(parts[3]).forEach(function (dimension) {
+            current[1][dimension[0]] = dimension[1];
+          });
+          parse.push(current);
+        })();
+      }
+    });
+  }
+  return parse;
+}
+
+/**
+ * Parse data set meta data into an object of `{definition: {key: values}}` objects.
+ *
+ * @param {String} input data set DDS-like.
+ * @returns {Object} definitions as `{definition: {key: values}}` objects.
+ *
+ * @example
+ * _parseDataSet(
+ * `Dataset {
+ *      Float64 ReceiverPosition[R = 2][C = 3][I = 1];
+ *      Float64 SourcePosition[M = 1680][C = 3];
+ *      Float64 EmitterPosition[E = 1][C = 3][I = 1];
+ *      Float64 Data.SamplingRate[I = 1];
+ * } IRC_1100_C_HRIR.sofa;`);
+ * //  { ReceiverPosition: { type: 'Float64', R: 2, C: 3, I: 1 },
+ * //    SourcePosition: { type: 'Float64', M: 1680, C: 3 },
+ * //    EmitterPosition: { type: 'Float64', E: 1, C: 3, I: 1 }
+ * //    'Data.SamplingRate': { type: 'Float64', I: 1 } }
+ */
+function parseDataSet(input) {
+  var parse = {};
+  var definitions = _dataSetSplit.exec(input);
+  if (definitions !== null && definitions.length > 1) {
+    _parseDefinition(definitions[1]).forEach(function (definition) {
+      parse[definition[0]] = definition[1];
+    });
+  }
+  return parse;
+}
+
+exports.default = parseDataSet;
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+exports.parseSofa = parseSofa;
+exports.conformSofaType = conformSofaType;
+/**
+ * @fileOverview Parser functions for SOFA files
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Parses a SOFA JSON string with into an object with `data` and `metaData`
+ * attributes.
+ *
+ * @param {String} sofaString
+ * @returns {Object} with `data` and `metaData` attributes
+ * @throws {Error} when the parsing fails
+ */
+function parseSofa(sofaString) {
+  try {
+    var _ret = function () {
+      var sofa = JSON.parse(sofaString);
+      var hrtf = {};
+
+      hrtf.name = sofa.name;
+
+      if (typeof sofa.attributes !== 'undefined') {
+        hrtf.metaData = {};
+        var metaData = sofa.attributes.find(function (e) {
+          return e.name === 'NC_GLOBAL';
+        });
+        if (typeof metaData !== 'undefined') {
+          metaData.attributes.forEach(function (e) {
+            hrtf.metaData[e.name] = e.value[0];
+          });
+        }
+      }
+
+      if (typeof sofa.leaves !== 'undefined') {
+        var data = sofa.leaves;
+        data.forEach(function (d) {
+          hrtf[d.name] = {};
+          d.attributes.forEach(function (a) {
+            hrtf[d.name][a.name] = a.value[0];
+          });
+          hrtf[d.name].shape = d.shape;
+          hrtf[d.name].data = d.data;
+        });
+      }
+
+      return {
+        v: hrtf
+      };
+    }();
+
+    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+  } catch (error) {
+    throw new Error('Unable to parse SOFA string. ' + error.message);
+  }
+}
+
+/**
+ * Prefix SOFA coordinates type with `sofa`.
+ *
+ * @param {String} sofaType : either `cartesian` or `spherical`
+ * @returns {String} either `sofaCartesian` or `sofaSpherical`
+ * @throws {Error} if sofaType is unknown
+ */
+function conformSofaType(sofaType) {
+  var type = undefined;
+
+  switch (sofaType) {
+    case 'cartesian':
+      type = 'sofaCartesian';
+      break;
+
+    case 'spherical':
+      type = 'sofaSpherical';
+      break;
+
+    default:
+      throw new Error('Bad SOFA type ' + sofaType);
+  }
+  return type;
+}
+
+exports.default = {
+  parseSofa: parseSofa,
+  conformSofaType: conformSofaType
+};
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/**
+ * @fileOverview Simple XML parser, as a DOM parser.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Parse an XML string into an XMLDocument object, using native browser DOM
+ * parser.
+ *
+ * It requires a browser environment.
+ *
+ * @function parseXml
+ * @param {String} xmlStr full valid XML data.
+ * @returns {Object} XMLDocument, DOM-like. (Use any selector.)
+ *
+ * @example
+ * const request = new window.XMLHttpRequest();
+ * request.open('GET', 'http://bili2.ircam.fr/catalog.xml');
+ * request.onerror =  () => {
+ *    throw new Error(`Unable to GET: ${request.status}`);
+ * };
+ * request.onload = () => {
+ *   const xml = parseXml(request.response);
+ *   const catalogueReferences = xml.querySelector('dataset > catalogRef');
+ *   console.log(catalogueReferences);
+ * }
+ * request.send();
+ */
+var parseXml = exports.parseXml = undefined;
+
+if (typeof window.DOMParser !== 'undefined') {
+  exports.parseXml = parseXml = function parseXmlDOM(xmlStr) {
+    return new window.DOMParser().parseFromString(xmlStr, 'text/xml');
+  };
+} else if (typeof window.ActiveXObject !== 'undefined' && new window.ActiveXObject('Microsoft.XMLDOM')) {
+  exports.parseXml = parseXml = function parseXmlActiveX(xmlStr) {
+    var xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM');
+    xmlDoc.async = 'false';
+    xmlDoc.loadXML(xmlStr);
+    return xmlDoc;
+  };
+} else {
+  throw new Error('No XML parser found');
+}
+
+exports.default = parseXml;
+
+},{}]},{},[22])(22)
 });

@@ -1,14 +1,14 @@
 {
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
   "scripts": {
     "lint": "eslint ./src/ ./test/ && jscs ./src/ ./test/ ",
     "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
-    "browserify": "browserify dist/index.js --standalone binaural > binaural.js",
+    "browserify": "browserify ./src/index.js -t [ babelify ] --standalone binaural > binaural.js",
     "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
     "doc": "esdoc -c esdoc.json",
     "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",

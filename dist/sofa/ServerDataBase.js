@@ -44,7 +44,13 @@ var ServerDataBase = exports.ServerDataBase = function () {
 
     _classCallCheck(this, ServerDataBase);
 
-    this._server = typeof options.serverUrl !== 'undefined' ? options.serverUrl : 'http://bili2.ircam.fr';
+    this._server = options.serverUrl;
+
+    if (typeof this._server === 'undefined') {
+      var protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+
+      this._server = protocol + '//bili2.ircam.fr';
+    }
 
     this._catalogue = {};
     this._urls = [];
