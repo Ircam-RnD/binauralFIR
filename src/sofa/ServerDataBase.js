@@ -24,9 +24,15 @@ export class ServerDataBase {
    * protocol, eg. 'http://bili2.ircam.fr'.
    */
   constructor(options = {}) {
-    this._server = (typeof options.serverUrl !== 'undefined'
-                   ? options.serverUrl
-                   : 'http://bili2.ircam.fr');
+    this._server = options.serverUrl;
+
+    if (typeof this._server === 'undefined') {
+      const protocol = (window.location.protocol === 'https:'
+                        ? 'https:'
+                        : 'http:');
+
+      this._server = `${protocol}//bili2.ircam.fr`;
+    }
 
     this._catalogue = {};
     this._urls = [];
