@@ -238,8 +238,8 @@ test(`${prefix}: Load full set and post-filter`, (assert) => {
     positionsType,
   });
 
-  const crossmod1071Url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/CROSSMOD/'
-          + 'COMPENSATED/44100/IRC_1071_C_HRIR.sofa';
+  const crossmod1071Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/CROSSMOD/COMPENSATED/`
+          + `${audioContext.sampleRate}/IRC_1071_C_HRIR.sofa`;
 
   const testPromises = [];
 
