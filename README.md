@@ -174,7 +174,8 @@ urlsFound.then(function(urls) {
 - re-sampling is broken on full set (Chrome 48 issue): too many parallel
   audio contexts?
 - no HTTPS on SOFA server, yet (mixed content blocked)
-- clicks on Firefox 44-45 (during update of `convolver.buffer`-
+- clicks on Firefox 44-45 (during update of `convolver.buffer`)
+- in documentation, links to BinauralPanner methods are broken (esdoc)
 
 ## To do ##
 
@@ -255,5 +256,6 @@ project, funded by ANR.
 [JSDoc]: http://usejsdoc.org/
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
+[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
 [src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
 [Web Audio API]: https://webaudio.github.io/web-audio-api/

@@ -21,7 +21,9 @@ export class ServerDataBase {
    *
    * @param {Object} [options]
    * @param {String} [options.serverUrl] base URL of server, including
-   * protocol, eg. 'http://bili2.ircam.fr'.
+   * protocol, eg. 'http://bili2.ircam.fr'. Default protocol is `https:` if
+   * `window.location.protocol` is also `https:`, or `http:`, to avoid
+   * mixed contents (that are often blocked).
    */
   constructor(options = {}) {
     this._server = options.serverUrl;

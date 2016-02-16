@@ -3,6 +3,7 @@
   "disallowSpacesInsideArrayBrackets": false,
   "disallowSpacesInsideBrackets": false,
   "disallowSpacesInsideParentheses": false,
+  "disallowSpacesInsideTemplateStringPlaceholders": false,
   "requireCurlyBraces": [
     "if",
     "else",
