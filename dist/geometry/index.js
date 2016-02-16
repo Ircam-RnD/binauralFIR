@@ -16,10 +16,15 @@ var _KdTree = require('./KdTree');
 
 var _KdTree2 = _interopRequireDefault(_KdTree);
 
+var _Listener = require('./Listener');
+
+var _Listener2 = _interopRequireDefault(_Listener);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
   coordinates: _coordinates2.default,
   degree: _degree2.default,
-  KdTree: _KdTree2.default
+  KdTree: _KdTree2.default,
+  Listener: _Listener2.default
 };

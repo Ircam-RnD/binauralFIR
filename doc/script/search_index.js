@@ -12,6 +12,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "binaural/src/geometry/listener.js~listener",
+    "class/src/geometry/Listener.js~Listener.html",
+    "<span>Listener</span> <span class=\"search-result-import-path\">binaural/src/geometry/Listener.js</span>",
+    "class"
+  ],
+  [
     "binaural/src/sofa/serverdatabase.js~serverdatabase",
     "class/src/sofa/ServerDataBase.js~ServerDataBase.html",
     "<span>ServerDataBase</span> <span class=\"search-result-import-path\">binaural/src/sofa/ServerDataBase.js</span>",
@@ -571,13 +577,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
@@ -624,6 +630,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/audio/binauralpanner.js~binauralpanner#listener",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listener",
+    "src/audio/BinauralPanner.js~BinauralPanner#listener",
+    "member"
+  ],
+  [
     "src/audio/binauralpanner.js~binauralpanner#listenerposition",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
@@ -633,6 +645,18 @@ window.esdocSearchIndex = [
     "src/audio/binauralpanner.js~binauralpanner#listenerposition",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#listenerpositionstype",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPositionsType",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerPositionsType",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#listenerpositionstype",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPositionsType",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerPositionsType",
     "member"
   ],
   [
@@ -649,13 +673,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerview",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerview",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
     "member"
   ],
@@ -727,13 +751,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
@@ -796,6 +820,78 @@ window.esdocSearchIndex = [
     "file/src/geometry/KdTree.js.html",
     "src/geometry/KdTree.js",
     "file"
+  ],
+  [
+    "src/geometry/listener.js",
+    "file/src/geometry/Listener.js.html",
+    "src/geometry/Listener.js",
+    "file"
+  ],
+  [
+    "src/geometry/listener.js~listener#constructor",
+    "class/src/geometry/Listener.js~Listener.html#instance-constructor-constructor",
+    "src/geometry/Listener.js~Listener#constructor",
+    "method"
+  ],
+  [
+    "src/geometry/listener.js~listener#lookat",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-lookAt",
+    "src/geometry/Listener.js~Listener#lookAt",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#position",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-position",
+    "src/geometry/Listener.js~Listener#position",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#position",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-position",
+    "src/geometry/Listener.js~Listener#position",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#positionstype",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-positionsType",
+    "src/geometry/Listener.js~Listener#positionsType",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#positionstype",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-positionsType",
+    "src/geometry/Listener.js~Listener#positionsType",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#up",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-up",
+    "src/geometry/Listener.js~Listener#up",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#up",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-up",
+    "src/geometry/Listener.js~Listener#up",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#update",
+    "class/src/geometry/Listener.js~Listener.html#instance-method-update",
+    "src/geometry/Listener.js~Listener#update",
+    "method"
+  ],
+  [
+    "src/geometry/listener.js~listener#view",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-view",
+    "src/geometry/Listener.js~Listener#view",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#view",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-view",
+    "src/geometry/Listener.js~Listener#view",
+    "member"
   ],
   [
     "src/geometry/coordinates.js",

@@ -11,6 +11,7 @@ import { glToTyped, typedToGl } from '../geometry/coordinates';
 
 import HrtfSet from '../sofa/HrtfSet';
 import Source from './Source';
+import Listener from '../geometry/Listener';
 
 /**
  * Binaural panner with multiple sources and a listener.
@@ -33,6 +34,8 @@ export class BinauralPanner {
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
+   * {@link BinauralPanner#hrtfSet}
    * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
    * {@link BinauralPanner#filterPositionsType}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
@@ -40,6 +43,10 @@ export class BinauralPanner {
    * {@link BinauralPanner#filterPositions}
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
    * full load of SOFA file
+   * @param {Listener} [options.listener] refer an external listener.
+   * {@link BinauralPanner#listener}
+   * @param {coordinatesType} [options.listenerPositionsType=options.positionsType]
+   * {@link BinauralPanner#listenerPositionsType}
    * @param {coordinates} [options.listenerPosition=[0,0,0]]
    * {@link BinauralPanner#listenerPosition}
    * @param {coordinates} [options.listenerUp=[0,1,0]]
@@ -55,24 +62,29 @@ export class BinauralPanner {
     const sourceCount = (typeof options.sourceCount !== 'undefined'
                          ? options.sourceCount
                          : 1);
+    // allocate first
+    this._listener = (typeof options.listener !== 'undefined'
+                      ? options.listener
+                      : new Listener() );
 
-    this._listenerOutdated = true;
-    this._listenerLookAt = [];
+    // set coordinates type, that defaults to BinauralPanner's own type
+    this.listenerPositionsType = options.listenerPositionsType;
 
-    this._listenerPosition = [];
+    // use setters for internal or external listener
     this.listenerPosition = (typeof options.listenerPosition !== 'undefined'
                              ? options.listenerPosition
-                             : glToTyped([], [0, 0, 0], this.positionsType) );
+                             : glToTyped([], [0, 0, 0],
+                                         this._listener.positionsType) );
 
-    this._listenerUp = [];
-    this.listenerUp = (typeof options.listenerUp !== 'undefined'
-                       ? options.listenerUp
-                       : glToTyped([], [0, 1, 0], this.positionsType) );
-
-    this._listenerView = [];
     this.listenerView = (typeof options.listenerView !== 'undefined'
                          ? options.listenerView
-                         : glToTyped([], [0, 0, -1], this.positionsType) );
+                         : glToTyped([], [0, 0, -1],
+                                     this._listener.positionsType) );
+
+    this.listenerUp = (typeof options.listenerUp !== 'undefined'
+                       ? options.listenerUp
+                       : glToTyped([], [0, 1, 0],
+                                   this._listener.positionsType) );
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
@@ -151,7 +163,7 @@ export class BinauralPanner {
       }
       this._hrtfSet = hrtfSet;
     } else {
-      throw new Error(`Undefined HRTF set for BinauralPanner`);
+      throw new Error('Undefined HRTF set for BinauralPanner');
     }
 
     // update HRTF set references
@@ -197,7 +209,7 @@ export class BinauralPanner {
   }
 
   /**
-   * Set coordinates type for positions.
+   * Set coordinates type for filter positions.
    *
    * @param {coordinatesType} [type='gl']
    */
@@ -208,7 +220,7 @@ export class BinauralPanner {
   }
 
   /**
-   * Get coordinates type for filters.
+   * Get coordinates type for filter positions.
    *
    * @returns {coordinatesType}
    */
@@ -237,18 +249,60 @@ export class BinauralPanner {
   }
 
   /**
+   * Refer an external listener, and update sources.
+   *
+   * See {@link Listener}.
+   * See {@link BinauralPanner#update}.
+   *
+   * @param {Listener} listener
+   * @throws {Error} when listener in undefined.
+   */
+  set listener(listener) {
+    if (typeof listener !== 'undefined') {
+      this._listener = listener;
+    } else {
+      throw new Error('Undefined listener for BinauralPanner');
+    }
+
+    this._sourcesOutdated.fill(true);
+    this.update();
+  }
+
+  // ---------- Listener proxies
+
+  /**
+   * Set coordinates type for listener.
+   *
+   * @param {coordinatesType} [type='gl']
+   */
+  set listenerPositionsType(coordinatesType) {
+    this._listener.positionsType = (typeof coordinatesType !== 'undefined'
+                                    ? coordinatesType
+                                    : this.positionsType);
+  }
+
+  /**
+   * Get coordinates type for listener.
+   *
+   * @returns {coordinatesType}
+   */
+  get listenerPositionsType() {
+    return this._listener.positionsType;
+  }
+
+  /**
    * Set listener position. It will update the relative positions of the
    * sources after a call to the update method.
    *
    * Default value is [0, 0, 0] in 'gl' coordinates.
    *
+   * See {@link Listener#position}.
    * See {@link BinauralPanner#update}.
    *
    * @param {coordinates} positionRequest
    */
   set listenerPosition(positionRequest) {
-    typedToGl(this._listenerPosition, positionRequest, this._positionsType);
-    this._listenerOutdated = true;
+    this._listener.position = positionRequest;
   }
 
   /**
@@ -257,7 +311,7 @@ export class BinauralPanner {
    * @returns {coordinates}
    */
   get listenerPosition() {
-    return glToTyped([], this._listenerPosition, this._positionsType);
+    return this._listener.position;
   }
 
   /**
@@ -267,13 +321,13 @@ export class BinauralPanner {
    *
    * Default value is [0, 1, 0] in 'gl' coordinates.
    *
+   * See {@link Listener#up}.
    * See {@link BinauralPanner#update}.
    *
    * @param {coordinates} positionRequest
    */
   set listenerUp(upRequest) {
-    typedToGl(this._listenerUp, upRequest, this._positionsType);
-    this._listenerOutdated = true;
+    this._listener.up = upRequest;
   }
 
   /**
@@ -282,7 +336,7 @@ export class BinauralPanner {
    * @returns {coordinates}
    */
   get listenerUp() {
-    return glToTyped([], this._listenerUp, this._positionsType);
+    return this._listener.up;
   }
 
   /**
@@ -292,22 +346,22 @@ export class BinauralPanner {
    *
    * Default value is [0, 0, -1] in 'gl' coordinates.
    *
-   * See {@link BinauralPanner#update}.
+   * See {@link Listener#view}.
+   * See {@link BinauralPanner#update}.a
    *
    * @param {coordinates} positionRequest
    */
   set listenerView(viewRequest) {
-    typedToGl(this._listenerView, viewRequest, this._positionsType);
-    this._listenerOutdated = true;
+    this._listener.view = viewRequest;
   }
 
   /**
-   * Get listener view direction.
+   * Get listener view.
    *
    * @returns {coordinates}
    */
   get listenerView() {
-    return glToTyped([], this._listenerView, this._positionsType);
+    return this._listener.view;
   }
 
   /**
@@ -506,19 +560,16 @@ export class BinauralPanner {
   }
 
   /**
-   * Update the sources filters, according to possible changes in listener,
+   * Update the sources filters, according to pending changes in listener,
    * and source positions.
    *
-   * @returns {this}
+   * @returns {Boolean} true when at least a change occurred.
    */
   update() {
-    if (this._listenerOutdated) {
-      glMatrix.mat4.lookAt(this._listenerLookAt,
-                           this._listenerPosition,
-                           this._listenerView,
-                           this._listenerUp);
-
+    let updated = false;
+    if (this._listener.update() ) {
       this._sourcesOutdated.fill(true);
+      updated = true;
     }
 
     if (this._hrtfSet.isReady) {
@@ -526,16 +577,17 @@ export class BinauralPanner {
         if (this._sourcesOutdated[index] ) {
           glMatrix.vec3.transformMat4(this._sourcePositionsRelative[index],
                                       positionAbsolute,
-                                      this._listenerLookAt);
+                                      this._listener.lookAt);
 
           this._sources[index].position = this._sourcePositionsRelative[index];
 
           this._sourcesOutdated[index] = false;
+          updated = true;
         }
       });
     }
 
-    return this;
+    return updated;
   }
 }
 

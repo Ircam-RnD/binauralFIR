@@ -40,7 +40,8 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-resampleFloat32Array">resampleFloat32Array</a></span></span></li>
 <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">common</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEquals">almostEquals</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-almostEqualsModulo">almostEqualsModulo</a></span></span></li>
-<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">geometry</div><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distance">distance</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">geometry</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distance">distance</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
@@ -71,13 +72,13 @@
 </nav>
 
 <div class="content" data-ice="content"><div class="header-notice">
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {BinauralPanner} from &apos;<span><a href="file/src/audio/BinauralPanner.js.html#lineNumber18">binaural/src/audio/BinauralPanner.js</a></span>&apos;</code></pre></div>
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {BinauralPanner} from &apos;<span><a href="file/src/audio/BinauralPanner.js.html#lineNumber19">binaural/src/audio/BinauralPanner.js</a></span>&apos;</code></pre></div>
   <span data-ice="access">public</span>
   <span data-ice="kind">class</span>
   
   
   
-  <span data-ice="source">| <span><a href="file/src/audio/BinauralPanner.js.html#lineNumber18">source</a></span></span>
+  <span data-ice="source">| <span><a href="file/src/audio/BinauralPanner.js.html#lineNumber19">source</a></span></span>
 </div>
 
 <div class="self-detail detail">
@@ -152,6 +153,32 @@
     <td>
       <span class="access" data-ice="access">public</span>
       
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get post-filtering flag.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
       <span class="kind" data-ice="kind">set</span>
       
       <span class="override" data-ice="override"></span>
@@ -178,20 +205,20 @@
     <td>
       <span class="access" data-ice="access">public</span>
       
-      <span class="kind" data-ice="kind">get</span>
+      <span class="kind" data-ice="kind">set</span>
       
       <span class="override" data-ice="override"></span>
     </td>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Get post-filtering flag.</p>
+        <div data-ice="description"><p>Set the filter positions of the HRTF set</p>
 </div>
       </div>
     </td>
@@ -237,39 +264,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set the filter positions of the HRTF set</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
            <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositionsType">filterPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Set coordinates type for positions.</p>
+        <div data-ice="description"><p>Set coordinates type for filter positions.</p>
 </div>
       </div>
     </td>
@@ -295,7 +296,7 @@
       <div>
         
         
-        <div data-ice="description"><p>Get coordinates type for filters.</p>
+        <div data-ice="description"><p>Get coordinates type for filter positions.</p>
 </div>
       </div>
     </td>
@@ -367,6 +368,32 @@
     <td>
       <div>
         <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listener">listener</a></span></span><span data-ice="signature">(listener: <span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Refer an external listener, and update sources.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
            <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition">listenerPosition</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
         </p>
       </div>
@@ -400,6 +427,58 @@
         
         
         <div data-ice="description"><p>Get listener position.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPositionsType">listenerPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinates type for listener.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPositionsType">listenerPositionsType</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get coordinates type for listener.</p>
 </div>
       </div>
     </td>
@@ -503,7 +582,7 @@
       <div>
         
         
-        <div data-ice="description"><p>Get listener view direction.</p>
+        <div data-ice="description"><p>Get listener view.</p>
 </div>
       </div>
     </td>
@@ -894,13 +973,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-update">update</a></span></span><span data-ice="signature">(): <span>this</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-update">update</a></span></span><span data-ice="signature">(): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Update the sources filters, according to possible changes in listener,
+        <div data-ice="description"><p>Update the sources filters, according to pending changes in listener,
 and source positions.</p>
 </div>
       </div>
@@ -931,7 +1010,7 @@ and source positions.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber50">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber57">source</a></span></span>
     </span>
   </h3>
 
@@ -1000,6 +1079,14 @@ be of length options.sourceCount <span>BinauralPanner#sourcePositions</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
+      <td data-ice="name" data-depth="1">options.hrtfSet</td>
+      <td data-ice="type"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></td>
+      <td data-ice="appendix"><ul><li>optional</li></ul></td>
+      <td data-ice="description"><p>refer an external HRTF set.
+<span>BinauralPanner#hrtfSet</span></p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.filterPositionsType</td>
       <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
@@ -1023,6 +1110,22 @@ be of length options.sourceCount <span>BinauralPanner#sourcePositions</span></p>
 <li>default: false</li></ul></td>
       <td data-ice="description"><p>true to filter after
 full load of SOFA file</p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="1">
+      <td data-ice="name" data-depth="1">options.listener</td>
+      <td data-ice="type"><span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span></td>
+      <td data-ice="appendix"><ul><li>optional</li></ul></td>
+      <td data-ice="description"><p>refer an external listener.
+<span>BinauralPanner#listener</span></p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="1">
+      <td data-ice="name" data-depth="1">options.listenerPositionsType</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="appendix"><ul><li>optional</li>
+<li>default: options.positionsType</li></ul></td>
+      <td data-ice="description"><p><span>BinauralPanner#listenerPositionsType</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
@@ -1073,48 +1176,6 @@ full load of SOFA file</p>
 <div data-ice="memberDetails"><h2 data-ice="title">Public Members</h2>
 
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-filterAfterLoad">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber225">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set post-filtering flag. When false, try to load a partial set of
-HRTF.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-get-filterAfterLoad">
     <span class="access" data-ice="access">public</span>
     
@@ -1125,7 +1186,7 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber235">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber265">source</a></span></span>
     </span>
   </h3>
 
@@ -1167,6 +1228,90 @@ HRTF.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-filterAfterLoad">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber255">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set post-filtering flag. When false, try to load a partial set of
+HRTF.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-filterPositions">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber214">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set the filter positions of the HRTF set</p>
+<p>See <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions">HrtfSet#filterPositions</a></span>.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-get-filterPositions">
     <span class="access" data-ice="access">public</span>
     
@@ -1177,7 +1322,7 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber195">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber225">source</a></span></span>
     </span>
   </h3>
 
@@ -1220,48 +1365,6 @@ HRTF.</p>
   
 </div>
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-filterPositions">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber184">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set the filter positions of the HRTF set</p>
-<p>See <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions">HrtfSet#filterPositions</a></span>.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-filterPositionsType">
     <span class="access" data-ice="access">public</span>
     
@@ -1272,14 +1375,14 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber204">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber234">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Set coordinates type for positions.</p>
+  <div data-ice="description"><p>Set coordinates type for filter positions.</p>
 </div>
 
   
@@ -1313,14 +1416,14 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber215">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber245">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Get coordinates type for filters.</p>
+  <div data-ice="description"><p>Get coordinates type for filter positions.</p>
 </div>
 
   
@@ -1364,7 +1467,7 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber171">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber201">source</a></span></span>
     </span>
   </h3>
 
@@ -1415,7 +1518,7 @@ HRTF.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber145">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber175">source</a></span></span>
     </span>
   </h3>
 
@@ -1462,6 +1565,61 @@ not &apos;gl&apos;.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-listener">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">listener</span><span data-ice="signature">(listener: <span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber278">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Refer an external listener, and update sources.</p>
+<p>See <span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span>.
+See <span>BinauralPanner#update</span>.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  <div data-ice="throwWrap">
+    <h4>Throw:</h4>
+    <table>
+      <tbody>
+      
+      <tr class="throw" data-ice="throw">
+        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
+        <td data-ice="throwDesc"><p>when listener in undefined.</p>
+</td>
+      </tr>
+</tbody>
+    </table>
+  </div>
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-listenerPosition">
     <span class="access" data-ice="access">public</span>
     
@@ -1472,7 +1630,7 @@ not &apos;gl&apos;.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber249">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber322">source</a></span></span>
     </span>
   </h3>
 
@@ -1482,7 +1640,8 @@ not &apos;gl&apos;.</p>
   <div data-ice="description"><p>Set listener position. It will update the relative positions of the
 sources after a call to the update method.</p>
 <p>Default value is [0, 0, 0] in &apos;gl&apos; coordinates.</p>
-<p>See <span>BinauralPanner#update</span>.</p>
+<p>See <span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-position">Listener#position</a></span>.
+See <span>BinauralPanner#update</span>.</p>
 </div>
 
   
@@ -1516,7 +1675,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber259">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber331">source</a></span></span>
     </span>
   </h3>
 
@@ -1557,6 +1716,98 @@ sources after a call to the update method.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-listenerPositionsType">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">listenerPositionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber296">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set coordinates type for listener.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-listenerPositionsType">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">listenerPositionsType</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber307">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinates type for listener.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-listenerUp">
     <span class="access" data-ice="access">public</span>
     
@@ -1567,7 +1818,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber274">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber347">source</a></span></span>
     </span>
   </h3>
 
@@ -1578,7 +1829,8 @@ sources after a call to the update method.</p>
 the relative positions of the sources after a call to the update
 method.</p>
 <p>Default value is [0, 1, 0] in &apos;gl&apos; coordinates.</p>
-<p>See <span>BinauralPanner#update</span>.</p>
+<p>See <span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-up">Listener#up</a></span>.
+See <span>BinauralPanner#update</span>.</p>
 </div>
 
   
@@ -1612,7 +1864,7 @@ method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber284">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber356">source</a></span></span>
     </span>
   </h3>
 
@@ -1663,7 +1915,7 @@ method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber299">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber372">source</a></span></span>
     </span>
   </h3>
 
@@ -1674,7 +1926,8 @@ method.</p>
 and not a direction. It will update the relative positions of the
 sources after a call to the update method.</p>
 <p>Default value is [0, 0, -1] in &apos;gl&apos; coordinates.</p>
-<p>See <span>BinauralPanner#update</span>.</p>
+<p>See <span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-view">Listener#view</a></span>.
+See <span>BinauralPanner#update</span>.a</p>
 </div>
 
   
@@ -1708,14 +1961,14 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber309">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber381">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Get listener view direction.</p>
+  <div data-ice="description"><p>Get listener view.</p>
 </div>
 
   
@@ -1759,7 +2012,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber119">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber149">source</a></span></span>
     </span>
   </h3>
 
@@ -1800,7 +2053,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber130">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber160">source</a></span></span>
     </span>
   </h3>
 
@@ -1851,7 +2104,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber324">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber396">source</a></span></span>
     </span>
   </h3>
 
@@ -1908,7 +2161,7 @@ the number of sources</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber342">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber414">source</a></span></span>
     </span>
   </h3>
 
@@ -1962,7 +2215,7 @@ the number of sources</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber407">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber479">source</a></span></span>
     </span>
   </h3>
 
@@ -2051,7 +2304,7 @@ the number of sources</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber455">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber527">source</a></span></span>
     </span>
   </h3>
 
@@ -2140,7 +2393,7 @@ the number of sources</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber486">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber558">source</a></span></span>
     </span>
   </h3>
 
@@ -2225,7 +2478,7 @@ connect must match the number of sources.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber421">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber493">source</a></span></span>
     </span>
   </h3>
 
@@ -2300,7 +2553,7 @@ all when undefined.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber434">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber506">source</a></span></span>
     </span>
   </h3>
 
@@ -2369,7 +2622,7 @@ all when undefined.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber469">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber541">source</a></span></span>
     </span>
   </h3>
 
@@ -2444,7 +2697,7 @@ all when undefined.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber500">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber572">source</a></span></span>
     </span>
   </h3>
 
@@ -2511,7 +2764,7 @@ all when undefined.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber373">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber445">source</a></span></span>
     </span>
   </h3>
 
@@ -2578,7 +2831,7 @@ all when undefined.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber389">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber461">source</a></span></span>
     </span>
   </h3>
 
@@ -2648,7 +2901,7 @@ loaded.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber358">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber430">source</a></span></span>
     </span>
   </h3>
 
@@ -2719,18 +2972,18 @@ relative position after a call to the update method.</p>
     
     
     
-    <span data-ice="name">update</span><span data-ice="signature">(): <span>this</span></span>
+    <span data-ice="name">update</span><span data-ice="signature">(): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber514">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber586">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Update the sources filters, according to possible changes in listener,
+  <div data-ice="description"><p>Update the sources filters, according to pending changes in listener,
 and source positions.</p>
 </div>
 
@@ -2743,8 +2996,9 @@ and source positions.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span>this</span></td>
-        
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></td>
+        <td class="return-desc" data-ice="returnDescription"><p>true when at least a change occurred.</p>
+</td>
       </tr>
     </table>
     <div data-ice="returnProperties">

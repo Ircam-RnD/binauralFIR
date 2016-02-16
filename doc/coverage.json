@@ -1,16 +1,21 @@
 {
   "coverage": "100%",
-  "expectCount": 93,
-  "actualCount": 93,
+  "expectCount": 108,
+  "actualCount": 108,
   "files": {
     "src/audio/BinauralPanner.js": {
-      "expectCount": 31,
-      "actualCount": 31,
+      "expectCount": 34,
+      "actualCount": 34,
       "undocumentLines": []
     },
     "src/sofa/HrtfSet.js": {
       "expectCount": 18,
       "actualCount": 18,
+      "undocumentLines": []
+    },
+    "src/geometry/Listener.js": {
+      "expectCount": 12,
+      "actualCount": 12,
       "undocumentLines": []
     },
     "src/sofa/ServerDataBase.js": {

@@ -28,6 +28,10 @@ var _Source = require('./Source');
 
 var _Source2 = _interopRequireDefault(_Source);
 
+var _Listener = require('../geometry/Listener');
+
+var _Listener2 = _interopRequireDefault(_Listener);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
@@ -56,6 +60,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
+   * {@link BinauralPanner#hrtfSet}
    * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
    * {@link BinauralPanner#filterPositionsType}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
@@ -63,6 +69,10 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * {@link BinauralPanner#filterPositions}
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
    * full load of SOFA file
+   * @param {Listener} [options.listener] refer an external listener.
+   * {@link BinauralPanner#listener}
+   * @param {coordinatesType} [options.listenerPositionsType=options.positionsType]
+   * {@link BinauralPanner#listenerPositionsType}
    * @param {coordinates} [options.listenerPosition=[0,0,0]]
    * {@link BinauralPanner#listenerPosition}
    * @param {coordinates} [options.listenerUp=[0,1,0]]
@@ -83,18 +93,36 @@ var BinauralPanner = exports.BinauralPanner = function () {
     this.positionsType = options.positionsType;
 
     var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
+    // allocate first
+    this._listener = typeof options.listener !== 'undefined' ? options.listener : new _Listener2.default();
 
-    this._listenerOutdated = true;
-    this._listenerLookAt = [];
+    // set coordinates type, that defaults to BinauralPanner's own type
+    this.listenerPositionsType = options.listenerPositionsType;
 
-    this._listenerPosition = [];
-    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this.positionsType);
+    // use setters for internal or external listener
+    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this._listener.positionsType);
 
-    this._listenerUp = [];
-    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this.positionsType);
+    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this._listener.positionsType);
 
-    this._listenerView = [];
-    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this.positionsType);
+    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this._listener.positionsType);
+
+    // this._listenerOutdated = true;
+    // this._listenerLookAt = [];
+
+    // this._listenerPosition = [];
+    // this.listenerPosition = (typeof options.listenerPosition !== 'undefined'
+    //                          ? options.listenerPosition
+    //                          : glToTyped([], [0, 0, 0], this.positionsType) );
+
+    // this._listenerUp = [];
+    // this.listenerUp = (typeof options.listenerUp !== 'undefined'
+    //                    ? options.listenerUp
+    //                    : glToTyped([], [0, 1, 0], this.positionsType) );
+
+    // this._listenerView = [];
+    // this.listenerView = (typeof options.listenerView !== 'undefined'
+    //                      ? options.listenerView
+    //                      : glToTyped([], [0, 0, -1], this.positionsType) );
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
@@ -326,10 +354,10 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Update the sources filters, according to possible changes in listener,
+     * Update the sources filters, according to pending changes in listener,
      * and source positions.
      *
-     * @returns {this}
+     * @returns {Boolean} true when at least a change occurred.
      */
 
   }, {
@@ -337,25 +365,26 @@ var BinauralPanner = exports.BinauralPanner = function () {
     value: function update() {
       var _this3 = this;
 
-      if (this._listenerOutdated) {
-        _glMatrix2.default.mat4.lookAt(this._listenerLookAt, this._listenerPosition, this._listenerView, this._listenerUp);
-
+      var updated = false;
+      if (this._listener.update()) {
         this._sourcesOutdated.fill(true);
+        updated = true;
       }
 
       if (this._hrtfSet.isReady) {
         this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
           if (_this3._sourcesOutdated[index]) {
-            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listenerLookAt);
+            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listener.lookAt);
 
             _this3._sources[index].position = _this3._sourcePositionsRelative[index];
 
             _this3._sourcesOutdated[index] = false;
+            updated = true;
           }
         });
       }
 
-      return this;
+      return updated;
     }
   }, {
     key: 'positionsType',
@@ -447,7 +476,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Set coordinates type for positions.
+     * Set coordinates type for filter positions.
      *
      * @param {coordinatesType} [type='gl']
      */
@@ -459,7 +488,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Get coordinates type for filters.
+     * Get coordinates type for filter positions.
      *
      * @returns {coordinatesType}
      */
@@ -493,11 +522,59 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
+     * Refer an external listener, and update sources.
+     *
+     * See {@link Listener}.
+     * See {@link BinauralPanner#update}.
+     *
+     * @param {Listener} listener
+     * @throws {Error} when listener in undefined.
+     */
+
+  }, {
+    key: 'listener',
+    set: function set(listener) {
+      if (typeof listener !== 'undefined') {
+        this._listener = listener;
+      } else {
+        throw new Error('Undefined listener for BinauralPanner');
+      }
+
+      this._sourcesOutdated.fill(true);
+      this.update();
+    }
+
+    // ---------- Listener proxies
+
+    /**
+     * Set coordinates type for listener.
+     *
+     * @param {coordinatesType} [type='gl']
+     */
+
+  }, {
+    key: 'listenerPositionsType',
+    set: function set(coordinatesType) {
+      this._listener.positionsType = typeof coordinatesType !== 'undefined' ? coordinatesType : this.positionsType;
+    }
+
+    /**
+     * Get coordinates type for listener.
+     *
+     * @returns {coordinatesType}
+     */
+    ,
+    get: function get() {
+      return this._listener.positionsType;
+    }
+
+    /**
      * Set listener position. It will update the relative positions of the
      * sources after a call to the update method.
      *
      * Default value is [0, 0, 0] in 'gl' coordinates.
      *
+     * See {@link Listener#position}.
      * See {@link BinauralPanner#update}.
      *
      * @param {coordinates} positionRequest
@@ -506,8 +583,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
   }, {
     key: 'listenerPosition',
     set: function set(positionRequest) {
-      (0, _coordinates.typedToGl)(this._listenerPosition, positionRequest, this._positionsType);
-      this._listenerOutdated = true;
+      this._listener.position = positionRequest;
     }
 
     /**
@@ -517,7 +593,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerPosition, this._positionsType);
+      return this._listener.position;
     }
 
     /**
@@ -527,6 +603,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 1, 0] in 'gl' coordinates.
      *
+     * See {@link Listener#up}.
      * See {@link BinauralPanner#update}.
      *
      * @param {coordinates} positionRequest
@@ -535,8 +612,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
   }, {
     key: 'listenerUp',
     set: function set(upRequest) {
-      (0, _coordinates.typedToGl)(this._listenerUp, upRequest, this._positionsType);
-      this._listenerOutdated = true;
+      this._listener.up = upRequest;
     }
 
     /**
@@ -546,7 +622,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerUp, this._positionsType);
+      return this._listener.up;
     }
 
     /**
@@ -556,7 +632,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 0, -1] in 'gl' coordinates.
      *
-     * See {@link BinauralPanner#update}.
+     * See {@link Listener#view}.
+     * See {@link BinauralPanner#update}.a
      *
      * @param {coordinates} positionRequest
      */
@@ -564,8 +641,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
   }, {
     key: 'listenerView',
     set: function set(viewRequest) {
-      (0, _coordinates.typedToGl)(this._listenerView, viewRequest, this._positionsType);
-      this._listenerOutdated = true;
+      this._listener.view = viewRequest;
     }
 
     /**
@@ -575,7 +651,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._listenerView, this._positionsType);
+      return this._listener.view;
     }
 
     /**
