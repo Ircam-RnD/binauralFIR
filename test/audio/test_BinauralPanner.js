@@ -15,7 +15,7 @@ const prefix = 'Binaural panner';
 
 const sampleRate = 44100;
 
-const positionsType = 'sofaSpherical';
+const coordinateSystem = 'sofaSpherical';
 const testPositions = [
   [30, 0, 2], // front-left
   [0, 0, 2], // centre
@@ -63,8 +63,8 @@ test(`${prefix} with an external HRTF set`, (assert) => {
         const hrtfSet = new HrtfSet({
           audioContext,
           filterPositions: testPositions,
-          filterPositionsType: positionsType,
-          positionsType: 'gl', // mandatory for BinauralPanner
+          filterCoordinateSystem: coordinateSystem,
+          coordinateSystem: 'gl', // mandatory for BinauralPanner
         });
 
         return hrtfSet.load(urls[0])
@@ -75,7 +75,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
                 audioContext,
                 crossfadeDuration: 0, // immediate for testing
                 hrtfSet,
-                positionsType,
+                coordinateSystem,
                 sourceCount: testPositions.length,
                 sourcePositions: testPositions,
               });
@@ -95,7 +95,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
                 const sourceBuffer = event.renderedBuffer;
 
                 const firBuffer = binauralPanner._hrtfSet.nearestFir(
-                  coordinates.typedToGl([], position, positionsType) );
+                  coordinates.systemToGl([], position, coordinateSystem) );
 
                 for (let channel = 0; channel < 2; ++channel) {
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
@@ -151,8 +151,8 @@ test(`${prefix} with an internal HRTF set`, (assert) => {
           audioContext,
           crossfadeDuration: 0, // immediate for testing
           filterPositions: testPositions,
-          filterPositionsType: positionsType,
-          positionsType,
+          filterCoordinateSystem: coordinateSystem,
+          coordinateSystem,
           sourceCount: testPositions.length,
           sourcePositions: testPositions,
         });
@@ -176,7 +176,7 @@ test(`${prefix} with an internal HRTF set`, (assert) => {
                 const sourceBuffer = event.renderedBuffer;
 
                 const firBuffer = binauralPanner._hrtfSet.nearestFir(
-                  coordinates.typedToGl([], position, positionsType) );
+                  coordinates.systemToGl([], position, coordinateSystem) );
 
                 for (let channel = 0; channel < 2; ++channel) {
                   const firArray = [ ...firBuffer.getChannelData(channel) ];

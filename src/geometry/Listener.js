@@ -7,7 +7,7 @@
 
 import glMatrix from 'gl-matrix';
 
-import { glToTyped, typedToGl } from '../geometry/coordinates';
+import { glToSystem, systemToGl } from '../geometry/coordinates';
 
 /**
  * Camera-like listener. It generates a look-at matrix from a position, a
@@ -19,35 +19,35 @@ export class Listener {
   /**
    * Constructs a listener.
    *
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link Listener#positionsType}
-   * @param {coordinates} [options.position=[0,0,0]]
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link Listener#coordinateSystem}
+   * @param {Coordinates} [options.position=[0,0,0]]
    * {@link Listener#position}
-   * @param {coordinates} [options.up=[0,1,0]]
+   * @param {Coordinates} [options.up=[0,1,0]]
    * {@link Listener#up}
-   * @param {coordinates} [options.view=[0,0,-1]]
+   * @param {Coordinates} [options.view=[0,0,-1]]
    * {@link Listener#view}
    */
   constructor(options = {}) {
     this._outdated = true;
     this._lookAt = [];
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
     this._position = [];
     this.position = (typeof options.position !== 'undefined'
                      ? options.position
-                     : glToTyped([], [0, 0, 0], this.positionsType) );
+                     : glToSystem([], [0, 0, 0], this.coordinateSystem) );
 
     this._up = [];
     this.up = (typeof options.up !== 'undefined'
                ? options.up
-               : glToTyped([], [0, 1, 0], this.positionsType) );
+               : glToSystem([], [0, 1, 0], this.coordinateSystem) );
 
     this._view = [];
     this.view = (typeof options.view !== 'undefined'
                  ? options.view
-                 : glToTyped([], [0, 0, -1], this.positionsType) );
+                 : glToSystem([], [0, 0, -1], this.coordinateSystem) );
 
     this.update();
   }
@@ -67,23 +67,23 @@ export class Listener {
   }
 
   /**
-   * Set coordinates type.
+   * Set coordinate system.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [type='gl']
    */
-  set positionsType(coordinatesType) {
-    this._positionsType = (typeof coordinatesType !== 'undefined'
-                           ? coordinatesType
-                           : 'gl');
+  set coordinateSystem(coordinateSystem) {
+    this._coordinateSystem = (typeof coordinateSystem !== 'undefined'
+                              ? coordinateSystem
+                              : 'gl');
   }
 
   /**
-   * Get coordinates type.
+   * Get coordinate system.
    *
-   * @returns {coordinatesType}
+   * @returns {CoordinateSystem}
    */
-  get positionsType() {
-    return this._positionsType;
+  get coordinateSystem() {
+    return this._coordinateSystem;
   }
 
   /**
@@ -94,20 +94,20 @@ export class Listener {
    *
    * @see {@link Listener#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set position(positionRequest) {
-    typedToGl(this._position, positionRequest, this._positionsType);
+    systemToGl(this._position, positionRequest, this._coordinateSystem);
     this._outdated = true;
   }
 
   /**
    * Get listener position.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get position() {
-    return glToTyped([], this._position, this._positionsType);
+    return glToSystem([], this._position, this._coordinateSystem);
   }
 
   /**
@@ -119,20 +119,20 @@ export class Listener {
    *
    * @see {@link Listener#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set up(upRequest) {
-    typedToGl(this._up, upRequest, this._positionsType);
+    systemToGl(this._up, upRequest, this._coordinateSystem);
     this._outdated = true;
   }
 
   /**
    * Get listener up direction.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get up() {
-    return glToTyped([], this._up, this._positionsType);
+    return glToSystem([], this._up, this._coordinateSystem);
   }
 
   /**
@@ -144,20 +144,20 @@ export class Listener {
    *
    * @see {@link Listener#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set view(viewRequest) {
-    typedToGl(this._view, viewRequest, this._positionsType);
+    systemToGl(this._view, viewRequest, this._coordinateSystem);
     this._outdated = true;
   }
 
   /**
    * Get listener view.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get view() {
-    return glToTyped([], this._view, this._positionsType);
+    return glToSystem([], this._view, this._coordinateSystem);
   }
 
   // --------- public methods

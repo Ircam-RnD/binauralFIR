@@ -18,7 +18,7 @@ const noiseBuffer = audio.createNoiseBuffer({
   gain: -20,
 });
 
-const positionsType = 'sofaSpherical';
+const coordinateSystem = 'sofaSpherical';
 const testPositions = [
   [30, 0, 2], // front-left
   [0, 0, 2], // centre
@@ -34,7 +34,7 @@ const testPositionsName = [
 const hrtfSet = new HrtfSet({
   audioContext,
   filterPositions: testPositions,
-  positionsType,
+  coordinateSystem,
 });
 
 console.log('accessing server');

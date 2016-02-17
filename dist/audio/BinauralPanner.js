@@ -54,16 +54,16 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link BinauralPanner#positionsType}
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link BinauralPanner#coordinateSystem}
    * @param {Number} [options.sourceCount=1]
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
    * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
    * {@link BinauralPanner#hrtfSet}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link BinauralPanner#filterPositionsType}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#filterCoordinateSystem}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
    * array of positions to filter. Use undefined to use all positions from the HRTF set.
    * {@link BinauralPanner#filterPositions}
@@ -71,13 +71,13 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * full load of SOFA file
    * @param {Listener} [options.listener] refer an external listener.
    * {@link BinauralPanner#listener}
-   * @param {coordinatesType} [options.listenerPositionsType=options.positionsType]
-   * {@link BinauralPanner#listenerPositionsType}
-   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * @param {CoordinateSystem} [options.listenerCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#listenerCoordinateSystem}
+   * @param {Coordinates} [options.listenerPosition=[0,0,0]]
    * {@link BinauralPanner#listenerPosition}
-   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * @param {Coordinates} [options.listenerUp=[0,1,0]]
    * {@link BinauralPanner#listenerUp}
-   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * @param {Coordinates} [options.listenerView=[0,0,-1]]
    * {@link BinauralPanner#listenerView}
    */
 
@@ -90,21 +90,21 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this._audioContext = options.audioContext;
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
     var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
     // allocate first
     this._listener = typeof options.listener !== 'undefined' ? options.listener : new _Listener2.default();
 
-    // set coordinates type, that defaults to BinauralPanner's own type
-    this.listenerPositionsType = options.listenerPositionsType;
+    // set coordinate system, that defaults to BinauralPanner's own system
+    this.listenerCoordinateSystem = options.listenerCoordinateSystem;
 
     // use setters for internal or external listener
-    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this._listener.positionsType);
+    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToSystem)([], [0, 0, 0], this._listener.coordinateSystem);
 
-    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this._listener.positionsType);
+    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToSystem)([], [0, 0, -1], this._listener.coordinateSystem);
 
-    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this._listener.positionsType);
+    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToSystem)([], [0, 1, 0], this._listener.coordinateSystem);
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
@@ -125,10 +125,10 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
       audioContext: this._audioContext,
-      positionsType: 'gl'
+      coordinateSystem: 'gl'
     });
 
-    this.filterPositionsType = options.filterPositionsType;
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
     this.filterPositions = options.filterPositions;
     this.filterAfterLoad = options.filterAfterLoad;
 
@@ -142,9 +142,9 @@ var BinauralPanner = exports.BinauralPanner = function () {
   // ----------- accessors
 
   /**
-   * Set coordinates type for positions.
+   * Set coordinate system.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
 
 
@@ -159,12 +159,12 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link BinauralPanner#update}
      *
      * @param {Number} index
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      * @returns {this}
      */
     value: function setSourcePositionByIndex(index, positionRequest) {
       this._sourcesOutdated[index] = true;
-      (0, _coordinates.typedToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.positionsType);
+      (0, _coordinates.systemToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.coordinateSystem);
 
       return this;
     }
@@ -173,13 +173,13 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Get the position of one source.
      *
      * @param {Number} index
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
 
   }, {
     key: 'getSourcePositionByIndex',
     value: function getSourcePositionByIndex(index) {
-      return (0, _coordinates.glToTyped)([], this._sourcePositionsAbsolute[index], this.positionsType);
+      return (0, _coordinates.glToSystem)([], this._sourcePositionsAbsolute[index], this.coordinateSystem);
     }
 
     // ----------- public methods
@@ -369,30 +369,30 @@ var BinauralPanner = exports.BinauralPanner = function () {
       return updated;
     }
   }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    key: 'coordinateSystem',
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
     }
 
     /**
-     * Get coordinates type for positions.
+     * Get coordinate system.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._positionsType;
+      return this._coordinateSystem;
     }
 
     /**
      * Refer an external HRTF set, and update sources. Its positions
-     * coordinate type must be 'gl'.
+     * coordinate system must be 'gl'.
      *
      * @see {@link HrtfSet}
      * @see {@link BinauralPanner#update}
      *
      * @param {HrtfSet} hrtfSet
-     * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+     * @throws {Error} when hrtfSet in undefined or hrtfSet.coordinateSystem is
      * not 'gl'.
      */
 
@@ -402,8 +402,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
       var _this4 = this;
 
       if (typeof hrtfSet !== 'undefined') {
-        if (hrtfSet.positionsType !== 'gl') {
-          throw new Error('positions type of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.positionsType + '\') ')(_templateObject));
+        if (hrtfSet.coordinateSystem !== 'gl') {
+          throw new Error('coordinate system of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.coordinateSystem + '\') ')(_templateObject));
         }
         this._hrtfSet = hrtfSet;
       } else {
@@ -436,7 +436,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * @see {@link HrtfSet#filterPositions}
      *
-     * @param {Array.<coordinates>} positions
+     * @param {Array.<Coordinates>} positions
      */
 
   }, {
@@ -450,7 +450,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * @see {@link HrtfSet#filterPositions}
      *
-     * @return {Array.<coordinates>} positions
+     * @return {Array.<Coordinates>} positions
      */
     ,
     get: function get() {
@@ -458,25 +458,25 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Set coordinates type for filter positions.
+     * Set coordinate system for filter positions.
      *
-     * @param {coordinatesType} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
-    key: 'filterPositionsType',
-    set: function set(type) {
-      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
+    key: 'filterCoordinateSystem',
+    set: function set(system) {
+      this._hrtfSet.filterCoordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
     }
 
     /**
-     * Get coordinates type for filter positions.
+     * Get coordinate system for filter positions.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._hrtfSet.filterPositionsType;
+      return this._hrtfSet.filterCoordinateSystem;
     }
 
     /**
@@ -529,25 +529,25 @@ var BinauralPanner = exports.BinauralPanner = function () {
     // ---------- Listener proxies
 
     /**
-     * Set coordinates type for listener.
+     * Set coordinate system for listener.
      *
-     * @param {coordinatesType} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
-    key: 'listenerPositionsType',
-    set: function set(coordinatesType) {
-      this._listener.positionsType = typeof coordinatesType !== 'undefined' ? coordinatesType : this.positionsType;
+    key: 'listenerCoordinateSystem',
+    set: function set(coordinateSystem) {
+      this._listener.coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : this.coordinateSystem;
     }
 
     /**
-     * Get coordinates type for listener.
+     * Get coordinate system for listener.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._listener.positionsType;
+      return this._listener.coordinateSystem;
     }
 
     /**
@@ -559,7 +559,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#position}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -571,7 +571,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener position.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -588,7 +588,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#up}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -600,7 +600,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener up direction.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -617,7 +617,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#view}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -629,7 +629,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener view.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -643,7 +643,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link BinauralPanner#update}
      * @see {@link BinauralPanner#setSourcePositionByIndex}
      *
-     * @param {Array.<coordinates>} positionsRequest
+     * @param {Array.<Coordinates>} positionsRequest
      * @throws {Error} if the length of positionsRequest is not the same as
      * the number of sources
      */
@@ -666,14 +666,14 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get the source positions.
      *
-     * @returns {Array.<coordinates>}
+     * @returns {Array.<Coordinates>}
      */
     ,
     get: function get() {
       var _this6 = this;
 
       return this._sourcePositionsAbsolute.map(function (position) {
-        return (0, _coordinates.glToTyped)([], position, _this6.positionsType);
+        return (0, _coordinates.glToSystem)([], position, _this6.coordinateSystem);
       });
     }
   }]);

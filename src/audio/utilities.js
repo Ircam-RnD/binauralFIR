@@ -74,13 +74,13 @@ export function createNoiseBuffer(options = {}) {
                 : -30); // dB
 
   const channelCount = (typeof options.channelCount
-                          ? options.channelCount
-                          : context.destination.channelCount);
+                        ? options.channelCount
+                        : context.destination.channelCount);
 
   const length = duration * context.sampleRate;
   const amplitude = dBToLin(gain);
   const buffer = context.createBuffer(channelCount, length,
-                                    context.sampleRate);
+                                      context.sampleRate);
   for (let c = 0; c < channelCount; ++c) {
     const data = buffer.getChannelData(c);
     for (let i = 0; i < length; ++i) {

@@ -71,7 +71,7 @@
          var binauralPanner = new binaural.audio.BinauralPanner({
              audioContext,
              crossfadeDuration: 0.05, // in seconds
-             positionsType: 'sofaSpherical', // [azimuth, elevation, distance]
+             coordinateSystem: 'sofaSpherical', // [azimuth, elevation, distance]
              sourceCount: 1,
              sourcePositions: [ [0, 0, 1] ], // initial position
          });

@@ -32,25 +32,25 @@ import degree from './degree';
 
 /**
  * Coordinates as an array of 3 values:
- * [x, y, z] or [azimuth, elevation, distance], depending on type
+ * [x, y, z] or [azimuth, elevation, distance], depending on system
  *
- * @typedef coordinates
+ * @typedef Coordinates
  * @type {vec3}
  */
 
 /**
- * Coordinates system type: sofaCartesian', 'sofaSpherical', or'gl'.
+ * Coordinate system: sofaCartesian', 'sofaSpherical', or'gl'.
  *
- * @typedef coordinatesType
+ * @typedef CoordinateSystem
  * @type {String}
  */
 
 /**
  * Convert SOFA cartesian coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function sofaCartesianToGl(out, a) {
   // copy to handle in-place
@@ -68,9 +68,9 @@ export function sofaCartesianToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function glToSofaCartesian(out, a) {
   // copy to handle in-place
@@ -88,9 +88,9 @@ export function glToSofaCartesian(out, a) {
 /**
  * Convert SOFA cartesian coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function sofaCartesianToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -112,9 +112,9 @@ export function sofaCartesianToSofaSpherical(out, a) {
 /**
  * Convert SOFA spherical coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function sofaSphericalToSofaCartesian(out, a) {
   // copy to handle in-place
@@ -133,9 +133,9 @@ export function sofaSphericalToSofaCartesian(out, a) {
 /**
  * Convert SOFA spherical coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function sofaSphericalToGl(out, a) {
   // copy to handle in-place
@@ -154,9 +154,9 @@ export function sofaSphericalToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 export function glToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -177,16 +177,16 @@ export function glToSofaSpherical(out, a) {
 }
 
 /**
- * Convert typed coordinates to SOFA cartesian.
+ * Convert coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-export function typedToSofaCartesian(out, a, type) {
-  switch (type) {
+export function systemToSofaCartesian(out, a, system) {
+  switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
       out[1] = a[1];
@@ -198,22 +198,22 @@ export function typedToSofaCartesian(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert typed coordinates to openGL.
+ * Convert coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-export function typedToGl(out, a, type) {
-  switch (type) {
+export function systemToGl(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -229,22 +229,22 @@ export function typedToGl(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert openGL coordinates to typed ones.
+ * Convert openGL coordinates to other system.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-export function glToTyped(out, a, type) {
-  switch (type) {
+export function glToSystem(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -260,7 +260,7 @@ export function glToTyped(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
@@ -270,9 +270,9 @@ export default {
   sofaCartesianToSofaSpherical,
   glToSofaCartesian,
   glToSofaSpherical,
-  glToTyped,
+  glToSystem,
   sofaSphericalToSofaCartesian,
   sofaSphericalToGl,
-  typedToSofaCartesian,
-  typedToGl,
+  systemToSofaCartesian,
+  systemToGl,
 };

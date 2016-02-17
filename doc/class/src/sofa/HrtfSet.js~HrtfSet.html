@@ -45,13 +45,13 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSystem">glToSystem</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToGl">systemToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToSofaCartesian">systemToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
@@ -59,8 +59,8 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span></li>
 <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
@@ -160,13 +160,39 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Set post-filtering flag.</p>
+        <div data-ice="description"><p>Set coordinate system for positions.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get coordinate system for positions.</p>
 </div>
       </div>
     </td>
@@ -212,7 +238,85 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set post-filtering flag.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterCoordinateSystem">filterCoordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get coordinate system for filter positions.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterCoordinateSystem">filterCoordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinate system for filter positions.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -238,65 +342,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
         <div data-ice="description"><p>Get filter positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositionsType">filterPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set coordinates type for filter positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">get</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositionsType">filterPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Get coordinates type for filter positions.</p>
 </div>
       </div>
     </td>
@@ -323,58 +375,6 @@
         
         
         <div data-ice="description"><p>Test whether an HRTF set is actually loaded.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-positionsType">positionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set coordinates type for positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">get</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-positionsType">positionsType</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Get coordinates type for positions.</p>
 </div>
       </div>
     </td>
@@ -531,7 +531,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearest">nearest</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearest">nearest</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span>
         </p>
       </div>
       <div>
@@ -557,7 +557,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearestFir">nearestFir</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>AudioBuffer</span></span>
+           <span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearestFir">nearestFir</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>AudioBuffer</span></span>
         </p>
       </div>
       <div>
@@ -630,24 +630,24 @@ of FIR audio buffers</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
-      <td data-ice="name" data-depth="1">options.positionsType</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="1">options.coordinateSystem</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: &apos;gl&apos;</li></ul></td>
-      <td data-ice="description"><p><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-positionsType">HrtfSet#positionsType</a></span></p>
+      <td data-ice="description"><p><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-coordinateSystem">HrtfSet#coordinateSystem</a></span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
-      <td data-ice="name" data-depth="1">options.filterPositionsType</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="1">options.filterCoordinateSystem</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
-<li>default: options.positionsType</li></ul></td>
-      <td data-ice="description"><p><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositionsType">HrtfSet#filterPositionsType</a></span></p>
+<li>default: options.coordinateSystem</li></ul></td>
+      <td data-ice="description"><p><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterCoordinateSystem">HrtfSet#filterCoordinateSystem</a></span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.filterPositions</td>
-      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;</td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: undefined</li></ul></td>
       <td data-ice="description"><p><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions">HrtfSet#filterPositions</a></span>
@@ -688,25 +688,24 @@ full load of SOFA file
 <div data-ice="memberDetails"><h2 data-ice="title">Public Members</h2>
 
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-filterAfterLoad">
+  <h3 data-ice="anchor" id="instance-set-coordinateSystem">
     <span class="access" data-ice="access">public</span>
     
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+    <span data-ice="name">coordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber172">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber63">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Set post-filtering flag. When false, try to load a partial set of
-HRTF.</p>
+  <div data-ice="description"><p>Set coordinate system for positions.</p>
 </div>
 
   
@@ -715,6 +714,57 @@ HRTF.</p>
 </div>
 
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-coordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">coordinateSystem</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber74">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinate system for positions.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
 
   
 
@@ -782,13 +832,137 @@ HRTF.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-filterAfterLoad">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">(post: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber172">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set post-filtering flag. When false, try to load a partial set of
+HRTF.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-filterCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">filterCoordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber94">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinate system for filter positions.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-filterCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">filterCoordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber83">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set coordinate system for filter positions.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-filterPositions">
     <span class="access" data-ice="access">public</span>
     
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
     <span class="right-info">
       
       
@@ -829,7 +1003,7 @@ HRTF.</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
     <span class="right-info">
       
       
@@ -841,88 +1015,6 @@ HRTF.</p>
   
   
   <div data-ice="description"><p>Get filter positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-filterPositionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">filterPositionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber83">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set coordinates type for filter positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-filterPositionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">get</span>
-    
-    
-    <span data-ice="name">filterPositionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber94">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Get coordinates type for filter positions.</p>
 </div>
 
   
@@ -995,98 +1087,6 @@ HRTF.</p>
   
 
   <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-load">HrtfSet#load</a></span></span></li></ul></div>
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-positionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">positionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber63">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set coordinates type for positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-positionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">get</span>
-    
-    
-    <span data-ice="name">positionsType</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/sofa/HrtfSet.js.html#lineNumber74">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Get coordinates type for positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
-    <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
-        
-      </tr>
-    </table>
-    <div data-ice="returnProperties">
-</div>
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
   
 </div>
 <div class="detail" data-ice="detail">
@@ -1367,7 +1367,7 @@ loaded.</p>
     
     
     
-    <span data-ice="name">nearest</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span>
+    <span data-ice="name">nearest</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span>
     <span class="right-info">
       
       
@@ -1393,7 +1393,7 @@ loaded.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">positionRequest</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -1434,7 +1434,7 @@ loaded.</p>
     
     
     
-    <span data-ice="name">nearestFir</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>AudioBuffer</span></span>
+    <span data-ice="name">nearestFir</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>AudioBuffer</span></span>
     <span class="right-info">
       
       
@@ -1461,7 +1461,7 @@ the set.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">positionRequest</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>

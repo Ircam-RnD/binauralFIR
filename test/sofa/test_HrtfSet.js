@@ -73,7 +73,7 @@ test(`${prefix}: Load set`, (assert) => {
 
 test(`${prefix}: Partial load set`, (assert) => {
   // spherical in degrees
-  const positionsType = 'sofaSpherical';
+  const coordinateSystem = 'sofaSpherical';
 
   const filterPositions = [
     [30, 0, 2], // front-left
@@ -104,7 +104,7 @@ test(`${prefix}: Partial load set`, (assert) => {
   const hrtfSet = new HrtfSet({
     audioContext,
     filterPositions,
-    positionsType,
+    coordinateSystem,
   });
 
   const bili1142Url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/'
@@ -136,7 +136,7 @@ test(`${prefix}: Partial load set`, (assert) => {
 
 test(`${prefix}: Instantiate and set filter afterwards`, (assert) => {
   // spherical in degrees
-  const positionsType = 'sofaSpherical';
+  const coordinateSystem = 'sofaSpherical';
 
   const filterPositions = [
     [30, 0, 2], // front-left
@@ -169,8 +169,8 @@ test(`${prefix}: Instantiate and set filter afterwards`, (assert) => {
   });
 
   // when not defined in constructor, must explicitly set all types
-  hrtfSet.positionsType = positionsType;
-  hrtfSet.filterPositionsType = positionsType;
+  hrtfSet.coordinateSystem = coordinateSystem;
+  hrtfSet.filterCoordinateSystem = coordinateSystem;
 
   hrtfSet.filterPositions = filterPositions;
 
@@ -203,7 +203,7 @@ test(`${prefix}: Instantiate and set filter afterwards`, (assert) => {
 
 test(`${prefix}: Load full set and post-filter`, (assert) => {
   // spherical in degrees
-  const positionsType = 'sofaSpherical';
+  const coordinateSystem = 'sofaSpherical';
 
   const filterPositions = [
     [30, 0, 2], // front-left
@@ -235,7 +235,7 @@ test(`${prefix}: Load full set and post-filter`, (assert) => {
     audioContext,
     filterPositions,
     filterAfterLoad: true,
-    positionsType,
+    coordinateSystem,
   });
 
   const crossmod1071Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/CROSSMOD/COMPENSATED/`

@@ -18,7 +18,7 @@ const noiseBuffer = audio.createNoiseBuffer({
   gain: -20,
 });
 
-const positionsType = 'sofaSpherical';
+const coordinateSystem = 'sofaSpherical';
 const testPositions = [
   [30, 0, 2], // front-left
   [0, 0, 2], // centre
@@ -38,8 +38,8 @@ const testPositionsName = [
 const hrtfSet = new HrtfSet({
   audioContext,
   filterPositions: testPositions,
-  filterPositionsType: positionsType,
-  positionsType: 'gl', // mandatory for BinauralPanner
+  filterCoordinateSystem: coordinateSystem,
+  coordinateSystem: 'gl', // mandatory for BinauralPanner
 });
 
 console.log('accessing server');
@@ -96,7 +96,7 @@ test(`${prefix}`, (assert) => {
         audioContext,
         crossfadeDuration: 0, // immediate for testing
         hrtfSet,
-        positionsType,
+        coordinateSystem,
         sourceCount: testPositions.length,
         sourcePositions: testPositions,
       });

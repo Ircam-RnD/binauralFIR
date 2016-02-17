@@ -45,13 +45,13 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSystem">glToSystem</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToGl">systemToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToSofaCartesian">systemToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
@@ -59,8 +59,8 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span></li>
 <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
@@ -95,7 +95,7 @@ export class Source {
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0,0,0]] in &apos;gl&apos; coordinates type.
+   * @param {coordinate} [position=[0,0,0]] in &apos;gl&apos; coordinate system.
    * {@link Source#position}
    * @param {Number} [crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
@@ -168,7 +168,7 @@ export class Source {
   /**
    * Set the position of the source and updates.
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set position(positionRequest) {
     clearTimeout(this._crossfadeTimeout);

@@ -14,7 +14,7 @@ const prefix = 'Audio source';
 
 const sampleRate = 44100;
 
-const positionsType = 'sofaSpherical';
+const coordinateSystem = 'sofaSpherical';
 const testPositions = [
   [30, 0, 2], // front-left
   [0, 0, 2], // centre
@@ -54,7 +54,7 @@ test(`${prefix}`, (assert) => {
         const hrtfSet = new HrtfSet({
           audioContext,
           filterPositions: [position],
-          positionsType,
+          coordinateSystem,
         });
 
         return hrtfSet.load(urls[0])

@@ -39,7 +39,7 @@ You can use any [HRTF] data-set that follows the [SOFA] standard, in JSON
 format, using finite impulse responses (FIR). Second-order sections (SOS)
 are not supported, yet. See the [examples HRTF directory] for a few samples.
 
-### Coordinates system types ###
+### Coordinate system types ###
 
 See the files in the geometry, for conversions:
 - [SOFA] and openGL conventions
@@ -81,7 +81,7 @@ instantiate a `BinauralPanner` and connect it.
 var binauralPanner = new binaural.audio.BinauralPanner({
     audioContext,
     crossfadeDuration: 0.05, // in seconds
-    positionsType: 'sofaSpherical', // [azimuth, elevation, distance]
+    coordinateSystem: 'sofaSpherical', // [azimuth, elevation, distance]
     sourceCount: 1,
     sourcePositions: [ [0, 0, 1] ], // initial position
 });

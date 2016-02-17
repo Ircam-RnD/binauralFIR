@@ -30,11 +30,11 @@ export class HrtfSet {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link HrtfSet#positionsType}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link HrtfSet#filterPositionsType}
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link HrtfSet#coordinateSystem}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link HrtfSet#filterCoordinateSystem}
+   * @param {Array.<Coordinates>} [options.filterPositions=undefined]
    * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
@@ -46,9 +46,9 @@ export class HrtfSet {
 
     this._ready = false;
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
-    this.filterPositionsType = options.filterPositionsType;
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
     this.filterPositions = options.filterPositions;
 
     this.filterAfterLoad = options.filterAfterLoad;
@@ -57,54 +57,54 @@ export class HrtfSet {
   // ------------ accessors
 
   /**
-   * Set coordinates type for positions.
-   * @param {coordinatesType} [type='gl']
+   * Set coordinate system for positions.
+   * @param {CoordinateSystem} [system='gl']
    */
-  set positionsType(type) {
-    this._positionsType = (typeof type !== 'undefined'
-                           ? type
-                           : 'gl');
+  set coordinateSystem(system) {
+    this._coordinateSystem = (typeof system !== 'undefined'
+                              ? system
+                              : 'gl');
   }
 
   /**
-   * Get coordinates type for positions.
+   * Get coordinate system for positions.
    *
-   * @returns {coordinatesType}
+   * @returns {CoordinateSystem}
    */
-  get positionsType() {
-    return this._positionsType;
+  get coordinateSystem() {
+    return this._coordinateSystem;
   }
 
   /**
-   * Set coordinates type for filter positions.
+   * Set coordinate system for filter positions.
    *
-   * @param {coordinatesType} [type] undefined to use positionsType
+   * @param {CoordinateSystem} [system] undefined to use coordinateSystem
    */
-  set filterPositionsType(type) {
-    this._filterPositionsType = (typeof type !== 'undefined'
-                                 ? type
-                                 : this.positionsType);
+  set filterCoordinateSystem(system) {
+    this._filterCoordinateSystem = (typeof system !== 'undefined'
+                                    ? system
+                                    : this.coordinateSystem);
   }
 
   /**
-   * Get coordinates type for filter positions.
+   * Get coordinate system for filter positions.
    *
-   * @param {coordinatesType} type
+   * @param {CoordinateSystem} system
    */
-  get filterPositionsType() {
-    return this._filterPositionsType;
+  get filterCoordinateSystem() {
+    return this._filterCoordinateSystem;
   }
 
   /**
    * Set filter positions.
    *
-   * @param {Array.<coordinates>} [positions] undefined for no filtering.
+   * @param {Array.<Coordinates>} [positions] undefined for no filtering.
    */
   set filterPositions(positions) {
     if (typeof positions === 'undefined') {
       this._filterPositions = undefined;
     } else {
-      switch (this.filterPositionsType) {
+      switch (this.filterCoordinateSystem) {
         case 'gl':
           this._filterPositions = positions.map( (current) => {
             return current.slice(0); // copy
@@ -124,7 +124,7 @@ export class HrtfSet {
           break;
 
         default:
-          throw new Error('Bad filter type');
+          throw new Error('Bad filter coordinate system');
       }
     }
   }
@@ -132,12 +132,12 @@ export class HrtfSet {
   /**
    * Get filter positions.
    *
-   * @param {Array.<coordinates>} positions
+   * @param {Array.<Coordinates>} positions
    */
   get filterPositions() {
     let positions;
     if (typeof this._filterPositions !== 'undefined') {
-      switch (this.filterPositionsType) {
+      switch (this.filterCoordinateSystem) {
         case 'gl':
           positions = this._filterPositions.map( (current) => {
             return current.slice(0); // copy
@@ -157,7 +157,7 @@ export class HrtfSet {
           break;
 
         default:
-          throw new Error('Bad filter type');
+          throw new Error('Bad filter coordinate system');
       }
     }
     return positions;
@@ -171,8 +171,8 @@ export class HrtfSet {
    */
   set filterAfterLoad(post) {
     this._filterAfterLoad = (typeof post !== 'undefined'
-                        ? post
-                        : false);
+                             ? post
+                             : false);
   }
 
   /**
@@ -238,7 +238,7 @@ export class HrtfSet {
     // do not use getter for gl positions
     let filteredPositions = this._filterPositions.map( (current) => {
       return this._kdt.nearest({ x: current[0], y: current[1], z: current[2] },
-                              1)
+                               1)
         .pop()[0]; // nearest data
     });
 
@@ -246,8 +246,8 @@ export class HrtfSet {
     filteredPositions = [ ...new Set(filteredPositions) ];
 
     this._kdt = kdTree.tree.createKdTree(filteredPositions,
-                                        kdTree.distanceSquared,
-                                        ['x', 'y', 'z']);
+                                         kdTree.distanceSquared,
+                                         ['x', 'y', 'z']);
   }
 
   /**
@@ -317,7 +317,7 @@ export class HrtfSet {
    * @property {Number} distance from the request
    * @property {AudioBuffer} fir 2-channels impulse response
    * @property {Number} index original index in the SOFA set
-   * @property {coordinates} position using positionsType coordinates
+   * @property {Coordinates} position using coordinateSystem coordinates
    * system.
    */
 
@@ -326,18 +326,18 @@ export class HrtfSet {
    *
    * @see {@link HrtfSet#load}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    * @returns {HrtfSet.nearestType}
    */
   nearest(positionRequest) {
-    const position = coordinates.typedToGl([], positionRequest, this.positionsType);
+    const position = coordinates.systemToGl([], positionRequest, this.coordinateSystem);
     const nearest = this._kdt.nearest({
       x: position[0],
       y: position[1],
       z: position[2],
     }, 1).pop(); // nearest only
     const data = nearest[0];
-    coordinates.glToTyped(position, [data.x, data.y, data.z], this.positionsType);
+    coordinates.glToSystem(position, [data.x, data.y, data.z], this.coordinateSystem);
     return {
       distance: nearest[1],
       fir: data.fir,
@@ -349,7 +349,7 @@ export class HrtfSet {
   /**
    * Get the FIR AudioBuffer that corresponds to the closest position in
    * the set.
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    * @returns {AudioBuffer}
    */
   nearestFir(positionRequest) {
@@ -389,8 +389,8 @@ export class HrtfSet {
     });
 
     this._kdt = kdTree.tree.createKdTree(positions,
-                                        kdTree.distanceSquared,
-                                        ['x', 'y', 'z']);
+                                         kdTree.distanceSquared,
+                                         ['x', 'y', 'z']);
     return this;
   }
 
@@ -400,7 +400,7 @@ export class HrtfSet {
    * @private
    *
    * @param {Array.<Number>} indices
-   * @param {Array.<coordinates>} positions
+   * @param {Array.<Coordinates>} positions
    * @param {Array.<Float32Array>} firs
    * @returns {Promise.<Array|Error>}
    * @throws {Error} assertion that the channel count is 2
@@ -682,15 +682,15 @@ export class HrtfSet {
     // to generate a SOFA-to-GL look-at mat4.
     // Default SOFA type is 'cartesian' (see table D.4A).
 
-    const listenerPosition = coordinates.typedToSofaCartesian(
+    const listenerPosition = coordinates.systemToSofaCartesian(
       [], data.ListenerPosition.data[0],
       conformSofaType(data.ListenerPosition.Type || 'cartesian') );
 
-    const listenerView = coordinates.typedToSofaCartesian(
+    const listenerView = coordinates.systemToSofaCartesian(
       [], data.ListenerView.data[0],
       conformSofaType(data.ListenerView.Type || 'cartesian') );
 
-    const listenerUp = coordinates.typedToSofaCartesian(
+    const listenerUp = coordinates.systemToSofaCartesian(
       [], data.ListenerUp.data[0],
       conformSofaType(data.ListenerUp.Type || 'cartesian') );
 
@@ -704,15 +704,15 @@ export class HrtfSet {
    * @private
    *
    * @param {Object} data
-   * @returns {Array.<coordinates>}
+   * @returns {Array.<Coordinates>}
    * @throws {Error}
    */
   _sourcePositionsToGl(data) {
     const sourcePositions = data.SourcePosition.data; // reference
-    const sourcePositionsType = (typeof data.SourcePosition.Type !== 'undefined'
-                                 ? data.SourcePosition.Type
-                                 : 'spherical'); // default (SOFA Table D.4C)
-    switch (sourcePositionsType) {
+    const sourceCoordinateSystem = (typeof data.SourcePosition.Type !== 'undefined'
+                                    ? data.SourcePosition.Type
+                                    : 'spherical'); // default (SOFA Table D.4C)
+    switch (sourceCoordinateSystem) {
       case 'cartesian':
         sourcePositions.forEach( (position) => {
           glMatrix.vec3.transformMat4(position, position,

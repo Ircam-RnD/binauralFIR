@@ -9,7 +9,7 @@ const prefix = 'Listener';
 test(`${prefix}: default values`, (assert) => {
   const listener = new Listener();
 
-  assert.equals(listener.positionsType, 'gl',
+  assert.equals(listener.coordinateSystem, 'gl',
                 `default coordinates type is 'gl'`);
 
   assert.deepEquals(listener.position, [0, 0, 0],
@@ -28,7 +28,7 @@ test(`${prefix}: default values`, (assert) => {
 }); // defaults
 
 test(`${prefix}: values from constructor`, (assert) => {
-  const positionsType = 'gl';
+  const coordinateSystem = 'gl';
   const position = [1, 2, 3];
   const view = [1, 2, 2]; // -z (translation only)
   const up = [0, 1, 0]; // y
@@ -40,14 +40,14 @@ test(`${prefix}: values from constructor`, (assert) => {
   ];
 
   const listener = new Listener({
-    positionsType,
+    coordinateSystem,
     position,
     view,
     up,
   });
 
-  assert.equals(listener.positionsType, 'gl',
-                `default coordinates type is 'gl'`);
+  assert.equals(listener.coordinateSystem, 'gl',
+                `coordinate system matches`);
 
   assert.deepEquals(listener.position, position,
                     `position matches`);
@@ -63,3 +63,76 @@ test(`${prefix}: values from constructor`, (assert) => {
 
   assert.end();
 }); // values from constructor
+
+test(`${prefix}: moving listener around centre`, (assert) => {
+  const listener = new Listener({
+    coordinateSystem: 'gl',
+    view: [0, 0, 0], // towards centre
+  });
+
+  const absolutePosition = [1, 2, 3];
+  let positionName;
+  const relativePosition = [];
+
+  positionName = 'listen from right';
+  listener.position = [1, 0, 0];
+  listener.up = [0, 1, 0];
+  let expectedRelativePosition = [-3, 2, 0];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  positionName = 'listen from left';
+  listener.position = [-1, 0, 0];
+  listener.up = [0, 1, 0];
+  expectedRelativePosition = [3, 2, -2];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  positionName = 'listen from top';
+  listener.position = [0, 1, 0];
+  listener.up = [0, 0, -1];
+  expectedRelativePosition = [1, -3, 1];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  positionName = 'listen from bottom';
+  listener.position = [0, -1, 0];
+  listener.up = [0, 0, 1];
+  expectedRelativePosition = [1, 3, -3];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  positionName = 'listen from back';
+  listener.position = [0, 0, -1];
+  listener.up = [0, 1, 0];
+  expectedRelativePosition = [-1, 2, -4];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  positionName = 'listen from back, upside-down';
+  listener.position = [0, 0, -1];
+  listener.up = [0, -1, 0];
+  expectedRelativePosition = [1, -2, -4];
+
+  listener.update();
+  glMatrix.vec3.transformMat4(relativePosition, absolutePosition,
+                              listener.lookAt);
+  assert.deepEquals(relativePosition, expectedRelativePosition, positionName);
+
+  assert.end();
+}); // defaults

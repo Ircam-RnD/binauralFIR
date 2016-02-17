@@ -45,13 +45,13 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSystem">glToSystem</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToGl">systemToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToSofaCartesian">systemToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
@@ -59,8 +59,8 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span></li>
 <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
@@ -153,6 +153,32 @@
     <td>
       <span class="access" data-ice="access">public</span>
       
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinate system.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
       <span class="kind" data-ice="kind">get</span>
       
       <span class="override" data-ice="override"></span>
@@ -160,13 +186,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Get post-filtering flag.</p>
+        <div data-ice="description"><p>Get coordinate system.</p>
 </div>
       </div>
     </td>
@@ -205,6 +231,32 @@
     <td>
       <span class="access" data-ice="access">public</span>
       
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad">filterAfterLoad</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get post-filtering flag.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
       <span class="kind" data-ice="kind">set</span>
       
       <span class="override" data-ice="override"></span>
@@ -212,7 +264,59 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterCoordinateSystem">filterCoordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinate system for filter positions.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem">filterCoordinateSystem</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get coordinate system for filter positions.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions">filterPositions</a></span></span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -238,7 +342,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions">filterPositions</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions">filterPositions</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;: <span>*</span></span>
         </p>
       </div>
       <div>
@@ -264,39 +368,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositionsType">filterPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet">hrtfSet</a></span></span><span data-ice="signature">(hrtfSet: <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Set coordinates type for filter positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">get</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositionsType">filterPositionsType</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Get coordinates type for filter positions.</p>
+        <div data-ice="description"><p>Refer an external HRTF set, and update sources.</p>
 </div>
       </div>
     </td>
@@ -342,32 +420,6 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet">hrtfSet</a></span></span><span data-ice="signature">(hrtfSet: <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Refer an external HRTF set, and update sources.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
            <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listener">listener</a></span></span><span data-ice="signature">(listener: <span><a href="class/src/geometry/Listener.js~Listener.html">Listener</a></span>): <span>*</span></span>
         </p>
       </div>
@@ -394,7 +446,59 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition">listenerPosition</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerCoordinateSystem">listenerCoordinateSystem</a></span></span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinate system for listener.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerCoordinateSystem">listenerCoordinateSystem</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get coordinate system for listener.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition">listenerPosition</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -420,7 +524,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition">listenerPosition</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition">listenerPosition</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
         </p>
       </div>
       <div>
@@ -446,59 +550,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPositionsType">listenerPositionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set coordinates type for listener.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">get</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPositionsType">listenerPositionsType</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Get coordinates type for listener.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp">listenerUp</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp">listenerUp</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -524,7 +576,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp">listenerUp</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp">listenerUp</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
         </p>
       </div>
       <div>
@@ -550,7 +602,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView">listenerView</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView">listenerView</a></span></span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -576,7 +628,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView">listenerView</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView">listenerView</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
         </p>
       </div>
       <div>
@@ -602,59 +654,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-positionsType">positionsType</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set coordinates type for positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">get</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-positionsType">positionsType</a></span></span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Get coordinates type for positions.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions">sourcePositions</a></span></span><span data-ice="signature">(positionsRequest: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions">sourcePositions</a></span></span><span data-ice="signature">(positionsRequest: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -680,7 +680,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions">sourcePositions</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions">sourcePositions</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;: <span>*</span></span>
         </p>
       </div>
       <div>
@@ -895,7 +895,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-getSourcePositionByIndex">getSourcePositionByIndex</a></span></span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-getSourcePositionByIndex">getSourcePositionByIndex</a></span></span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -947,7 +947,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-setSourcePositionByIndex">setSourcePositionByIndex</a></span></span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>, positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>this</span></span>
+           <span data-ice="name"><span><a href="class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-setSourcePositionByIndex">setSourcePositionByIndex</a></span></span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>, positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>this</span></span>
         </p>
       </div>
       <div>
@@ -1046,11 +1046,11 @@ of FIR audio buffers</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
-      <td data-ice="name" data-depth="1">options.positionsType</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="1">options.coordinateSystem</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: &apos;gl&apos;</li></ul></td>
-      <td data-ice="description"><p><span>BinauralPanner#positionsType</span></p>
+      <td data-ice="description"><p><span>BinauralPanner#coordinateSystem</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
@@ -1062,7 +1062,7 @@ of FIR audio buffers</p>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.sourcePositions</td>
-      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span>coordinates</span>&gt;</td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: undefined</li></ul></td>
       <td data-ice="description"><p>must
@@ -1085,16 +1085,16 @@ be of length options.sourceCount <span>BinauralPanner#sourcePositions</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
-      <td data-ice="name" data-depth="1">options.filterPositionsType</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="1">options.filterCoordinateSystem</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
-<li>default: options.positionsType</li></ul></td>
-      <td data-ice="description"><p><span>BinauralPanner#filterPositionsType</span></p>
+<li>default: options.coordinateSystem</li></ul></td>
+      <td data-ice="description"><p><span>BinauralPanner#filterCoordinateSystem</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.filterPositions</td>
-      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span>coordinates</span>&gt;</td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: undefined</li></ul></td>
       <td data-ice="description"><p>array of positions to filter. Use undefined to use all positions from the HRTF set.
@@ -1119,16 +1119,16 @@ full load of SOFA file</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
-      <td data-ice="name" data-depth="1">options.listenerPositionsType</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="1">options.listenerCoordinateSystem</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
-<li>default: options.positionsType</li></ul></td>
-      <td data-ice="description"><p><span>BinauralPanner#listenerPositionsType</span></p>
+<li>default: options.coordinateSystem</li></ul></td>
+      <td data-ice="description"><p><span>BinauralPanner#listenerCoordinateSystem</span></p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.listenerPosition</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: [0,0,0]</li></ul></td>
       <td data-ice="description"><p><span>BinauralPanner#listenerPosition</span></p>
@@ -1136,7 +1136,7 @@ full load of SOFA file</p>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.listenerUp</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: [0,1,0]</li></ul></td>
       <td data-ice="description"><p><span>BinauralPanner#listenerUp</span></p>
@@ -1144,7 +1144,7 @@ full load of SOFA file</p>
     </tr>
 <tr data-ice="property" data-depth="1">
       <td data-ice="name" data-depth="1">options.listenerView</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"><ul><li>optional</li>
 <li>default: [0,0,-1]</li></ul></td>
       <td data-ice="description"><p><span>BinauralPanner#listenerView</span></p>
@@ -1175,25 +1175,65 @@ full load of SOFA file</p>
 <div data-ice="memberDetails"><h2 data-ice="title">Public Members</h2>
 
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-filterAfterLoad">
+  <h3 data-ice="anchor" id="instance-set-coordinateSystem">
     <span class="access" data-ice="access">public</span>
     
-    <span class="kind" data-ice="kind">get</span>
+    <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+    <span data-ice="name">coordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber247">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber131">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Get post-filtering flag. When false, try to load a partial set of
-HRTF.</p>
+  <div data-ice="description"><p>Set coordinate system.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-coordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">coordinateSystem</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber142">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinate system.</p>
 </div>
 
   
@@ -1205,7 +1245,7 @@ HRTF.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
         
       </tr>
     </table>
@@ -1269,13 +1309,157 @@ HRTF.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-filterAfterLoad">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">filterAfterLoad</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber247">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get post-filtering flag. When false, try to load a partial set of
+HRTF.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-filterCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">filterCoordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber216">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set coordinate system for filter positions.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-filterCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">filterCoordinateSystem</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber227">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinate system for filter positions.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-filterPositions">
     <span class="access" data-ice="access">public</span>
     
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+    <span data-ice="name">filterPositions</span><span data-ice="signature">(positions: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
     <span class="right-info">
       
       
@@ -1316,7 +1500,7 @@ HRTF.</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">filterPositions</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;: <span>*</span></span>
+    <span data-ice="name">filterPositions</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;: <span>*</span></span>
     <span class="right-info">
       
       
@@ -1339,7 +1523,7 @@ HRTF.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;</td>
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;</td>
         <td class="return-desc" data-ice="returnDescription"><p>positions</p>
 </td>
       </tr>
@@ -1362,24 +1546,25 @@ HRTF.</p>
   
 </div>
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-filterPositionsType">
+  <h3 data-ice="anchor" id="instance-set-hrtfSet">
     <span class="access" data-ice="access">public</span>
     
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">filterPositionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
+    <span data-ice="name">hrtfSet</span><span data-ice="signature">(hrtfSet: <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber216">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber157">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Set coordinates type for filter positions.</p>
+  <div data-ice="description"><p>Refer an external HRTF set, and update sources. Its positions
+coordinate system must be &apos;gl&apos;.</p>
 </div>
 
   
@@ -1393,64 +1578,27 @@ HRTF.</p>
 
   
 
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-filterPositionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">get</span>
-    
-    
-    <span data-ice="name">filterPositionsType</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber227">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Get coordinates type for filter positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
+  <div data-ice="throwWrap">
+    <h4>Throw:</h4>
     <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
-        
+      <tbody>
+      
+      <tr class="throw" data-ice="throw">
+        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
+        <td data-ice="throwDesc"><p>when hrtfSet in undefined or hrtfSet.coordinateSystem is
+not &apos;gl&apos;.</p>
+</td>
       </tr>
+</tbody>
     </table>
-    <div data-ice="returnProperties">
-</div>
   </div>
 
   
 
   
 
-  
-
-  
-
-  
-
-  
+  <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
+<li><span><span>BinauralPanner#update</span></span></li></ul></div>
   
 </div>
 <div class="detail" data-ice="detail">
@@ -1502,62 +1650,6 @@ HRTF.</p>
   
 
   
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-hrtfSet">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">hrtfSet</span><span data-ice="signature">(hrtfSet: <span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber157">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Refer an external HRTF set, and update sources. Its positions
-coordinate type must be &apos;gl&apos;.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  <div data-ice="throwWrap">
-    <h4>Throw:</h4>
-    <table>
-      <tbody>
-      
-      <tr class="throw" data-ice="throw">
-        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
-        <td data-ice="throwDesc"><p>when hrtfSet in undefined or hrtfSet.positionsType is
-not &apos;gl&apos;.</p>
-</td>
-      </tr>
-</tbody>
-    </table>
-  </div>
-
-  
-
-  
-
-  <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
-<li><span><span>BinauralPanner#update</span></span></li></ul></div>
   
 </div>
 <div class="detail" data-ice="detail">
@@ -1615,13 +1707,105 @@ not &apos;gl&apos;.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-listenerCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">listenerCoordinateSystem</span><span data-ice="signature">(system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber278">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set coordinate system for listener.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-listenerCoordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">listenerCoordinateSystem</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber289">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get coordinate system for listener.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-set-listenerPosition">
     <span class="access" data-ice="access">public</span>
     
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">listenerPosition</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+    <span data-ice="name">listenerPosition</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
@@ -1665,7 +1849,7 @@ sources after a call to the update method.</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">listenerPosition</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+    <span data-ice="name">listenerPosition</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
     <span class="right-info">
       
       
@@ -1688,99 +1872,7 @@ sources after a call to the update method.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-        
-      </tr>
-    </table>
-    <div data-ice="returnProperties">
-</div>
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-listenerPositionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">listenerPositionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber278">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set coordinates type for listener.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-listenerPositionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">get</span>
-    
-    
-    <span data-ice="name">listenerPositionsType</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber289">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Get coordinates type for listener.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
-    <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         
       </tr>
     </table>
@@ -1808,7 +1900,7 @@ sources after a call to the update method.</p>
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">listenerUp</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+    <span data-ice="name">listenerUp</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
@@ -1853,7 +1945,7 @@ method.</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">listenerUp</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+    <span data-ice="name">listenerUp</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
     <span class="right-info">
       
       
@@ -1876,7 +1968,7 @@ method.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         
       </tr>
     </table>
@@ -1904,7 +1996,7 @@ method.</p>
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">listenerView</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>*</span></span>
+    <span data-ice="name">listenerView</span><span data-ice="signature">(positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
@@ -1949,7 +2041,7 @@ sources after a call to the update method.</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">listenerView</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>: <span>*</span></span>
+    <span data-ice="name">listenerView</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>: <span>*</span></span>
     <span class="right-info">
       
       
@@ -1972,99 +2064,7 @@ sources after a call to the update method.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-        
-      </tr>
-    </table>
-    <div data-ice="returnProperties">
-</div>
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-positionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">positionsType</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber131">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set coordinates type for positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-get-positionsType">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">get</span>
-    
-    
-    <span data-ice="name">positionsType</span><span data-ice="signature">: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>: <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/audio/BinauralPanner.js.html#lineNumber142">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Get coordinates type for positions.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
-    <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         
       </tr>
     </table>
@@ -2092,7 +2092,7 @@ sources after a call to the update method.</p>
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">sourcePositions</span><span data-ice="signature">(positionsRequest: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;): <span>*</span></span>
+    <span data-ice="name">sourcePositions</span><span data-ice="signature">(positionsRequest: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;): <span>*</span></span>
     <span class="right-info">
       
       
@@ -2148,7 +2148,7 @@ the number of sources</p>
     <span class="kind" data-ice="kind">get</span>
     
     
-    <span data-ice="name">sourcePositions</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;: <span>*</span></span>
+    <span data-ice="name">sourcePositions</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;: <span>*</span></span>
     <span class="right-info">
       
       
@@ -2171,7 +2171,7 @@ the number of sources</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>&gt;</td>
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span>&lt;<span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>&gt;</td>
         
       </tr>
     </table>
@@ -2750,7 +2750,7 @@ all when undefined.</p>
     
     
     
-    <span data-ice="name">getSourcePositionByIndex</span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">getSourcePositionByIndex</span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -2789,7 +2789,7 @@ all when undefined.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         
       </tr>
     </table>
@@ -2886,7 +2886,7 @@ loaded.</p>
     
     
     
-    <span data-ice="name">setSourcePositionByIndex</span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>, positionRequest: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span>this</span></span>
+    <span data-ice="name">setSourcePositionByIndex</span><span data-ice="signature">(index: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></span>, positionRequest: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span>this</span></span>
     <span class="right-info">
       
       
@@ -2919,7 +2919,7 @@ relative position after a call to the update method.</p>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">positionRequest</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>

@@ -5411,16 +5411,16 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link BinauralPanner#positionsType}
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link BinauralPanner#coordinateSystem}
    * @param {Number} [options.sourceCount=1]
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
    * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
    * {@link BinauralPanner#hrtfSet}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link BinauralPanner#filterPositionsType}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#filterCoordinateSystem}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
    * array of positions to filter. Use undefined to use all positions from the HRTF set.
    * {@link BinauralPanner#filterPositions}
@@ -5428,13 +5428,13 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * full load of SOFA file
    * @param {Listener} [options.listener] refer an external listener.
    * {@link BinauralPanner#listener}
-   * @param {coordinatesType} [options.listenerPositionsType=options.positionsType]
-   * {@link BinauralPanner#listenerPositionsType}
-   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * @param {CoordinateSystem} [options.listenerCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#listenerCoordinateSystem}
+   * @param {Coordinates} [options.listenerPosition=[0,0,0]]
    * {@link BinauralPanner#listenerPosition}
-   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * @param {Coordinates} [options.listenerUp=[0,1,0]]
    * {@link BinauralPanner#listenerUp}
-   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * @param {Coordinates} [options.listenerView=[0,0,-1]]
    * {@link BinauralPanner#listenerView}
    */
 
@@ -5447,21 +5447,21 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this._audioContext = options.audioContext;
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
     var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
     // allocate first
     this._listener = typeof options.listener !== 'undefined' ? options.listener : new _Listener2.default();
 
-    // set coordinates type, that defaults to BinauralPanner's own type
-    this.listenerPositionsType = options.listenerPositionsType;
+    // set coordinate system, that defaults to BinauralPanner's own system
+    this.listenerCoordinateSystem = options.listenerCoordinateSystem;
 
     // use setters for internal or external listener
-    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToTyped)([], [0, 0, 0], this._listener.positionsType);
+    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToSystem)([], [0, 0, 0], this._listener.coordinateSystem);
 
-    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToTyped)([], [0, 0, -1], this._listener.positionsType);
+    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToSystem)([], [0, 0, -1], this._listener.coordinateSystem);
 
-    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this._listener.positionsType);
+    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToSystem)([], [0, 1, 0], this._listener.coordinateSystem);
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
@@ -5482,10 +5482,10 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
       audioContext: this._audioContext,
-      positionsType: 'gl'
+      coordinateSystem: 'gl'
     });
 
-    this.filterPositionsType = options.filterPositionsType;
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
     this.filterPositions = options.filterPositions;
     this.filterAfterLoad = options.filterAfterLoad;
 
@@ -5499,9 +5499,9 @@ var BinauralPanner = exports.BinauralPanner = function () {
   // ----------- accessors
 
   /**
-   * Set coordinates type for positions.
+   * Set coordinate system.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
 
 
@@ -5516,12 +5516,12 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link BinauralPanner#update}
      *
      * @param {Number} index
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      * @returns {this}
      */
     value: function setSourcePositionByIndex(index, positionRequest) {
       this._sourcesOutdated[index] = true;
-      (0, _coordinates.typedToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.positionsType);
+      (0, _coordinates.systemToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.coordinateSystem);
 
       return this;
     }
@@ -5530,13 +5530,13 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Get the position of one source.
      *
      * @param {Number} index
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
 
   }, {
     key: 'getSourcePositionByIndex',
     value: function getSourcePositionByIndex(index) {
-      return (0, _coordinates.glToTyped)([], this._sourcePositionsAbsolute[index], this.positionsType);
+      return (0, _coordinates.glToSystem)([], this._sourcePositionsAbsolute[index], this.coordinateSystem);
     }
 
     // ----------- public methods
@@ -5726,30 +5726,30 @@ var BinauralPanner = exports.BinauralPanner = function () {
       return updated;
     }
   }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    key: 'coordinateSystem',
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
     }
 
     /**
-     * Get coordinates type for positions.
+     * Get coordinate system.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._positionsType;
+      return this._coordinateSystem;
     }
 
     /**
      * Refer an external HRTF set, and update sources. Its positions
-     * coordinate type must be 'gl'.
+     * coordinate system must be 'gl'.
      *
      * @see {@link HrtfSet}
      * @see {@link BinauralPanner#update}
      *
      * @param {HrtfSet} hrtfSet
-     * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+     * @throws {Error} when hrtfSet in undefined or hrtfSet.coordinateSystem is
      * not 'gl'.
      */
 
@@ -5759,8 +5759,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
       var _this4 = this;
 
       if (typeof hrtfSet !== 'undefined') {
-        if (hrtfSet.positionsType !== 'gl') {
-          throw new Error('positions type of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.positionsType + '\') ')(_templateObject));
+        if (hrtfSet.coordinateSystem !== 'gl') {
+          throw new Error('coordinate system of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.coordinateSystem + '\') ')(_templateObject));
         }
         this._hrtfSet = hrtfSet;
       } else {
@@ -5793,7 +5793,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * @see {@link HrtfSet#filterPositions}
      *
-     * @param {Array.<coordinates>} positions
+     * @param {Array.<Coordinates>} positions
      */
 
   }, {
@@ -5807,7 +5807,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * @see {@link HrtfSet#filterPositions}
      *
-     * @return {Array.<coordinates>} positions
+     * @return {Array.<Coordinates>} positions
      */
     ,
     get: function get() {
@@ -5815,25 +5815,25 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Set coordinates type for filter positions.
+     * Set coordinate system for filter positions.
      *
-     * @param {coordinatesType} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
-    key: 'filterPositionsType',
-    set: function set(type) {
-      this._hrtfSet.filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
+    key: 'filterCoordinateSystem',
+    set: function set(system) {
+      this._hrtfSet.filterCoordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
     }
 
     /**
-     * Get coordinates type for filter positions.
+     * Get coordinate system for filter positions.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._hrtfSet.filterPositionsType;
+      return this._hrtfSet.filterCoordinateSystem;
     }
 
     /**
@@ -5886,25 +5886,25 @@ var BinauralPanner = exports.BinauralPanner = function () {
     // ---------- Listener proxies
 
     /**
-     * Set coordinates type for listener.
+     * Set coordinate system for listener.
      *
-     * @param {coordinatesType} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
-    key: 'listenerPositionsType',
-    set: function set(coordinatesType) {
-      this._listener.positionsType = typeof coordinatesType !== 'undefined' ? coordinatesType : this.positionsType;
+    key: 'listenerCoordinateSystem',
+    set: function set(coordinateSystem) {
+      this._listener.coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : this.coordinateSystem;
     }
 
     /**
-     * Get coordinates type for listener.
+     * Get coordinate system for listener.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._listener.positionsType;
+      return this._listener.coordinateSystem;
     }
 
     /**
@@ -5916,7 +5916,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#position}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -5928,7 +5928,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener position.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -5945,7 +5945,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#up}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -5957,7 +5957,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener up direction.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -5974,7 +5974,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#view}
      * @see {@link BinauralPanner#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -5986,7 +5986,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get listener view.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
@@ -6000,7 +6000,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link BinauralPanner#update}
      * @see {@link BinauralPanner#setSourcePositionByIndex}
      *
-     * @param {Array.<coordinates>} positionsRequest
+     * @param {Array.<Coordinates>} positionsRequest
      * @throws {Error} if the length of positionsRequest is not the same as
      * the number of sources
      */
@@ -6023,14 +6023,14 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get the source positions.
      *
-     * @returns {Array.<coordinates>}
+     * @returns {Array.<Coordinates>}
      */
     ,
     get: function get() {
       var _this6 = this;
 
       return this._sourcePositionsAbsolute.map(function (position) {
-        return (0, _coordinates.glToTyped)([], position, _this6.positionsType);
+        return (0, _coordinates.glToSystem)([], position, _this6.coordinateSystem);
       });
     }
   }]);
@@ -6075,7 +6075,7 @@ var Source = exports.Source = function () {
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
    * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinates type.
+   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinate system.
    * {@link Source#position}
    * @param {Number} [crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
@@ -6266,7 +6266,7 @@ var Source = exports.Source = function () {
     /**
      * Set the position of the source and updates.
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
@@ -6669,13 +6669,13 @@ var Listener = exports.Listener = function () {
   /**
    * Constructs a listener.
    *
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link Listener#positionsType}
-   * @param {coordinates} [options.position=[0,0,0]]
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link Listener#coordinateSystem}
+   * @param {Coordinates} [options.position=[0,0,0]]
    * {@link Listener#position}
-   * @param {coordinates} [options.up=[0,1,0]]
+   * @param {Coordinates} [options.up=[0,1,0]]
    * {@link Listener#up}
-   * @param {coordinates} [options.view=[0,0,-1]]
+   * @param {Coordinates} [options.view=[0,0,-1]]
    * {@link Listener#view}
    */
 
@@ -6687,16 +6687,16 @@ var Listener = exports.Listener = function () {
     this._outdated = true;
     this._lookAt = [];
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
     this._position = [];
-    this.position = typeof options.position !== 'undefined' ? options.position : (0, _coordinates.glToTyped)([], [0, 0, 0], this.positionsType);
+    this.position = typeof options.position !== 'undefined' ? options.position : (0, _coordinates.glToSystem)([], [0, 0, 0], this.coordinateSystem);
 
     this._up = [];
-    this.up = typeof options.up !== 'undefined' ? options.up : (0, _coordinates.glToTyped)([], [0, 1, 0], this.positionsType);
+    this.up = typeof options.up !== 'undefined' ? options.up : (0, _coordinates.glToSystem)([], [0, 1, 0], this.coordinateSystem);
 
     this._view = [];
-    this.view = typeof options.view !== 'undefined' ? options.view : (0, _coordinates.glToTyped)([], [0, 0, -1], this.positionsType);
+    this.view = typeof options.view !== 'undefined' ? options.view : (0, _coordinates.glToSystem)([], [0, 0, -1], this.coordinateSystem);
 
     this.update();
   }
@@ -6741,25 +6741,25 @@ var Listener = exports.Listener = function () {
     }
 
     /**
-     * Set coordinates type.
+     * Set coordinate system.
      *
-     * @param {coordinatesType} [type='gl']
+     * @param {CoordinateSystem} [type='gl']
      */
 
   }, {
-    key: 'positionsType',
-    set: function set(coordinatesType) {
-      this._positionsType = typeof coordinatesType !== 'undefined' ? coordinatesType : 'gl';
+    key: 'coordinateSystem',
+    set: function set(coordinateSystem) {
+      this._coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : 'gl';
     }
 
     /**
-     * Get coordinates type.
+     * Get coordinate system.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._positionsType;
+      return this._coordinateSystem;
     }
 
     /**
@@ -6770,24 +6770,24 @@ var Listener = exports.Listener = function () {
      *
      * @see {@link Listener#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
     key: 'position',
     set: function set(positionRequest) {
-      (0, _coordinates.typedToGl)(this._position, positionRequest, this._positionsType);
+      (0, _coordinates.systemToGl)(this._position, positionRequest, this._coordinateSystem);
       this._outdated = true;
     }
 
     /**
      * Get listener position.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._position, this._positionsType);
+      return (0, _coordinates.glToSystem)([], this._position, this._coordinateSystem);
     }
 
     /**
@@ -6799,24 +6799,24 @@ var Listener = exports.Listener = function () {
      *
      * @see {@link Listener#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
     key: 'up',
     set: function set(upRequest) {
-      (0, _coordinates.typedToGl)(this._up, upRequest, this._positionsType);
+      (0, _coordinates.systemToGl)(this._up, upRequest, this._coordinateSystem);
       this._outdated = true;
     }
 
     /**
      * Get listener up direction.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._up, this._positionsType);
+      return (0, _coordinates.glToSystem)([], this._up, this._coordinateSystem);
     }
 
     /**
@@ -6828,24 +6828,24 @@ var Listener = exports.Listener = function () {
      *
      * @see {@link Listener#update}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      */
 
   }, {
     key: 'view',
     set: function set(viewRequest) {
-      (0, _coordinates.typedToGl)(this._view, viewRequest, this._positionsType);
+      (0, _coordinates.systemToGl)(this._view, viewRequest, this._coordinateSystem);
       this._outdated = true;
     }
 
     /**
      * Get listener view.
      *
-     * @returns {coordinates}
+     * @returns {Coordinates}
      */
     ,
     get: function get() {
-      return (0, _coordinates.glToTyped)([], this._view, this._positionsType);
+      return (0, _coordinates.glToSystem)([], this._view, this._coordinateSystem);
     }
   }]);
 
@@ -6866,9 +6866,9 @@ exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
 exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
 exports.sofaSphericalToGl = sofaSphericalToGl;
 exports.glToSofaSpherical = glToSofaSpherical;
-exports.typedToSofaCartesian = typedToSofaCartesian;
-exports.typedToGl = typedToGl;
-exports.glToTyped = glToTyped;
+exports.systemToSofaCartesian = systemToSofaCartesian;
+exports.systemToGl = systemToGl;
+exports.glToSystem = glToSystem;
 
 var _degree = require('./degree');
 
@@ -6878,25 +6878,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /**
  * Coordinates as an array of 3 values:
- * [x, y, z] or [azimuth, elevation, distance], depending on type
+ * [x, y, z] or [azimuth, elevation, distance], depending on system
  *
- * @typedef coordinates
+ * @typedef Coordinates
  * @type {vec3}
  */
 
 /**
- * Coordinates system type: sofaCartesian', 'sofaSpherical', or'gl'.
+ * Coordinate system: sofaCartesian', 'sofaSpherical', or'gl'.
  *
- * @typedef coordinatesType
+ * @typedef CoordinateSystem
  * @type {String}
  */
 
 /**
  * Convert SOFA cartesian coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaCartesianToGl(out, a) {
   // copy to handle in-place
@@ -6914,9 +6914,9 @@ function sofaCartesianToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 /**
  * @fileOverview SOFA convention to and from openGL convention.
@@ -6964,9 +6964,9 @@ function glToSofaCartesian(out, a) {
 /**
  * Convert SOFA cartesian coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaCartesianToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -6988,9 +6988,9 @@ function sofaCartesianToSofaSpherical(out, a) {
 /**
  * Convert SOFA spherical coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaSphericalToSofaCartesian(out, a) {
   // copy to handle in-place
@@ -7009,9 +7009,9 @@ function sofaSphericalToSofaCartesian(out, a) {
 /**
  * Convert SOFA spherical coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaSphericalToGl(out, a) {
   // copy to handle in-place
@@ -7030,9 +7030,9 @@ function sofaSphericalToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function glToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -7053,16 +7053,16 @@ function glToSofaSpherical(out, a) {
 }
 
 /**
- * Convert typed coordinates to SOFA cartesian.
+ * Convert coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function typedToSofaCartesian(out, a, type) {
-  switch (type) {
+function systemToSofaCartesian(out, a, system) {
+  switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
       out[1] = a[1];
@@ -7074,22 +7074,22 @@ function typedToSofaCartesian(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert typed coordinates to openGL.
+ * Convert coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function typedToGl(out, a, type) {
-  switch (type) {
+function systemToGl(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -7105,22 +7105,22 @@ function typedToGl(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert openGL coordinates to typed ones.
+ * Convert openGL coordinates to other system.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function glToTyped(out, a, type) {
-  switch (type) {
+function glToSystem(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -7136,7 +7136,7 @@ function glToTyped(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
@@ -7146,11 +7146,11 @@ exports.default = {
   sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   glToSofaCartesian: glToSofaCartesian,
   glToSofaSpherical: glToSofaSpherical,
-  glToTyped: glToTyped,
+  glToSystem: glToSystem,
   sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
   sofaSphericalToGl: sofaSphericalToGl,
-  typedToSofaCartesian: typedToSofaCartesian,
-  typedToGl: typedToGl
+  systemToSofaCartesian: systemToSofaCartesian,
+  systemToGl: systemToGl
 };
 
 },{"./degree":21}],21:[function(require,module,exports){
@@ -7367,11 +7367,11 @@ var HrtfSet = exports.HrtfSet = function () {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link HrtfSet#positionsType}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link HrtfSet#filterPositionsType}
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link HrtfSet#coordinateSystem}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link HrtfSet#filterCoordinateSystem}
+   * @param {Array.<Coordinates>} [options.filterPositions=undefined]
    * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
@@ -7388,9 +7388,9 @@ var HrtfSet = exports.HrtfSet = function () {
 
     this._ready = false;
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
-    this.filterPositionsType = options.filterPositionsType;
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
     this.filterPositions = options.filterPositions;
 
     this.filterAfterLoad = options.filterAfterLoad;
@@ -7399,8 +7399,8 @@ var HrtfSet = exports.HrtfSet = function () {
   // ------------ accessors
 
   /**
-   * Set coordinates type for positions.
-   * @param {coordinatesType} [type='gl']
+   * Set coordinate system for positions.
+   * @param {CoordinateSystem} [system='gl']
    */
 
 
@@ -7491,7 +7491,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @property {Number} distance from the request
      * @property {AudioBuffer} fir 2-channels impulse response
      * @property {Number} index original index in the SOFA set
-     * @property {coordinates} position using positionsType coordinates
+     * @property {Coordinates} position using coordinateSystem coordinates
      * system.
      */
 
@@ -7500,21 +7500,21 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * @see {@link HrtfSet#load}
      *
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      * @returns {HrtfSet.nearestType}
      */
 
   }, {
     key: 'nearest',
     value: function nearest(positionRequest) {
-      var position = _coordinates2.default.typedToGl([], positionRequest, this.positionsType);
+      var position = _coordinates2.default.systemToGl([], positionRequest, this.coordinateSystem);
       var nearest = this._kdt.nearest({
         x: position[0],
         y: position[1],
         z: position[2]
       }, 1).pop(); // nearest only
       var data = nearest[0];
-      _coordinates2.default.glToTyped(position, [data.x, data.y, data.z], this.positionsType);
+      _coordinates2.default.glToSystem(position, [data.x, data.y, data.z], this.coordinateSystem);
       return {
         distance: nearest[1],
         fir: data.fir,
@@ -7526,7 +7526,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Get the FIR AudioBuffer that corresponds to the closest position in
      * the set.
-     * @param {coordinates} positionRequest
+     * @param {Coordinates} positionRequest
      * @returns {AudioBuffer}
      */
 
@@ -7580,7 +7580,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {Array.<Number>} indices
-     * @param {Array.<coordinates>} positions
+     * @param {Array.<Coordinates>} positions
      * @param {Array.<Float32Array>} firs
      * @returns {Promise.<Array|Error>}
      * @throws {Error} assertion that the channel count is 2
@@ -7858,11 +7858,11 @@ var HrtfSet = exports.HrtfSet = function () {
       // to generate a SOFA-to-GL look-at mat4.
       // Default SOFA type is 'cartesian' (see table D.4A).
 
-      var listenerPosition = _coordinates2.default.typedToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaType)(data.ListenerPosition.Type || 'cartesian'));
+      var listenerPosition = _coordinates2.default.systemToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaType)(data.ListenerPosition.Type || 'cartesian'));
 
-      var listenerView = _coordinates2.default.typedToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaType)(data.ListenerView.Type || 'cartesian'));
+      var listenerView = _coordinates2.default.systemToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaType)(data.ListenerView.Type || 'cartesian'));
 
-      var listenerUp = _coordinates2.default.typedToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaType)(data.ListenerUp.Type || 'cartesian'));
+      var listenerUp = _coordinates2.default.systemToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaType)(data.ListenerUp.Type || 'cartesian'));
 
       this._sofaToGl = _glMatrix2.default.mat4.lookAt([], listenerPosition, listenerView, listenerUp);
     }
@@ -7873,7 +7873,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {Object} data
-     * @returns {Array.<coordinates>}
+     * @returns {Array.<Coordinates>}
      * @throws {Error}
      */
 
@@ -7883,8 +7883,8 @@ var HrtfSet = exports.HrtfSet = function () {
       var _this8 = this;
 
       var sourcePositions = data.SourcePosition.data; // reference
-      var sourcePositionsType = typeof data.SourcePosition.Type !== 'undefined' ? data.SourcePosition.Type : 'spherical'; // default (SOFA Table D.4C)
-      switch (sourcePositionsType) {
+      var sourceCoordinateSystem = typeof data.SourcePosition.Type !== 'undefined' ? data.SourcePosition.Type : 'spherical'; // default (SOFA Table D.4C)
+      switch (sourceCoordinateSystem) {
         case 'cartesian':
           sourcePositions.forEach(function (position) {
             _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
@@ -7905,47 +7905,47 @@ var HrtfSet = exports.HrtfSet = function () {
       return sourcePositions;
     }
   }, {
-    key: 'positionsType',
-    set: function set(type) {
-      this._positionsType = typeof type !== 'undefined' ? type : 'gl';
+    key: 'coordinateSystem',
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
     }
 
     /**
-     * Get coordinates type for positions.
+     * Get coordinate system for positions.
      *
-     * @returns {coordinatesType}
+     * @returns {CoordinateSystem}
      */
     ,
     get: function get() {
-      return this._positionsType;
+      return this._coordinateSystem;
     }
 
     /**
-     * Set coordinates type for filter positions.
+     * Set coordinate system for filter positions.
      *
-     * @param {coordinatesType} [type] undefined to use positionsType
+     * @param {CoordinateSystem} [system] undefined to use coordinateSystem
      */
 
   }, {
-    key: 'filterPositionsType',
-    set: function set(type) {
-      this._filterPositionsType = typeof type !== 'undefined' ? type : this.positionsType;
+    key: 'filterCoordinateSystem',
+    set: function set(system) {
+      this._filterCoordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
     }
 
     /**
-     * Get coordinates type for filter positions.
+     * Get coordinate system for filter positions.
      *
-     * @param {coordinatesType} type
+     * @param {CoordinateSystem} system
      */
     ,
     get: function get() {
-      return this._filterPositionsType;
+      return this._filterCoordinateSystem;
     }
 
     /**
      * Set filter positions.
      *
-     * @param {Array.<coordinates>} [positions] undefined for no filtering.
+     * @param {Array.<Coordinates>} [positions] undefined for no filtering.
      */
 
   }, {
@@ -7954,7 +7954,7 @@ var HrtfSet = exports.HrtfSet = function () {
       if (typeof positions === 'undefined') {
         this._filterPositions = undefined;
       } else {
-        switch (this.filterPositionsType) {
+        switch (this.filterCoordinateSystem) {
           case 'gl':
             this._filterPositions = positions.map(function (current) {
               return current.slice(0); // copy
@@ -7974,7 +7974,7 @@ var HrtfSet = exports.HrtfSet = function () {
             break;
 
           default:
-            throw new Error('Bad filter type');
+            throw new Error('Bad filter coordinate system');
         }
       }
     }
@@ -7982,13 +7982,13 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Get filter positions.
      *
-     * @param {Array.<coordinates>} positions
+     * @param {Array.<Coordinates>} positions
      */
     ,
     get: function get() {
       var positions = undefined;
       if (typeof this._filterPositions !== 'undefined') {
-        switch (this.filterPositionsType) {
+        switch (this.filterCoordinateSystem) {
           case 'gl':
             positions = this._filterPositions.map(function (current) {
               return current.slice(0); // copy
@@ -8008,7 +8008,7 @@ var HrtfSet = exports.HrtfSet = function () {
             break;
 
           default:
-            throw new Error('Bad filter type');
+            throw new Error('Bad filter coordinate system');
         }
       }
       return positions;
@@ -8637,7 +8637,7 @@ function parseSofa(sofaString) {
 }
 
 /**
- * Prefix SOFA coordinates type with `sofa`.
+ * Prefix SOFA coordinate system with `sofa`.
  *
  * @param {String} sofaType : either `cartesian` or `spherical`
  * @returns {String} either `sofaCartesian` or `sofaSpherical`

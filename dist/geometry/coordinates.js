@@ -9,9 +9,9 @@ exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
 exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
 exports.sofaSphericalToGl = sofaSphericalToGl;
 exports.glToSofaSpherical = glToSofaSpherical;
-exports.typedToSofaCartesian = typedToSofaCartesian;
-exports.typedToGl = typedToGl;
-exports.glToTyped = glToTyped;
+exports.systemToSofaCartesian = systemToSofaCartesian;
+exports.systemToGl = systemToGl;
+exports.glToSystem = glToSystem;
 
 var _degree = require('./degree');
 
@@ -21,25 +21,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /**
  * Coordinates as an array of 3 values:
- * [x, y, z] or [azimuth, elevation, distance], depending on type
+ * [x, y, z] or [azimuth, elevation, distance], depending on system
  *
- * @typedef coordinates
+ * @typedef Coordinates
  * @type {vec3}
  */
 
 /**
- * Coordinates system type: sofaCartesian', 'sofaSpherical', or'gl'.
+ * Coordinate system: sofaCartesian', 'sofaSpherical', or'gl'.
  *
- * @typedef coordinatesType
+ * @typedef CoordinateSystem
  * @type {String}
  */
 
 /**
  * Convert SOFA cartesian coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaCartesianToGl(out, a) {
   // copy to handle in-place
@@ -57,9 +57,9 @@ function sofaCartesianToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 /**
  * @fileOverview SOFA convention to and from openGL convention.
@@ -107,9 +107,9 @@ function glToSofaCartesian(out, a) {
 /**
  * Convert SOFA cartesian coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaCartesianToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -131,9 +131,9 @@ function sofaCartesianToSofaSpherical(out, a) {
 /**
  * Convert SOFA spherical coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaSphericalToSofaCartesian(out, a) {
   // copy to handle in-place
@@ -152,9 +152,9 @@ function sofaSphericalToSofaCartesian(out, a) {
 /**
  * Convert SOFA spherical coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function sofaSphericalToGl(out, a) {
   // copy to handle in-place
@@ -173,9 +173,9 @@ function sofaSphericalToGl(out, a) {
 /**
  * Convert openGL coordinates to SOFA spherical.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @returns {coordinates} out
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
  */
 function glToSofaSpherical(out, a) {
   // copy to handle in-place
@@ -196,16 +196,16 @@ function glToSofaSpherical(out, a) {
 }
 
 /**
- * Convert typed coordinates to SOFA cartesian.
+ * Convert coordinates to SOFA cartesian.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function typedToSofaCartesian(out, a, type) {
-  switch (type) {
+function systemToSofaCartesian(out, a, system) {
+  switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
       out[1] = a[1];
@@ -217,22 +217,22 @@ function typedToSofaCartesian(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert typed coordinates to openGL.
+ * Convert coordinates to openGL.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function typedToGl(out, a, type) {
-  switch (type) {
+function systemToGl(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -248,22 +248,22 @@ function typedToGl(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
 
 /**
- * Convert openGL coordinates to typed ones.
+ * Convert openGL coordinates to other system.
  *
- * @param {coordinates} out in-place if out === a.
- * @param {coordinates} a
- * @param {coordinatesType} type
- * @returns {coordinates} out
- * @throws {Error} when the type is unknown.
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
  */
-function glToTyped(out, a, type) {
-  switch (type) {
+function glToSystem(out, a, system) {
+  switch (system) {
     case 'gl':
       out[0] = a[0];
       out[1] = a[1];
@@ -279,7 +279,7 @@ function glToTyped(out, a, type) {
       break;
 
     default:
-      throw new Error('Bad SOFA type');
+      throw new Error('Bad coordinate system');
   }
   return out;
 }
@@ -289,9 +289,9 @@ exports.default = {
   sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   glToSofaCartesian: glToSofaCartesian,
   glToSofaSpherical: glToSofaSpherical,
-  glToTyped: glToTyped,
+  glToSystem: glToSystem,
   sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
   sofaSphericalToGl: sofaSphericalToGl,
-  typedToSofaCartesian: typedToSofaCartesian,
-  typedToGl: typedToGl
+  systemToSofaCartesian: systemToSofaCartesian,
+  systemToGl: systemToGl
 };

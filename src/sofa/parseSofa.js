@@ -51,7 +51,7 @@ export function parseSofa(sofaString) {
 }
 
 /**
- * Prefix SOFA coordinates type with `sofa`.
+ * Prefix SOFA coordinate system with `sofa`.
  *
  * @param {String} sofaType : either `cartesian` or `spherical`
  * @returns {String} either `sofaCartesian` or `sofaSpherical`

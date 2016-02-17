@@ -45,13 +45,13 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-distanceSquared">distanceSquared</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-glToSystem">glToSystem</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToGl">systemToGl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-systemToSofaCartesian">systemToSofaCartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-atan2">atan2</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-cos">cos</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromRadian">fromRadian</a></span></span></li>
@@ -59,8 +59,8 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toRadian">toRadian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-fromRadianFactor">fromRadianFactor</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-toRadianFactor">toRadianFactor</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span></li>
 <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
@@ -172,7 +172,7 @@ modulo.</p>
       <div>
         
         
-        <div data-ice="description"><p>Prefix SOFA coordinates type with <code>sofa</code>.</p>
+        <div data-ice="description"><p>Prefix SOFA coordinate system with <code>sofa</code>.</p>
 </div>
       </div>
     </td>
@@ -374,7 +374,7 @@ modulo.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-glToSofaCartesian">glToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -400,7 +400,7 @@ modulo.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-glToSofaSpherical">glToSofaSpherical</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -426,13 +426,13 @@ modulo.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-glToTyped">glToTyped</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-glToSystem">glToSystem</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
         
         
-        <div data-ice="description"><p>Convert openGL coordinates to typed ones.</p>
+        <div data-ice="description"><p>Convert openGL coordinates to other system.</p>
 </div>
       </div>
     </td>
@@ -557,7 +557,7 @@ attributes.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToGl">sofaCartesianToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -583,7 +583,7 @@ attributes.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-sofaCartesianToSofaSpherical">sofaCartesianToSofaSpherical</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -609,7 +609,7 @@ attributes.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToGl">sofaSphericalToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
@@ -635,13 +635,65 @@ attributes.</p>
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-sofaSphericalToSofaCartesian">sofaSphericalToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
         </p>
       </div>
       <div>
         
         
         <div data-ice="description"><p>Convert SOFA spherical coordinates to SOFA spherical.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="function/index.html#static-function-systemToGl">systemToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Convert coordinates to openGL.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="function/index.html#static-function-systemToSofaCartesian">systemToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Convert coordinates to SOFA cartesian.</p>
 </div>
       </div>
     </td>
@@ -668,58 +720,6 @@ attributes.</p>
         
         
         <div data-ice="description"><p>Convert an angle in degrees to radians.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-typedToGl">typedToGl</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Convert typed coordinates to openGL.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
-      
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-typedToSofaCartesian">typedToSofaCartesian</a></span></span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Convert typed coordinates to SOFA cartesian.</p>
 </div>
       </div>
     </td>
@@ -993,7 +993,7 @@ modulo.</p>
   <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {conformSofaType} from &apos;<span><a href="file/src/sofa/parseSofa.js.html#lineNumber60">binaural/src/sofa/parseSofa.js</a></span>&apos;</code></pre></div>
   
   
-  <div data-ice="description"><p>Prefix SOFA coordinates type with <code>sofa</code>.</p>
+  <div data-ice="description"><p>Prefix SOFA coordinate system with <code>sofa</code>.</p>
 </div>
 
   
@@ -1685,7 +1685,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     
     
     
-    <span data-ice="name">glToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">glToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -1711,14 +1711,14 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -1731,7 +1731,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -1760,7 +1760,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     
     
     
-    <span data-ice="name">glToSofaSpherical</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">glToSofaSpherical</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -1786,14 +1786,14 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -1806,7 +1806,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -1829,13 +1829,13 @@ to by-pass a bug in Safari &#x2264; 9.</p>
   
 </div>
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="static-function-glToTyped">
+  <h3 data-ice="anchor" id="static-function-glToSystem">
     <span class="access" data-ice="access">public</span>
     
     
     
     
-    <span data-ice="name">glToTyped</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">glToSystem</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -1843,10 +1843,10 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     </span>
   </h3>
 
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {glToTyped} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber246">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {glToSystem} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber246">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
   
   
-  <div data-ice="description"><p>Convert openGL coordinates to typed ones.</p>
+  <div data-ice="description"><p>Convert openGL coordinates to other system.</p>
 </div>
 
   
@@ -1861,20 +1861,20 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
 <tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">type</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
+      <td data-ice="name" data-depth="0">system</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -1887,7 +1887,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -1907,7 +1907,7 @@ to by-pass a bug in Safari &#x2264; 9.</p>
       
       <tr class="throw" data-ice="throw">
         <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
-        <td data-ice="throwDesc"><p>when the type is unknown.</p>
+        <td data-ice="throwDesc"><p>when the system is unknown.</p>
 </td>
       </tr>
 </tbody>
@@ -2250,7 +2250,7 @@ attributes.</p>
     
     
     
-    <span data-ice="name">sofaCartesianToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">sofaCartesianToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -2276,14 +2276,14 @@ attributes.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -2296,7 +2296,7 @@ attributes.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -2325,7 +2325,7 @@ attributes.</p>
     
     
     
-    <span data-ice="name">sofaCartesianToSofaSpherical</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">sofaCartesianToSofaSpherical</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -2351,14 +2351,14 @@ attributes.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -2371,7 +2371,7 @@ attributes.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -2400,7 +2400,7 @@ attributes.</p>
     
     
     
-    <span data-ice="name">sofaSphericalToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">sofaSphericalToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -2426,14 +2426,14 @@ attributes.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -2446,7 +2446,7 @@ attributes.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -2475,7 +2475,7 @@ attributes.</p>
     
     
     
-    <span data-ice="name">sofaSphericalToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
+    <span data-ice="name">sofaSphericalToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
     <span class="right-info">
       
       
@@ -2501,14 +2501,14 @@ attributes.</p>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"><p>in-place if out === a.</p>
 </td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
       <td data-ice="appendix"></td>
       <td data-ice="description"></td>
     </tr>
@@ -2521,7 +2521,7 @@ attributes.</p>
     <h4>Return:</h4>
     <table>
       <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
         <td class="return-desc" data-ice="returnDescription"><p>out</p>
 </td>
       </tr>
@@ -2535,6 +2535,192 @@ attributes.</p>
   
 
   
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="static-function-systemToGl">
+    <span class="access" data-ice="access">public</span>
+    
+    
+    
+    
+    <span data-ice="name">systemToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/geometry/coordinates.js.html#lineNumber215">source</a></span></span>
+    </span>
+  </h3>
+
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {systemToGl} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber215">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
+  
+  
+  <div data-ice="description"><p>Convert coordinates to openGL.</p>
+</div>
+
+  
+
+  <div data-ice="properties"><div data-ice="properties">
+  <h4 data-ice="title">Params:</h4>
+  <table class="params">
+    <thead>
+    <tr><td>Name</td><td>Type</td><td>Attribute</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+    
+    <tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">out</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"><p>in-place if out === a.</p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">a</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"></td>
+    </tr>
+<tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">system</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"></td>
+    </tr>
+</tbody>
+  </table>
+</div>
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+        <td class="return-desc" data-ice="returnDescription"><p>out</p>
+</td>
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  <div data-ice="throwWrap">
+    <h4>Throw:</h4>
+    <table>
+      <tbody>
+      
+      <tr class="throw" data-ice="throw">
+        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
+        <td data-ice="throwDesc"><p>when the system is unknown.</p>
+</td>
+      </tr>
+</tbody>
+    </table>
+  </div>
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="static-function-systemToSofaCartesian">
+    <span class="access" data-ice="access">public</span>
+    
+    
+    
+    
+    <span data-ice="name">systemToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span>, system: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/geometry/coordinates.js.html#lineNumber188">source</a></span></span>
+    </span>
+  </h3>
+
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {systemToSofaCartesian} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber188">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
+  
+  
+  <div data-ice="description"><p>Convert coordinates to SOFA cartesian.</p>
+</div>
+
+  
+
+  <div data-ice="properties"><div data-ice="properties">
+  <h4 data-ice="title">Params:</h4>
+  <table class="params">
+    <thead>
+    <tr><td>Name</td><td>Type</td><td>Attribute</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+    
+    <tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">out</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"><p>in-place if out === a.</p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">a</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"></td>
+    </tr>
+<tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">system</td>
+      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"></td>
+    </tr>
+</tbody>
+  </table>
+</div>
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-Coordinates">Coordinates</a></span></td>
+        <td class="return-desc" data-ice="returnDescription"><p>out</p>
+</td>
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  <div data-ice="throwWrap">
+    <h4>Throw:</h4>
+    <table>
+      <tbody>
+      
+      <tr class="throw" data-ice="throw">
+        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
+        <td data-ice="throwDesc"><p>when the system is unknown.</p>
+</td>
+      </tr>
+</tbody>
+    </table>
+  </div>
 
   
 
@@ -2604,192 +2790,6 @@ attributes.</p>
   
 
   
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="static-function-typedToGl">
-    <span class="access" data-ice="access">public</span>
-    
-    
-    
-    
-    <span data-ice="name">typedToGl</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/geometry/coordinates.js.html#lineNumber215">source</a></span></span>
-    </span>
-  </h3>
-
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {typedToGl} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber215">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
-  
-  
-  <div data-ice="description"><p>Convert typed coordinates to openGL.</p>
-</div>
-
-  
-
-  <div data-ice="properties"><div data-ice="properties">
-  <h4 data-ice="title">Params:</h4>
-  <table class="params">
-    <thead>
-    <tr><td>Name</td><td>Type</td><td>Attribute</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-    
-    <tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"><p>in-place if out === a.</p>
-</td>
-    </tr>
-<tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
-    </tr>
-<tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">type</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
-    </tr>
-</tbody>
-  </table>
-</div>
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
-    <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-        <td class="return-desc" data-ice="returnDescription"><p>out</p>
-</td>
-      </tr>
-    </table>
-    <div data-ice="returnProperties">
-</div>
-  </div>
-
-  
-
-  
-
-  <div data-ice="throwWrap">
-    <h4>Throw:</h4>
-    <table>
-      <tbody>
-      
-      <tr class="throw" data-ice="throw">
-        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
-        <td data-ice="throwDesc"><p>when the type is unknown.</p>
-</td>
-      </tr>
-</tbody>
-    </table>
-  </div>
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="static-function-typedToSofaCartesian">
-    <span class="access" data-ice="access">public</span>
-    
-    
-    
-    
-    <span data-ice="name">typedToSofaCartesian</span><span data-ice="signature">(out: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, a: <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span>, type: <span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span>): <span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/geometry/coordinates.js.html#lineNumber188">source</a></span></span>
-    </span>
-  </h3>
-
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import {typedToSofaCartesian} from &apos;<span><a href="file/src/geometry/coordinates.js.html#lineNumber188">binaural/src/geometry/coordinates.js</a></span>&apos;</code></pre></div>
-  
-  
-  <div data-ice="description"><p>Convert typed coordinates to SOFA cartesian.</p>
-</div>
-
-  
-
-  <div data-ice="properties"><div data-ice="properties">
-  <h4 data-ice="title">Params:</h4>
-  <table class="params">
-    <thead>
-    <tr><td>Name</td><td>Type</td><td>Attribute</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-    
-    <tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">out</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"><p>in-place if out === a.</p>
-</td>
-    </tr>
-<tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">a</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
-    </tr>
-<tr data-ice="property" data-depth="0">
-      <td data-ice="name" data-depth="0">type</td>
-      <td data-ice="type"><span><a href="typedef/index.html#static-typedef-coordinatesType">coordinatesType</a></span></td>
-      <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
-    </tr>
-</tbody>
-  </table>
-</div>
-</div>
-
-  <div class="return-params" data-ice="returnParams">
-    <h4>Return:</h4>
-    <table>
-      <tr>
-        <td class="return-type" data-ice="returnType"><span><a href="typedef/index.html#static-typedef-coordinates">coordinates</a></span></td>
-        <td class="return-desc" data-ice="returnDescription"><p>out</p>
-</td>
-      </tr>
-    </table>
-    <div data-ice="returnProperties">
-</div>
-  </div>
-
-  
-
-  
-
-  <div data-ice="throwWrap">
-    <h4>Throw:</h4>
-    <table>
-      <tbody>
-      
-      <tr class="throw" data-ice="throw">
-        <td><p data-ice="throwName"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a></span></p></td>
-        <td data-ice="throwDesc"><p>when the type is unknown.</p>
-</td>
-      </tr>
-</tbody>
-    </table>
-  </div>
 
   
 

@@ -7,7 +7,7 @@
 
 import glMatrix from 'gl-matrix';
 
-import { glToTyped, typedToGl } from '../geometry/coordinates';
+import { glToSystem, systemToGl } from '../geometry/coordinates';
 
 import HrtfSet from '../sofa/HrtfSet';
 import Source from './Source';
@@ -28,16 +28,16 @@ export class BinauralPanner {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {coordinatesType} [options.positionsType='gl']
-   * {@link BinauralPanner#positionsType}
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link BinauralPanner#coordinateSystem}
    * @param {Number} [options.sourceCount=1]
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
    * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
    * {@link BinauralPanner#hrtfSet}
-   * @param {coordinatesType} [options.filterPositionsType=options.positionsType]
-   * {@link BinauralPanner#filterPositionsType}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#filterCoordinateSystem}
    * @param {Array.<coordinates>} [options.filterPositions=undefined]
    * array of positions to filter. Use undefined to use all positions from the HRTF set.
    * {@link BinauralPanner#filterPositions}
@@ -45,19 +45,19 @@ export class BinauralPanner {
    * full load of SOFA file
    * @param {Listener} [options.listener] refer an external listener.
    * {@link BinauralPanner#listener}
-   * @param {coordinatesType} [options.listenerPositionsType=options.positionsType]
-   * {@link BinauralPanner#listenerPositionsType}
-   * @param {coordinates} [options.listenerPosition=[0,0,0]]
+   * @param {CoordinateSystem} [options.listenerCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#listenerCoordinateSystem}
+   * @param {Coordinates} [options.listenerPosition=[0,0,0]]
    * {@link BinauralPanner#listenerPosition}
-   * @param {coordinates} [options.listenerUp=[0,1,0]]
+   * @param {Coordinates} [options.listenerUp=[0,1,0]]
    * {@link BinauralPanner#listenerUp}
-   * @param {coordinates} [options.listenerView=[0,0,-1]]
+   * @param {Coordinates} [options.listenerView=[0,0,-1]]
    * {@link BinauralPanner#listenerView}
    */
   constructor(options = {}) {
     this._audioContext = options.audioContext;
 
-    this.positionsType = options.positionsType;
+    this.coordinateSystem = options.coordinateSystem;
 
     const sourceCount = (typeof options.sourceCount !== 'undefined'
                          ? options.sourceCount
@@ -67,24 +67,24 @@ export class BinauralPanner {
                       ? options.listener
                       : new Listener() );
 
-    // set coordinates type, that defaults to BinauralPanner's own type
-    this.listenerPositionsType = options.listenerPositionsType;
+    // set coordinate system, that defaults to BinauralPanner's own system
+    this.listenerCoordinateSystem = options.listenerCoordinateSystem;
 
     // use setters for internal or external listener
     this.listenerPosition = (typeof options.listenerPosition !== 'undefined'
                              ? options.listenerPosition
-                             : glToTyped([], [0, 0, 0],
-                                         this._listener.positionsType) );
+                             : glToSystem([], [0, 0, 0],
+                                          this._listener.coordinateSystem) );
 
     this.listenerView = (typeof options.listenerView !== 'undefined'
                          ? options.listenerView
-                         : glToTyped([], [0, 0, -1],
-                                     this._listener.positionsType) );
+                         : glToSystem([], [0, 0, -1],
+                                      this._listener.coordinateSystem) );
 
     this.listenerUp = (typeof options.listenerUp !== 'undefined'
                        ? options.listenerUp
-                       : glToTyped([], [0, 1, 0],
-                                   this._listener.positionsType) );
+                       : glToSystem([], [0, 1, 0],
+                                    this._listener.coordinateSystem) );
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
@@ -107,10 +107,10 @@ export class BinauralPanner {
                     ? options.hrtfSet
                     : new HrtfSet({
                       audioContext: this._audioContext,
-                      positionsType: 'gl',
+                      coordinateSystem: 'gl',
                     }) );
 
-    this.filterPositionsType = options.filterPositionsType;
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
     this.filterPositions = options.filterPositions;
     this.filterAfterLoad = options.filterAfterLoad;
 
@@ -124,41 +124,41 @@ export class BinauralPanner {
   // ----------- accessors
 
   /**
-   * Set coordinates type for positions.
+   * Set coordinate system.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
-  set positionsType(type) {
-    this._positionsType = (typeof type !== 'undefined'
-                           ? type
-                           : 'gl');
+  set coordinateSystem(system) {
+    this._coordinateSystem = (typeof system !== 'undefined'
+                              ? system
+                              : 'gl');
   }
 
   /**
-   * Get coordinates type for positions.
+   * Get coordinate system.
    *
-   * @returns {coordinatesType}
+   * @returns {CoordinateSystem}
    */
-  get positionsType() {
-    return this._positionsType;
+  get coordinateSystem() {
+    return this._coordinateSystem;
   }
 
   /**
    * Refer an external HRTF set, and update sources. Its positions
-   * coordinate type must be 'gl'.
+   * coordinate system must be 'gl'.
    *
    * @see {@link HrtfSet}
    * @see {@link BinauralPanner#update}
    *
    * @param {HrtfSet} hrtfSet
-   * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
+   * @throws {Error} when hrtfSet in undefined or hrtfSet.coordinateSystem is
    * not 'gl'.
    */
   set hrtfSet(hrtfSet) {
     if (typeof hrtfSet !== 'undefined') {
-      if (hrtfSet.positionsType !== 'gl') {
-        throw new Error(`positions type of HRTF set must be 'gl' `
-                        + `(and not '${hrtfSet.positionsType}') `
+      if (hrtfSet.coordinateSystem !== 'gl') {
+        throw new Error(`coordinate system of HRTF set must be 'gl' `
+                        + `(and not '${hrtfSet.coordinateSystem}') `
                         `for use with BinauralPannerNode`);
       }
       this._hrtfSet = hrtfSet;
@@ -191,7 +191,7 @@ export class BinauralPanner {
    *
    * @see {@link HrtfSet#filterPositions}
    *
-   * @param {Array.<coordinates>} positions
+   * @param {Array.<Coordinates>} positions
    */
   set filterPositions(positions) {
     this._hrtfSet.filterPositions = positions;
@@ -202,30 +202,30 @@ export class BinauralPanner {
    *
    * @see {@link HrtfSet#filterPositions}
    *
-   * @return {Array.<coordinates>} positions
+   * @return {Array.<Coordinates>} positions
    */
   get filterPositions() {
     return this._hrtfSet.filterPositions;
   }
 
   /**
-   * Set coordinates type for filter positions.
+   * Set coordinate system for filter positions.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
-  set filterPositionsType(type) {
-    this._hrtfSet.filterPositionsType = (typeof type !== 'undefined'
-                                         ? type
-                                         : this.positionsType);
+  set filterCoordinateSystem(system) {
+    this._hrtfSet.filterCoordinateSystem = (typeof system !== 'undefined'
+                                            ? system
+                                            : this.coordinateSystem);
   }
 
   /**
-   * Get coordinates type for filter positions.
+   * Get coordinate system for filter positions.
    *
-   * @returns {coordinatesType}
+   * @returns {CoordinateSystem}
    */
-  get filterPositionsType() {
-    return this._hrtfSet.filterPositionsType;
+  get filterCoordinateSystem() {
+    return this._hrtfSet.filterCoordinateSystem;
   }
 
   /**
@@ -234,9 +234,9 @@ export class BinauralPanner {
    *
    * @param {Boolean} [post=false]
    */
-   set filterAfterLoad(post) {
-     this._hrtfSet.filterAfterLoad = post;
-   }
+  set filterAfterLoad(post) {
+    this._hrtfSet.filterAfterLoad = post;
+  }
 
   /**
    * Get post-filtering flag. When false, try to load a partial set of
@@ -271,23 +271,23 @@ export class BinauralPanner {
   // ---------- Listener proxies
 
   /**
-   * Set coordinates type for listener.
+   * Set coordinate system for listener.
    *
-   * @param {coordinatesType} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
-  set listenerPositionsType(coordinatesType) {
-    this._listener.positionsType = (typeof coordinatesType !== 'undefined'
-                                    ? coordinatesType
-                                    : this.positionsType);
+  set listenerCoordinateSystem(coordinateSystem) {
+    this._listener.coordinateSystem = (typeof coordinateSystem !== 'undefined'
+                                       ? coordinateSystem
+                                       : this.coordinateSystem);
   }
 
   /**
-   * Get coordinates type for listener.
+   * Get coordinate system for listener.
    *
-   * @returns {coordinatesType}
+   * @returns {CoordinateSystem}
    */
-  get listenerPositionsType() {
-    return this._listener.positionsType;
+  get listenerCoordinateSystem() {
+    return this._listener.coordinateSystem;
   }
 
   /**
@@ -299,7 +299,7 @@ export class BinauralPanner {
    * @see {@link Listener#position}
    * @see {@link BinauralPanner#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set listenerPosition(positionRequest) {
     this._listener.position = positionRequest;
@@ -308,7 +308,7 @@ export class BinauralPanner {
   /**
    * Get listener position.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get listenerPosition() {
     return this._listener.position;
@@ -324,7 +324,7 @@ export class BinauralPanner {
    * @see {@link Listener#up}
    * @see {@link BinauralPanner#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set listenerUp(upRequest) {
     this._listener.up = upRequest;
@@ -333,7 +333,7 @@ export class BinauralPanner {
   /**
    * Get listener up direction.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get listenerUp() {
     return this._listener.up;
@@ -349,7 +349,7 @@ export class BinauralPanner {
    * @see {@link Listener#view}
    * @see {@link BinauralPanner#update}
    *
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    */
   set listenerView(viewRequest) {
     this._listener.view = viewRequest;
@@ -358,7 +358,7 @@ export class BinauralPanner {
   /**
    * Get listener view.
    *
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   get listenerView() {
     return this._listener.view;
@@ -371,7 +371,7 @@ export class BinauralPanner {
    * @see {@link BinauralPanner#update}
    * @see {@link BinauralPanner#setSourcePositionByIndex}
    *
-   * @param {Array.<coordinates>} positionsRequest
+   * @param {Array.<Coordinates>} positionsRequest
    * @throws {Error} if the length of positionsRequest is not the same as
    * the number of sources
    */
@@ -391,11 +391,11 @@ export class BinauralPanner {
   /**
    * Get the source positions.
    *
-   * @returns {Array.<coordinates>}
+   * @returns {Array.<Coordinates>}
    */
   get sourcePositions() {
     return this._sourcePositionsAbsolute.map( (position) => {
-      return glToTyped([], position, this.positionsType);
+      return glToSystem([], position, this.coordinateSystem);
     });
   }
 
@@ -406,14 +406,14 @@ export class BinauralPanner {
    * @see {@link BinauralPanner#update}
    *
    * @param {Number} index
-   * @param {coordinates} positionRequest
+   * @param {Coordinates} positionRequest
    * @returns {this}
    */
   setSourcePositionByIndex(index, positionRequest) {
     this._sourcesOutdated[index] = true;
-    typedToGl(this._sourcePositionsAbsolute[index],
-              positionRequest,
-              this.positionsType);
+    systemToGl(this._sourcePositionsAbsolute[index],
+               positionRequest,
+               this.coordinateSystem);
 
     return this;
   }
@@ -422,11 +422,11 @@ export class BinauralPanner {
    * Get the position of one source.
    *
    * @param {Number} index
-   * @returns {coordinates}
+   * @returns {Coordinates}
    */
   getSourcePositionByIndex(index) {
-    return glToTyped([], this._sourcePositionsAbsolute[index],
-                     this.positionsType);
+    return glToSystem([], this._sourcePositionsAbsolute[index],
+                      this.coordinateSystem);
   }
 
   // ----------- public methods
