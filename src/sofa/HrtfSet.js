@@ -25,7 +25,7 @@ export class HrtfSet {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -188,7 +188,7 @@ export class HrtfSet {
   /**
    * Test whether an HRTF set is actually loaded.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    *
    * @returns {Boolean} false before any successful load, true after.
    *
@@ -232,7 +232,7 @@ export class HrtfSet {
    *
    * This is destructive.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    */
   applyFilterPositions() {
     // do not use getter for gl positions
@@ -324,7 +324,7 @@ export class HrtfSet {
   /**
    * Get the nearest point in the HRTF set, after a successful load.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    *
    * @param {coordinates} positionRequest
    * @returns {HrtfSet.nearestType}

@@ -58,7 +58,7 @@ export class Listener {
    * Get the current look-at matrix. Note is updated only after a call to
    * the update method.
    *
-   * See {@link Listener#update}.
+   * @see {@link Listener#update}
    *
    * @returns {mat4} look-at matrix
    */
@@ -92,7 +92,7 @@ export class Listener {
    *
    * Default value is [0, 0, 0] in 'gl' coordinates.
    *
-   * See {@link Listener#update}.
+   * @see {@link Listener#update}
    *
    * @param {coordinates} positionRequest
    */
@@ -117,7 +117,7 @@ export class Listener {
    *
    * Default value is [0, 1, 0] in 'gl' coordinates.
    *
-   * See {@link Listener#update}.
+   * @see {@link Listener#update}
    *
    * @param {coordinates} positionRequest
    */
@@ -142,7 +142,7 @@ export class Listener {
    *
    * Default value is [0, 0, -1] in 'gl' coordinates.
    *
-   * See {@link Listener#update}.
+   * @see {@link Listener#update}
    *
    * @param {coordinates} positionRequest
    */

@@ -5405,8 +5405,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an HRTF URL.
    *
-   * See {@link HrtfSet}.
-   * See {@link BinauralPanner#loadHrtfSet}.
+   * @see {@link HrtfSet}
+   * @see {@link BinauralPanner#loadHrtfSet}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -5463,24 +5463,6 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
     this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToTyped)([], [0, 1, 0], this._listener.positionsType);
 
-    // this._listenerOutdated = true;
-    // this._listenerLookAt = [];
-
-    // this._listenerPosition = [];
-    // this.listenerPosition = (typeof options.listenerPosition !== 'undefined'
-    //                          ? options.listenerPosition
-    //                          : glToTyped([], [0, 0, 0], this.positionsType) );
-
-    // this._listenerUp = [];
-    // this.listenerUp = (typeof options.listenerUp !== 'undefined'
-    //                    ? options.listenerUp
-    //                    : glToTyped([], [0, 1, 0], this.positionsType) );
-
-    // this._listenerView = [];
-    // this.listenerView = (typeof options.listenerView !== 'undefined'
-    //                      ? options.listenerView
-    //                      : glToTyped([], [0, 0, -1], this.positionsType) );
-
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
     this._sources = this._sourcesOutdated.map(function () {
@@ -5531,7 +5513,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Set the position of one source. It will update the corresponding
      * relative position after a call to the update method.
      *
-     * See {@link BinauralPanner#update}.
+     * @see {@link BinauralPanner#update}
      *
      * @param {Number} index
      * @param {coordinates} positionRequest
@@ -5562,7 +5544,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Load an HRTF set form an URL, and update sources.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      *
      * @param {String} sourceUrl
      * @returns {Promise.<this|Error>} resolve when URL successfully
@@ -5675,7 +5657,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Connect each output of each source. Note that the number of nodes to
      * connect must match the number of sources.
      *
-     * See {@link BinauralPanner#connectOutputByIndex}.
+     * @see {@link BinauralPanner#connectOutputByIndex}
      *
      * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
      * @param {Number} [output=0] output to connect from
@@ -5763,8 +5745,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Refer an external HRTF set, and update sources. Its positions
      * coordinate type must be 'gl'.
      *
-     * See {@link HrtfSet}.
-     * See {@link BinauralPanner#update}.
+     * @see {@link HrtfSet}
+     * @see {@link BinauralPanner#update}
      *
      * @param {HrtfSet} hrtfSet
      * @throws {Error} when hrtfSet in undefined or hrtfSet.positionsType is
@@ -5809,7 +5791,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Set the filter positions of the HRTF set
      *
-     * See {@link HrtfSet#filterPositions}.
+     * @see {@link HrtfSet#filterPositions}
      *
      * @param {Array.<coordinates>} positions
      */
@@ -5823,7 +5805,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Get the filter positions of the HRTF set
      *
-     * See {@link HrtfSet#filterPositions}.
+     * @see {@link HrtfSet#filterPositions}
      *
      * @return {Array.<coordinates>} positions
      */
@@ -5881,8 +5863,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
     /**
      * Refer an external listener, and update sources.
      *
-     * See {@link Listener}.
-     * See {@link BinauralPanner#update}.
+     * @see {@link Listener}
+     * @see {@link BinauralPanner#update}
      *
      * @param {Listener} listener
      * @throws {Error} when listener in undefined.
@@ -5931,8 +5913,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 0, 0] in 'gl' coordinates.
      *
-     * See {@link Listener#position}.
-     * See {@link BinauralPanner#update}.
+     * @see {@link Listener#position}
+     * @see {@link BinauralPanner#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -5960,8 +5942,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 1, 0] in 'gl' coordinates.
      *
-     * See {@link Listener#up}.
-     * See {@link BinauralPanner#update}.
+     * @see {@link Listener#up}
+     * @see {@link BinauralPanner#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -5989,8 +5971,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      *
      * Default value is [0, 0, -1] in 'gl' coordinates.
      *
-     * See {@link Listener#view}.
-     * See {@link BinauralPanner#update}.a
+     * @see {@link Listener#view}
+     * @see {@link BinauralPanner#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -6002,7 +5984,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Get listener view direction.
+     * Get listener view.
      *
      * @returns {coordinates}
      */
@@ -6015,8 +5997,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * Set the sources positions. It will update the relative positions after
      * a call to the update method.
      *
-     * See {@link BinauralPanner#update}.
-     * See {@link BinauralPanner#setSourcePositionByIndex}.
+     * @see {@link BinauralPanner#update}
+     * @see {@link BinauralPanner#setSourcePositionByIndex}
      *
      * @param {Array.<coordinates>} positionsRequest
      * @throws {Error} if the length of positionsRequest is not the same as
@@ -6079,7 +6061,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Single source.
  *
- * See {@link BinauralPanner}.
+ * @see {@link BinauralPanner}
  */
 
 var Source = exports.Source = function () {
@@ -6087,7 +6069,7 @@ var Source = exports.Source = function () {
   /**
    * Construct a source, with and AudioContext and an HrtfSet.
    *
-   * See {@link HrtfSet}.
+   * @see {@link HrtfSet}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -6725,7 +6707,7 @@ var Listener = exports.Listener = function () {
    * Get the current look-at matrix. Note is updated only after a call to
    * the update method.
    *
-   * See {@link Listener#update}.
+   * @see {@link Listener#update}
    *
    * @returns {mat4} look-at matrix
    */
@@ -6786,7 +6768,7 @@ var Listener = exports.Listener = function () {
      *
      * Default value is [0, 0, 0] in 'gl' coordinates.
      *
-     * See {@link Listener#update}.
+     * @see {@link Listener#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -6815,7 +6797,7 @@ var Listener = exports.Listener = function () {
      *
      * Default value is [0, 1, 0] in 'gl' coordinates.
      *
-     * See {@link Listener#update}.
+     * @see {@link Listener#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -6844,7 +6826,7 @@ var Listener = exports.Listener = function () {
      *
      * Default value is [0, 0, -1] in 'gl' coordinates.
      *
-     * See {@link Listener#update}.
+     * @see {@link Listener#update}
      *
      * @param {coordinates} positionRequest
      */
@@ -6857,7 +6839,7 @@ var Listener = exports.Listener = function () {
     }
 
     /**
-     * Get listener view direction.
+     * Get listener view.
      *
      * @returns {coordinates}
      */
@@ -7380,7 +7362,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -7434,7 +7416,7 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * This is destructive.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      */
     value: function applyFilterPositions() {
       var _this = this;
@@ -7516,7 +7498,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Get the nearest point in the HRTF set, after a successful load.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      *
      * @param {coordinates} positionRequest
      * @returns {HrtfSet.nearestType}
@@ -8059,7 +8041,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Test whether an HRTF set is actually loaded.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      *
      * @returns {Boolean} false before any successful load, true after.
      *
@@ -8148,7 +8130,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
   /**
    * This is only a constructor, it does not load any thing.
    *
-   * See {@link ServerDataBase#loadCatalogue}.
+   * @see {@link ServerDataBase#loadCatalogue}
    *
    * @param {Object} [options]
    * @param {String} [options.serverUrl] base URL of server, including

@@ -48,7 +48,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * Constructs an HRTF set. Note that the filter positions are applied
    * during the load of an URL.
    *
-   * See {@link HrtfSet#load}.
+   * @see {@link HrtfSet#load}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
@@ -102,7 +102,7 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * This is destructive.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      */
     value: function applyFilterPositions() {
       var _this = this;
@@ -184,7 +184,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Get the nearest point in the HRTF set, after a successful load.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      *
      * @param {coordinates} positionRequest
      * @returns {HrtfSet.nearestType}
@@ -727,7 +727,7 @@ var HrtfSet = exports.HrtfSet = function () {
     /**
      * Test whether an HRTF set is actually loaded.
      *
-     * See {@link HrtfSet#load}.
+     * @see {@link HrtfSet#load}
      *
      * @returns {Boolean} false before any successful load, true after.
      *

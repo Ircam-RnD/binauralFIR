@@ -17,7 +17,7 @@ export class ServerDataBase {
   /**
    * This is only a constructor, it does not load any thing.
    *
-   * See {@link ServerDataBase#loadCatalogue}.
+   * @see {@link ServerDataBase#loadCatalogue}
    *
    * @param {Object} [options]
    * @param {String} [options.serverUrl] base URL of server, including

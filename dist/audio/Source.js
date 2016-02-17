@@ -18,7 +18,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Single source.
  *
- * See {@link BinauralPanner}.
+ * @see {@link BinauralPanner}
  */
 
 var Source = exports.Source = function () {
@@ -26,7 +26,7 @@ var Source = exports.Source = function () {
   /**
    * Construct a source, with and AudioContext and an HrtfSet.
    *
-   * See {@link HrtfSet}.
+   * @see {@link HrtfSet}
    *
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
