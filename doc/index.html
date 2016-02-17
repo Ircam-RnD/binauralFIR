@@ -98,7 +98,7 @@ and any free pattern.</p>
 <p>You can use any <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a> data-set that follows the <a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a> standard, in JSON
 format, using finite impulse responses (FIR). Second-order sections (SOS)
 are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/">examples HRTF directory</a> for a few samples.</p>
-<h3 id="coordinates-system-types">Coordinates system types</h3>
+<h3 id="coordinate-system-types">Coordinate system types</h3>
 <p>See the files in the geometry, for conversions:</p>
 <ul>
 <li><a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a> and openGL conventions</li>
@@ -128,7 +128,7 @@ var player = audioContext.createMediaElementSource($mediaElement);</code>
 <pre><code class="lang-js"><code class="source-code prettyprint">var binauralPanner = new binaural.audio.BinauralPanner({
     audioContext,
     crossfadeDuration: 0.05, // in seconds
-    positionsType: &apos;sofaSpherical&apos;, // [azimuth, elevation, distance]
+    coordinateSystem: &apos;sofaSpherical&apos;, // [azimuth, elevation, distance]
     sourceCount: 1,
     sourcePositions: [ [0, 0, 1] ], // initial position
 });
