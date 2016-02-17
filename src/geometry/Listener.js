@@ -27,6 +27,8 @@ export class Listener {
    * {@link Listener#up}
    * @param {Coordinates} [options.view=[0,0,-1]]
    * {@link Listener#view}
+   * @param {Boolean} [options.viewIsRelative=false]
+   * {@link Listener#viewIsRelative}
    */
   constructor(options = {}) {
     this._outdated = true;
@@ -43,6 +45,8 @@ export class Listener {
     this.up = (typeof options.up !== 'undefined'
                ? options.up
                : glToSystem([], [0, 1, 0], this.coordinateSystem) );
+
+    this.viewIsRelative = options.viewIsRelative; // undefined is fine
 
     this._view = [];
     this.view = (typeof options.view !== 'undefined'
@@ -87,8 +91,8 @@ export class Listener {
   }
 
   /**
-   * Set listener position. It will update the relative positions of the
-   * sources after a call to the update method.
+   * Set listener position. It will update the look-at matrix after a call
+   * to the update method.
    *
    * Default value is [0, 0, 0] in 'gl' coordinates.
    *
@@ -112,8 +116,7 @@ export class Listener {
 
   /**
    * Set listener up direction (not an absolute position). It will update
-   * the relative positions of the sources after a call to the update
-   * method.
+   * the look-at matrix after a call to the update method.
    *
    * Default value is [0, 1, 0] in 'gl' coordinates.
    *
@@ -136,12 +139,13 @@ export class Listener {
   }
 
   /**
-   * Set listener view, as an aiming position. It is an absolute position,
-   * and not a direction. It will update the relative positions of the
-   * sources after a call to the update method.
+   * Set listener view, as an aiming position or a relative direction, if
+   * viewIsRelative is respectively false or true. It will update the
+   * look-at matrix after a call to the update method.
    *
    * Default value is [0, 0, -1] in 'gl' coordinates.
    *
+   * @see {@link Listener#viewIsRelative}
    * @see {@link Listener#update}
    *
    * @param {Coordinates} positionRequest
@@ -160,18 +164,47 @@ export class Listener {
     return glToSystem([], this._view, this._coordinateSystem);
   }
 
+  /**
+   * Set the type of view: absolute to an aiming position (when false), or
+   * a relative direction (when true). It will update the look-at matrix
+   * after a call to the update method.
+   *
+   * @see {@link Listener#view}
+   *
+   * @param {Boolean} [relative=false] true when view is a direction, false
+   * when it is an absolute position.
+   */
+  set viewIsRelative(relative) {
+    this._viewIsRelative = (typeof relative !== 'undefined'
+                            ? relative
+                            : false);
+  }
+
+  /**
+   * Get the type of view.
+   *
+   * @returns {Boolean}
+   */
+  get viewIsRelative() {
+    return this._viewIsRelative;
+  }
+
   // --------- public methods
 
   /**
    * Updates the look-at matrix, according to the pending changes in
-   * position, view, and up.
+   * position, view, viewIsRelative, and up.
    *
    * @returns {Boolean} true when at least a change occurred.
    */
   update() {
     const updated = this._outdated;
     if (this._outdated) {
-      glMatrix.mat4.lookAt(this._lookAt, this._position, this._view, this._up);
+      const view = (this._viewIsRelative
+                    ? glMatrix.vec3.add([], this._view, this._position)
+                    : this._view);
+      glMatrix.mat4.lookAt(this._lookAt,
+                           this._position, view, this._up);
       this._outdated = false;
     }
 

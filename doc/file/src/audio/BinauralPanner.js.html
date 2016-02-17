@@ -127,6 +127,9 @@ export class BinauralPanner {
    * {@link BinauralPanner#listenerUp}
    * @param {Coordinates} [options.listenerView=[0,0,-1]]
    * {@link BinauralPanner#listenerView}
+   * @param {Boolean} [options.listenerViewIsRelative=false]
+   * {@link Listener#viewIsRelative}
+
    */
   constructor(options = {}) {
     this._audioContext = options.audioContext;
@@ -154,6 +157,8 @@ export class BinauralPanner {
                          ? options.listenerView
                          : glToSystem([], [0, 0, -1],
                                       this._listener.coordinateSystem) );
+    // undefined is fine
+    this.listenerViewIsRelative = options.listenerViewIsRelative;
 
     this.listenerUp = (typeof options.listenerUp !== &apos;undefined&apos;
                        ? options.listenerUp
@@ -347,6 +352,8 @@ export class BinauralPanner {
   /**
    * Set coordinate system for listener.
    *
+   * @see {@link Listener#coordinateSystem}
+   *
    * @param {CoordinateSystem} [system=&apos;gl&apos;]
    */
   set listenerCoordinateSystem(coordinateSystem) {
@@ -414,13 +421,14 @@ export class BinauralPanner {
   }
 
   /**
-   * Set listener view, as an aiming position. It is an absolute position,
-   * and not a direction. It will update the relative positions of the
-   * sources after a call to the update method.
+   * Set listener view, as an aiming position or a relative direction, if
+   * viewIsRelative is respectively false or true. It will update the
+   * relative positions of the sources after a call to the update method.
    *
    * Default value is [0, 0, -1] in &apos;gl&apos; coordinates.
    *
    * @see {@link Listener#view}
+   * @see {@link Listener#viewIsRelative}
    * @see {@link BinauralPanner#update}
    *
    * @param {Coordinates} positionRequest
@@ -436,6 +444,29 @@ export class BinauralPanner {
    */
   get listenerView() {
     return this._listener.view;
+  }
+
+  /**
+   * Set the type of view: absolute to an aiming position (when false), or
+   * a relative direction (when true). It will update the relative
+   * positions after a call to the update method.
+   *
+   * @see {@link Listener#view}
+   *
+   * @param {Boolean} [relative=false] true when view is a direction, false
+   * when it is an absolute position.
+   */
+  set listenerViewIsRelative(relative) {
+    this._listener.viewIsRelative = relative;
+  }
+
+  /**
+   * Get the type of view.
+   *
+   * @returns {Boolean}
+   */
+  get listenerViewIsRelative() {
+    return this._listerner.viewIsRelative;
   }
 
   /**
@@ -601,8 +632,7 @@ export class BinauralPanner {
   }
 
   /**
-   * Connect each output of each source. Note that the number of nodes to
-   * connect must match the number of sources.
+   * Connect the output of each source.
    *
    * @see {@link BinauralPanner#connectOutputByIndex}
    *

@@ -589,13 +589,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
@@ -613,13 +613,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterpositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions",
     "src/audio/BinauralPanner.js~BinauralPanner#filterPositions",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterpositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions",
     "src/audio/BinauralPanner.js~BinauralPanner#filterPositions",
     "member"
   ],
@@ -631,13 +631,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
@@ -661,13 +661,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerposition",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerposition",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
     "member"
   ],
@@ -696,6 +696,18 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/audio/binauralpanner.js~binauralpanner#listenerviewisrelative",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerViewIsRelative",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerViewIsRelative",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#listenerviewisrelative",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerViewIsRelative",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerViewIsRelative",
+    "member"
+  ],
+  [
     "src/audio/binauralpanner.js~binauralpanner#loadhrtfset",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-method-loadHrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#loadHrtfSet",
@@ -709,13 +721,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
@@ -835,13 +847,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
@@ -853,13 +865,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#position",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-position",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-position",
     "src/geometry/Listener.js~Listener#position",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#position",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-position",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-position",
     "src/geometry/Listener.js~Listener#position",
     "member"
   ],
@@ -891,6 +903,18 @@ window.esdocSearchIndex = [
     "src/geometry/listener.js~listener#view",
     "class/src/geometry/Listener.js~Listener.html#instance-set-view",
     "src/geometry/Listener.js~Listener#view",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#viewisrelative",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative",
+    "src/geometry/Listener.js~Listener#viewIsRelative",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#viewisrelative",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-viewIsRelative",
+    "src/geometry/Listener.js~Listener#viewIsRelative",
     "member"
   ],
   [
@@ -961,13 +985,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#filterafterload",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterAfterLoad",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterAfterLoad",
     "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
     "member"
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#filterafterload",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterAfterLoad",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterAfterLoad",
     "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
     "member"
   ],

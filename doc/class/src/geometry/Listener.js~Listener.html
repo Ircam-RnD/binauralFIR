@@ -154,32 +154,6 @@ view point, and an up direction.</p>
     <td>
       <span class="access" data-ice="access">public</span>
       
-      <span class="kind" data-ice="kind">set</span>
-      
-      <span class="override" data-ice="override"></span>
-    </td>
-    <td>
-      <div>
-        <p>
-           <span data-ice="name"><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
-        </p>
-      </div>
-      <div>
-        
-        
-        <div data-ice="description"><p>Set coordinate system.</p>
-</div>
-      </div>
-    </td>
-    <td>
-      
-      
-    </td>
-  </tr>
-<tr data-ice="target">
-    <td>
-      <span class="access" data-ice="access">public</span>
-      
       <span class="kind" data-ice="kind">get</span>
       
       <span class="override" data-ice="override"></span>
@@ -194,6 +168,32 @@ view point, and an up direction.</p>
         
         
         <div data-ice="description"><p>Get coordinate system.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem">coordinateSystem</a></span></span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set coordinate system.</p>
 </div>
       </div>
     </td>
@@ -349,7 +349,8 @@ view point, and an up direction.</p>
       <div>
         
         
-        <div data-ice="description"><p>Set listener view, as an aiming position.</p>
+        <div data-ice="description"><p>Set listener view, as an aiming position or a relative direction, if
+viewIsRelative is respectively false or true.</p>
 </div>
       </div>
     </td>
@@ -384,6 +385,59 @@ view point, and an up direction.</p>
       
     </td>
   </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">set</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative">viewIsRelative</a></span></span><span data-ice="signature">(relative: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Set the type of view: absolute to an aiming position (when false), or
+a relative direction (when true).</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      <span class="kind" data-ice="kind">get</span>
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/geometry/Listener.js~Listener.html#instance-get-viewIsRelative">viewIsRelative</a></span></span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description"><p>Get the type of view.</p>
+</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
 </tbody>
 </table>
 </div>
@@ -409,7 +463,7 @@ view point, and an up direction.</p>
         
         
         <div data-ice="description"><p>Updates the look-at matrix, according to the pending changes in
-position, view, and up.</p>
+position, view, viewIsRelative, and up.</p>
 </div>
       </div>
     </td>
@@ -439,7 +493,7 @@ position, view, and up.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber31">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber33">source</a></span></span>
     </span>
   </h3>
 
@@ -491,6 +545,14 @@ position, view, and up.</p>
       <td data-ice="description"><p><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-view">Listener#view</a></span></p>
 </td>
     </tr>
+<tr data-ice="property" data-depth="1">
+      <td data-ice="name" data-depth="1">options.viewIsRelative</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></td>
+      <td data-ice="appendix"><ul><li>optional</li>
+<li>default: false</li></ul></td>
+      <td data-ice="description"><p><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative">Listener#viewIsRelative</a></span></p>
+</td>
+    </tr>
 </tbody>
   </table>
 </div>
@@ -515,47 +577,6 @@ position, view, and up.</p>
 <div data-ice="memberDetails"><h2 data-ice="title">Public Members</h2>
 
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="instance-set-coordinateSystem">
-    <span class="access" data-ice="access">public</span>
-    
-    <span class="kind" data-ice="kind">set</span>
-    
-    
-    <span data-ice="name">coordinateSystem</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
-    <span class="right-info">
-      
-      
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber74">source</a></span></span>
-    </span>
-  </h3>
-
-  
-  
-  
-  <div data-ice="description"><p>Set coordinate system.</p>
-</div>
-
-  
-
-  <div data-ice="properties">
-</div>
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-get-coordinateSystem">
     <span class="access" data-ice="access">public</span>
     
@@ -566,7 +587,7 @@ position, view, and up.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber85">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber89">source</a></span></span>
     </span>
   </h3>
 
@@ -607,6 +628,47 @@ position, view, and up.</p>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-coordinateSystem">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">coordinateSystem</span><span data-ice="signature">(type: <span><a href="typedef/index.html#static-typedef-CoordinateSystem">CoordinateSystem</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber78">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set coordinate system.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-get-lookAt">
     <span class="access" data-ice="access">public</span>
     
@@ -617,7 +679,7 @@ position, view, and up.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber65">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber69">source</a></span></span>
     </span>
   </h3>
 
@@ -670,15 +732,15 @@ the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber99">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber103">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Set listener position. It will update the relative positions of the
-sources after a call to the update method.</p>
+  <div data-ice="description"><p>Set listener position. It will update the look-at matrix after a call
+to the update method.</p>
 <p>Default value is [0, 0, 0] in &apos;gl&apos; coordinates.</p>
 </div>
 
@@ -713,7 +775,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber109">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber113">source</a></span></span>
     </span>
   </h3>
 
@@ -764,7 +826,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber124">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber127">source</a></span></span>
     </span>
   </h3>
 
@@ -772,8 +834,7 @@ sources after a call to the update method.</p>
   
   
   <div data-ice="description"><p>Set listener up direction (not an absolute position). It will update
-the relative positions of the sources after a call to the update
-method.</p>
+the look-at matrix after a call to the update method.</p>
 <p>Default value is [0, 1, 0] in &apos;gl&apos; coordinates.</p>
 </div>
 
@@ -808,7 +869,7 @@ method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber134">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber137">source</a></span></span>
     </span>
   </h3>
 
@@ -859,16 +920,16 @@ method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber149">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber153">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Set listener view, as an aiming position. It is an absolute position,
-and not a direction. It will update the relative positions of the
-sources after a call to the update method.</p>
+  <div data-ice="description"><p>Set listener view, as an aiming position or a relative direction, if
+viewIsRelative is respectively false or true. It will update the
+look-at matrix after a call to the update method.</p>
 <p>Default value is [0, 0, -1] in &apos;gl&apos; coordinates.</p>
 </div>
 
@@ -889,7 +950,8 @@ sources after a call to the update method.</p>
 
   
 
-  <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/geometry/Listener.js~Listener.html#instance-method-update">Listener#update</a></span></span></li></ul></div>
+  <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative">Listener#viewIsRelative</a></span></span></li>
+<li><span><span><a href="class/src/geometry/Listener.js~Listener.html#instance-method-update">Listener#update</a></span></span></li></ul></div>
   
 </div>
 <div class="detail" data-ice="detail">
@@ -903,7 +965,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber159">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber163">source</a></span></span>
     </span>
   </h3>
 
@@ -943,6 +1005,100 @@ sources after a call to the update method.</p>
   
   
 </div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-set-viewIsRelative">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">set</span>
+    
+    
+    <span data-ice="name">viewIsRelative</span><span data-ice="signature">(relative: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>): <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber177">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Set the type of view: absolute to an aiming position (when false), or
+a relative direction (when true). It will update the look-at matrix
+after a call to the update method.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  <div data-ice="see"><h4>See:</h4><ul><li><span><span><a href="class/src/geometry/Listener.js~Listener.html#instance-set-view">Listener#view</a></span></span></li></ul></div>
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-get-viewIsRelative">
+    <span class="access" data-ice="access">public</span>
+    
+    <span class="kind" data-ice="kind">get</span>
+    
+    
+    <span data-ice="name">viewIsRelative</span><span data-ice="signature">: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span>: <span>*</span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber188">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Get the type of view.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+</div>
 </div>
 <div data-ice="methodDetails"><h2 data-ice="title">Public Methods</h2>
 
@@ -957,7 +1113,7 @@ sources after a call to the update method.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber171">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/geometry/Listener.js.html#lineNumber200">source</a></span></span>
     </span>
   </h3>
 
@@ -965,7 +1121,7 @@ sources after a call to the update method.</p>
   
   
   <div data-ice="description"><p>Updates the look-at matrix, according to the pending changes in
-position, view, and up.</p>
+position, view, viewIsRelative, and up.</p>
 </div>
 
   
