@@ -5366,7 +5366,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Multi-source binaural panner.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license CECILL-2.1
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
@@ -6678,7 +6678,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @fileOverview Listener.
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Jean-Philippe.Lambert@ircam.fr
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license CECILL-2.1
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 var _glMatrix = require('gl-matrix');
@@ -6932,6 +6932,12 @@ exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
 exports.sofaSphericalToGl = sofaSphericalToGl;
 exports.glToSofaSpherical = glToSofaSpherical;
 exports.systemToSofaCartesian = systemToSofaCartesian;
+exports.spat4CartesianToGl = spat4CartesianToGl;
+exports.glToSpat4Cartesian = glToSpat4Cartesian;
+exports.spat4CartesianToSpat4Spherical = spat4CartesianToSpat4Spherical;
+exports.spat4SphericalToSpat4Cartesian = spat4SphericalToSpat4Cartesian;
+exports.spat4SphericalToGl = spat4SphericalToGl;
+exports.glToSpat4Spherical = glToSpat4Spherical;
 exports.systemToGl = systemToGl;
 exports.glToSystem = glToSystem;
 
@@ -6945,15 +6951,56 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * Coordinates as an array of 3 values:
  * [x, y, z] or [azimuth, elevation, distance], depending on system
  *
- * @typedef Coordinates
- * @type {vec3}
+ * @typedef {vec3} Coordinates
  */
 
 /**
- * Coordinate system: sofaCartesian', 'sofaSpherical', or'gl'.
+ * Coordinate system: `gl`, `sofaCartesian`, `sofaSpherical`,
+ * `spat4Cartesian`, or `spat4Spherical`.
  *
- * @typedef CoordinateSystem
- * @type {String}
+ * @typedef {String} CoordinateSystem
+ */
+
+// ----------------------------- SOFA
+
+/**
+ * SOFA cartesian coordinate system: `sofaCartesian`.
+ *
+ * SOFA distances are in metres.
+ *
+ * <pre>
+ *
+ * SOFA          +z  +x             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *         +y ----o                            o---- +x
+ *                                            /
+ *                                           /
+ *                                          +z
+ *
+ * SOFA.x = -openGL.z               openGL.x = -SOFA.y
+ * SOFA.y = -openGL.x               openGL.y =  SOFA.z
+ * SOFA.z =  openGL.y               openGL.z = -SOFA.x
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} SofaCartesian
+ */
+
+/**
+ * SOFA spherical coordinate system:  `sofaSpherical`.
+ *
+ * SOFA angles are in degrees.
+ *
+ * <pre>
+ *
+ * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
+ * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
+ * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} SofaSpherical
  */
 
 /**
@@ -6984,29 +7031,7 @@ function sofaCartesianToGl(out, a) {
  * @returns {Coordinates} out
  */
 /**
- * @fileOverview SOFA convention to and from openGL convention.
- *
- * SOFA distances are in metres, angles in degrees.
- *
- * <pre>
- *
- * SOFA          +z  +x             openGL    +y
- *                | /                          |
- *                |/                           |
- *         +y ----o                            o---- +x
- *                                            /
- *                                           /
- *                                          +z
- *
- * SOFA.x = -openGL.z               openGL.x = -SOFA.y
- * SOFA.y = -openGL.x               openGL.y =  SOFA.z
- * SOFA.z =  openGL.y               openGL.z = -SOFA.x
- *
- * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
- * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
- * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
- *
- * </pre>
+ * @fileOverview Coordinate systems conversions. openGL, SOFA, and Spat4 (Ircam).
  *
  * @author Jean-Philippe.Lambert@ircam.fr
  * @copyright 2015-2016 IRCAM, Paris, France
@@ -7144,6 +7169,177 @@ function systemToSofaCartesian(out, a, system) {
   return out;
 }
 
+// ---------------- Spat4
+
+/**
+ * Spat4 cartesian coordinate system: `spat4Cartesian`.
+ *
+ * Spat4 distances are in metres.
+ *
+ * <pre>
+ *
+ * Spat4         +z  +y             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *                o---- +x                     o---- +x
+ *                                            /
+ *                                           /
+ *                                         +z
+ *
+ * Spat4.x =  openGL.x               openGL.x =  Spat4.x
+ * Spat4.y = -openGL.z               openGL.y =  Spat4.z
+ * Spat4.z =  openGL.y               openGL.z = -Spat4.y
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} Spat4Cartesian
+ */
+
+/**
+ * Spat4 spherical coordinate system: `spat4Spherical`.
+ *
+ * Spat4 angles are in degrees.
+ *
+ * <pre>
+ *
+ * Spat4.azimuth = atan2(Spat4.x, Spat4.y)
+ * Spat4.elevation = atan2(Spat4.z, sqrt(Spat4.x * Spat4.x + Spat4.y * Spat4.y) );
+ * Spat4.distance = sqrt(Spat4.x * Spat4.x + Spat4.y * Spat4.y + Spat4.z * Spat4.z)
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} Spat4Spherical
+ */
+
+/**
+ * Convert Spat4 cartesian coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4CartesianToGl(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = x;
+  out[1] = z;
+  out[2] = -y;
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to Spat4 cartesian.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function glToSpat4Cartesian(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = x;
+  out[1] = -z;
+  out[2] = y;
+
+  return out;
+}
+
+/**
+ * Convert Spat4 cartesian coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4CartesianToSpat4Spherical(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  var x2y2 = x * x + y * y;
+
+  out[0] = _degree2.default.atan2(x, y);
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert Spat4 spherical coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4SphericalToSpat4Cartesian(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
+  out[1] = distance * cosE * _degree2.default.cos(azimuth); // Spat4.y
+  out[2] = distance * _degree2.default.sin(elevation); // Spat4.z
+
+  return out;
+}
+
+/**
+ * Convert Spat4 spherical coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4SphericalToGl(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
+  out[1] = distance * _degree2.default.sin(elevation); // Spat4.z
+  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function glToSpat4Spherical(out, a) {
+  // copy to handle in-place
+  // difference to avoid generating -0 out of 0
+  var x = a[0]; // openGL.x
+  var y = 0 - a[2]; // -openGL.z
+  var z = a[1]; // openGL.y
+
+  var x2y2 = x * x + y * y;
+
+  out[0] = _degree2.default.atan2(x, y);
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+// ---------------- named system to openGL
+
 /**
  * Convert coordinates to openGL.
  *
@@ -7167,6 +7363,14 @@ function systemToGl(out, a, system) {
 
     case 'sofaSpherical':
       sofaSphericalToGl(out, a);
+      break;
+
+    case 'spat4Cartesian':
+      spat4CartesianToGl(out, a);
+      break;
+
+    case 'spat4Spherical':
+      spat4SphericalToGl(out, a);
       break;
 
     default:
@@ -7200,6 +7404,14 @@ function glToSystem(out, a, system) {
       glToSofaSpherical(out, a);
       break;
 
+    case 'spat4Cartesian':
+      glToSpat4Cartesian(out, a);
+      break;
+
+    case 'spat4Spherical':
+      glToSpat4Spherical(out, a);
+      break;
+
     default:
       throw new Error('Bad coordinate system');
   }
@@ -7207,15 +7419,21 @@ function glToSystem(out, a, system) {
 }
 
 exports.default = {
-  sofaCartesianToGl: sofaCartesianToGl,
-  sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   glToSofaCartesian: glToSofaCartesian,
   glToSofaSpherical: glToSofaSpherical,
+  glToSpat4Cartesian: glToSpat4Cartesian,
+  glToSpat4Spherical: glToSpat4Spherical,
   glToSystem: glToSystem,
-  sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  sofaCartesianToGl: sofaCartesianToGl,
+  sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   sofaSphericalToGl: sofaSphericalToGl,
-  systemToSofaCartesian: systemToSofaCartesian,
-  systemToGl: systemToGl
+  sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  spat4CartesianToGl: spat4CartesianToGl,
+  spat4CartesianToSpat4Spherical: spat4CartesianToSpat4Spherical,
+  spat4SphericalToGl: spat4SphericalToGl,
+  spat4SphericalToSpat4Cartesian: spat4SphericalToSpat4Cartesian,
+  systemToGl: systemToGl,
+  systemToSofaCartesian: systemToSofaCartesian
 };
 
 },{"./degree":21}],21:[function(require,module,exports){
@@ -7551,8 +7769,7 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
-     * @typedef HrtfSet.nearestType
-     * @type {Object}
+     * @typedef {Object} HrtfSet.nearestType
      * @property {Number} distance from the request
      * @property {AudioBuffer} fir 2-channels impulse response
      * @property {Number} index original index in the SOFA set

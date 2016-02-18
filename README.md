@@ -42,7 +42,7 @@ are not supported, yet. See the [examples HRTF directory] for a few samples.
 ### Coordinate system types ###
 
 See the files in [src/geometry], for conversions:
-- [SOFA] and openGL conventions
+- openGL, [SOFA], and Spat4 (Ircam) conventions
 - cartesian and spherical coordinates
 - radian and degree angles
 
@@ -201,7 +201,7 @@ release, and tag it.
 ### Style ###
 
 `npm run lint` to check that the code conforms with [.eslintrc] and
-[.jscsrc] files. The rules derives from [AirBnB] with these
+[.jscsrc] files. The rules derive from [AirBnB] with these
 major points:
 - [ES2015]
 - no `'strict'` globally (already there via babel)

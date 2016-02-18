@@ -72,7 +72,7 @@
          var binauralPanner = new binaural.audio.BinauralPanner({
              audioContext,
              crossfadeDuration: 0.05, // in seconds
-             coordinateSystem: 'sofaSpherical', // [azimuth, elevation, distance]
+             coordinateSystem: 'spat4Spherical', // [azimuth, elevation, distance]
              sourceCount: 1,
              sourcePositions: [ [0, 0, 1] ], // initial position
          });
@@ -88,8 +88,7 @@
                  var position = binauralPanner.getSourcePositionByIndex(0);
 
                  // update azimuth
-                 // azimuth in interface is the opposite of SOFA convention
-                 position[0] = -value;
+                 position[0] = value;
                  binauralPanner.setSourcePositionByIndex(0, position);
 
                  // update filters

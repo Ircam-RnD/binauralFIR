@@ -2,7 +2,7 @@
  * @fileOverview Multi-source binaural panner.
  * @author Jean-Philippe.Lambert@ircam.fr
  * @copyright 2016 IRCAM, Paris, France
- * @license CECILL-2.1
+ * @license BSD-3-Clause
  */
 
 import glMatrix from 'gl-matrix';

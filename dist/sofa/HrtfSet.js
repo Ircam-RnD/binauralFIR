@@ -172,8 +172,7 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
-     * @typedef HrtfSet.nearestType
-     * @type {Object}
+     * @typedef {Object} HrtfSet.nearestType
      * @property {Number} distance from the request
      * @property {AudioBuffer} fir 2-channels impulse response
      * @property {Number} index original index in the SOFA set
