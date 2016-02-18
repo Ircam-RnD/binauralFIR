@@ -9,7 +9,7 @@ position, and a listener.
 
 This library is compatible with the [Web Audio API]. The novelty of this
 library is that it permits to use a custom [HRTF] dataset (see
-[T. Carpentier]).
+[T. Carpentier article]).
 
 It is possible to use it without a server, with a direct URL to an [HRTF]
 set.
@@ -41,7 +41,7 @@ are not supported, yet. See the [examples HRTF directory] for a few samples.
 
 ### Coordinate system types ###
 
-See the files in the geometry, for conversions:
+See the files in [src/geometry], for conversions:
 - [SOFA] and openGL conventions
 - cartesian and spherical coordinates
 - radian and degree angles
@@ -171,9 +171,14 @@ urlsFound.then(function(urls) {
 
 ## Issues ##
 
+- the [examples HRTF directory] is too big for a repository: this is a
+  problem for cloning, and for installing with npm.
+- documentation and distribution files should go to a release branch
+  (`gh-pages`?) to limit the history on real commits.
 - re-sampling is broken on full set (Chrome 48 issue): too many parallel
   audio contexts?
-- no HTTPS on SOFA server, yet (mixed content blocked)
+- no HTTPS on SOFA server, yet (mixed content blocked). Let's Encrypt is on
+  the way.
 - clicks on Firefox 44-45 (during update of `convolver.buffer`)
 - in documentation, links to BinauralPanner methods are broken (esdoc)
 
@@ -182,13 +187,12 @@ urlsFound.then(function(urls) {
 - Spat coordinates
 - attenuation with distance
 - dry/wet outputs for (shared) reverberation
-- relative view for the listener
 
 ## Developers ##
 
 The source code is in the [src directory], in [ES2015] standard. `npm run
 compile` with [Babel] to the [dist directory]. Note that there is a
-[.babelrc](./.babelrc) file. `npm run bundle` runs the linters, the tests,
+[.babelrc] file. `npm run bundle` runs the linters, the tests,
 generates the documentation, and compiles the code.
 
 Be sure to commit the distribution files and the documentation for any
@@ -196,8 +200,8 @@ release, and tag it.
 
 ### Style ###
 
-`npm run lint` to check that the code conforms with [.eslintrc](./.eslintrc) and
-[.jscsrc](./.jscsrc) files. The rules derives from [AirBnB] with these
+`npm run lint` to check that the code conforms with [.eslintrc] and
+[.jscsrc] files. The rules derives from [AirBnB] with these
 major points:
 - [ES2015]
 - no `'strict'` globally (already there via babel)
@@ -222,8 +226,7 @@ Document any public function and method with [JSDoc], and generate the HTML
 pages with `npm run doc`. At this point, neither
 [jsdoc](https://www.npmjs.com/package/jsdoc) nor
 [esdoc](https://www.npmjs.com/package/esdoc) gives perfect
-transcription. (See the [jsdoc.json](./jsdoc.json) and
-[esdoc.json](./esdoc.json) files.)
+transcription. (See the [jsdoc.json] and [esdoc.json] files.)
 
 ## License
 
@@ -238,24 +241,33 @@ Agency). The current version, supporting multiple sources and a listener,
 the SOFA standard, and the access to a server, is part of the [CoSiMa]
 project, funded by ANR.
 
+[//]: # (Avoid relative links for use with https://github.com/README.md)
+[//]: # (and http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html)
+
 [AirBnB]: https://github.com/airbnb/javascript/
 [API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/doc/
 [API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html
 [Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
 [Analysis of Musical Practices]: http://apm.ircam.fr/
 [Babel]: https://babeljs.io/
+[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc
 [BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause
-[T. Carpentier]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
+[T. Carpentier article]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
 [CoSiMa]: http://cosima.ircam.fr/
 [dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/
 [documentation]: #documentation
 [ES2015]: https://babeljs.io/docs/learn-es2015/
+[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc
+[esdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/esdoc.json
 [examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/
 [examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/
 [examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html
+[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc
 [JSDoc]: http://usejsdoc.org/
+[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
 [test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
 [src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
+[src/geometry]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry
 [Web Audio API]: https://webaudio.github.io/web-audio-api/

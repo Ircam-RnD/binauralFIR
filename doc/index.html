@@ -79,7 +79,7 @@ binaural audio.</p>
 position, and a listener.</p>
 <p>This library is compatible with the <a href="https://webaudio.github.io/web-audio-api/">Web Audio API</a>. The novelty of this
 library is that it permits to use a custom <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a> dataset (see
-<a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">T. Carpentier</a>).</p>
+<a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">T. Carpentier article</a>).</p>
 <p>It is possible to use it without a server, with a direct URL to an <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a>
 set.</p>
 <h2 id="documentation">Documentation</h2>
@@ -99,7 +99,7 @@ and any free pattern.</p>
 format, using finite impulse responses (FIR). Second-order sections (SOS)
 are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/">examples HRTF directory</a> for a few samples.</p>
 <h3 id="coordinate-system-types">Coordinate system types</h3>
-<p>See the files in the geometry, for conversions:</p>
+<p>See the files in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry">src/geometry</a>, for conversions:</p>
 <ul>
 <li><a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a> and openGL conventions</li>
 <li>cartesian and spherical coordinates</li>
@@ -196,9 +196,14 @@ sample-rate matching those of the audio context.</p>
 </code></pre>
 <h2 id="issues">Issues</h2>
 <ul>
+<li>the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/">examples HRTF directory</a> is too big for a repository: this is a
+problem for cloning, and for installing with npm.</li>
+<li>documentation and distribution files should go to a release branch
+(<code>gh-pages</code>?) to limit the history on real commits.</li>
 <li>re-sampling is broken on full set (Chrome 48 issue): too many parallel
 audio contexts?</li>
-<li>no HTTPS on SOFA server, yet (mixed content blocked)</li>
+<li>no HTTPS on SOFA server, yet (mixed content blocked). Let&apos;s Encrypt is on
+the way.</li>
 <li>clicks on Firefox 44-45 (during update of <code>convolver.buffer</code>)</li>
 <li>in documentation, links to BinauralPanner methods are broken (esdoc)</li>
 </ul>
@@ -207,18 +212,17 @@ audio contexts?</li>
 <li>Spat coordinates</li>
 <li>attenuation with distance</li>
 <li>dry/wet outputs for (shared) reverberation</li>
-<li>relative view for the listener</li>
 </ul>
 <h2 id="developers">Developers</h2>
 <p>The source code is in the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src">src directory</a>, in <a href="https://babeljs.io/docs/learn-es2015/">ES2015</a> standard. <code>npm run
 compile</code> with <a href="https://babeljs.io/">Babel</a> to the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/">dist directory</a>. Note that there is a
-<a href="./.babelrc">.babelrc</a> file. <code>npm run bundle</code> runs the linters, the tests,
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc">.babelrc</a> file. <code>npm run bundle</code> runs the linters, the tests,
 generates the documentation, and compiles the code.</p>
 <p>Be sure to commit the distribution files and the documentation for any
 release, and tag it.</p>
 <h3 id="style">Style</h3>
-<p><code>npm run lint</code> to check that the code conforms with <a href="./.eslintrc">.eslintrc</a> and
-<a href="./.jscsrc">.jscsrc</a> files. The rules derives from <a href="https://github.com/airbnb/javascript/">AirBnB</a> with these
+<p><code>npm run lint</code> to check that the code conforms with <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc">.eslintrc</a> and
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc">.jscsrc</a> files. The rules derives from <a href="https://github.com/airbnb/javascript/">AirBnB</a> with these
 major points:</p>
 <ul>
 <li><a href="https://babeljs.io/docs/learn-es2015/">ES2015</a></li>
@@ -242,8 +246,7 @@ test files must end with <code>_issues.js</code></li>
 pages with <code>npm run doc</code>. At this point, neither
 <a href="https://www.npmjs.com/package/jsdoc">jsdoc</a> nor
 <a href="https://www.npmjs.com/package/esdoc">esdoc</a> gives perfect
-transcription. (See the <a href="./jsdoc.json">jsdoc.json</a> and
-<a href="./esdoc.json">esdoc.json</a> files.)</p>
+transcription. (See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json">jsdoc.json</a> and <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/esdoc.json">esdoc.json</a> files.)</p>
 <h2 id="license">License</h2>
 <p>This module is released under the <a href="http://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a> license.</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
