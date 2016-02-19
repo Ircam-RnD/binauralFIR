@@ -48,7 +48,7 @@ test(`${prefix}: test for offline context`, (assert) => {
       })
         .then( (output) => {
           assert.equals(output.length, input.length,
-                        'context rendered entirely at ${sampleRate} Hz');
+                        `context rendered entirely at ${sampleRate} Hz`);
           assert.deepEquals(output, input,
                             `no unexpected change in data at ${sampleRate}`);
         })

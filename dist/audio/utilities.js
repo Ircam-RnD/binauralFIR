@@ -3,9 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 exports.dBToLin = dBToLin;
 exports.createDiracBuffer = createDiracBuffer;
 exports.createNoiseBuffer = createNoiseBuffer;
@@ -78,7 +75,7 @@ function createNoiseBuffer() {
 
   var gain = typeof options.gain !== 'undefined' ? options.gain : -30; // dB
 
-  var channelCount = _typeof(options.channelCount) ? options.channelCount : context.destination.channelCount;
+  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : context.destination.channelCount;
 
   var length = duration * context.sampleRate;
   var amplitude = dBToLin(gain);

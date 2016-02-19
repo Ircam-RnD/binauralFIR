@@ -73,7 +73,7 @@ export function createNoiseBuffer(options = {}) {
                 ? options.gain
                 : -30); // dB
 
-  const channelCount = (typeof options.channelCount
+  const channelCount = (typeof options.channelCount !== 'undefined'
                         ? options.channelCount
                         : context.destination.channelCount);
 
