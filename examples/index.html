@@ -8,9 +8,19 @@
         <script src="./js/jquery-1.11.1.min.js"></script>
         <script src="./js/jquery.knob.js"></script>
         <style type="text/css">
-         .warning
+         .warning,.stop
          {
              background-color: rgba(255, 0, 0, 0.7);
+         }
+
+         .play
+         {
+             background-color: rgba(0, 255, 0, 0.5);
+         }
+
+         .control
+         {
+             font-size: 2em;
          }
 
          input[type=range][orient=vertical]
@@ -47,7 +57,7 @@
         1st Web Audio Conference (WAC15), Paris
         2015 <a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">PDF</a></p>
 
-        <audio id="source" src="./snd/breakbeat.wav" controls loop></audio>
+        <button id="player-control" class="control stop">Play</button>
 
         <select id="hrtf-set"></select>
         <div id="sample-rate-warning" class="warning"></div>
@@ -66,9 +76,6 @@
          var serverDataBase = new binaural.sofa.ServerDataBase();
 
          // Audio Nodes
-         var $mediaElement = document.querySelector('#source');
-         var player = audioContext.createMediaElementSource($mediaElement);
-
          var binauralPanner = new binaural.audio.BinauralPanner({
              audioContext,
              crossfadeDuration: 0.05, // in seconds
@@ -77,7 +84,68 @@
              sourcePositions: [ [0, 0, 1] ], // initial position
          });
          binauralPanner.connectOutputs(audioContext.destination);
-         binauralPanner.connectInputByIndex(0, player);
+
+         // player
+         var playerBuffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+         var player = audioContext.createBufferSource();
+         player.buffer = playerBuffer;
+
+         var $playerControl = document.querySelector('#player-control');
+         $playerControl.onclick
+             = $playerControl.ontouchstart = function(event) {
+                 event.preventDefault(); // do not click after touch
+                 $playerControl.classList.toggle('play');
+                 $playerControl.classList.toggle('stop');
+                 if ($playerControl.classList.contains('play') ) {
+                     $playerControl.textContent = 'Stop';
+                     playerStart();
+                 } else if ($playerControl.classList.contains('stop') ) {
+                     $playerControl.textContent = 'Play';
+                     playerStop();
+                 }
+             }
+
+         function playerStart() {
+             player = audioContext.createBufferSource();
+             player.buffer = playerBuffer;
+             player.loop = true;
+             binauralPanner.connectInputByIndex(0, player);
+             player.start(0);
+         }
+
+         function playerStop() {
+             player.stop(0);
+         }
+
+         function getAudioData() {
+             var request = new XMLHttpRequest();
+             var url = './snd/breakbeat.wav';
+             request.open('GET', url, true);
+             request.responseType = 'arraybuffer';
+
+             request.onload = function() {
+                 var audioData = request.response;
+
+                 audioContext.decodeAudioData(audioData, function(buffer) {
+                     playerBuffer = buffer;
+                     if ($playerControl.classList.contains('play') ) {
+                         playerStop();
+                         playerStart();
+                     }
+
+                 }, function(error){
+                     throw new Error('Error with decoding audio data' + error.message);
+                 });
+             }
+
+             request.onerror = function() {
+                 throw new Error('Error while loading ' + url
+                               + request.status + request.responseText);
+             }
+
+             request.send();
+         }
+         getAudioData();
 
          // Knobs
          var $azimuth = $("#azimuth");
