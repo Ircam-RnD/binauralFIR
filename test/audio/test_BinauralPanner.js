@@ -42,6 +42,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
   return serverDataBaseLoaded
     .then( () => {
 
+      // 450 MB should be too big for full load
       return serverDataBase.getUrls({
         convention: 'HRIR',
         dataBase: 'BILI',
@@ -97,7 +98,8 @@ test(`${prefix} with an external HRTF set`, (assert) => {
                 const firBuffer = binauralPanner._hrtfSet.nearestFir(
                   coordinates.systemToGl([], position, coordinateSystem) );
 
-                for (let channel = 0; channel < 2; ++channel) {
+                const channelsNb = firBuffer.numberOfChannels;
+                for (let channel = 0; channel < channelsNb; ++channel) {
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 
@@ -178,7 +180,8 @@ test(`${prefix} with an internal HRTF set`, (assert) => {
                 const firBuffer = binauralPanner._hrtfSet.nearestFir(
                   coordinates.systemToGl([], position, coordinateSystem) );
 
-                for (let channel = 0; channel < 2; ++channel) {
+                const channelsNb = firBuffer.numberOfChannels;
+                for (let channel = 0; channel < channelsNb; ++channel) {
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 
@@ -261,7 +264,8 @@ test(`${prefix} with a listener`, (assert) => {
                 const firBuffer = binauralPanner._hrtfSet.nearestFir(
                   coordinates.systemToGl([], position, coordinateSystem) );
 
-                for (let channel = 0; channel < 2; ++channel) {
+                const channelsNb = firBuffer.numberOfChannels;
+                for (let channel = 0; channel < channelsNb; ++channel) {
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 

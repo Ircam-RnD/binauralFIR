@@ -17,11 +17,15 @@ exports.atan2 = atan2;
 
 /**
  * Degree to radian multiplication factor.
+ *
+ * @type {Number}
  */
 var toRadianFactor = exports.toRadianFactor = Math.PI / 180;
 
 /**
  * Radian to degree multiplication factor.
+ *
+ * @type {Number}
  */
 var fromRadianFactor = exports.fromRadianFactor = 1 / toRadianFactor;
 

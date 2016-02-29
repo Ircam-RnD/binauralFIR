@@ -9,9 +9,10 @@
 
 import glMatrix from 'gl-matrix';
 
+import info from '../info';
 import { parseDataSet } from './parseDataSet';
-import { parseSofa } from './parseSofa';
-import { conformSofaType } from './parseSofa';
+import { parseSofa, stringifySofa } from './parseSofa';
+import { conformSofaCoordinateSystem } from './parseSofa';
 import coordinates from '../geometry/coordinates';
 import kdTree from '../geometry/KdTree';
 import { resampleFloat32Array } from '../audio/utilities';
@@ -198,6 +199,15 @@ export class HrtfSet {
   }
 
   /**
+   * Get the original name of the HRTF set.
+   *
+   * @returns {String} that is undefined before a successfully load.
+   */
+  get sofaName() {
+    return this._sofaName;
+  }
+
+  /**
    * Get the URL used to actually load the HRTF set.
    *
    * @returns {String} that is undefined before a successfully load.
@@ -312,6 +322,77 @@ export class HrtfSet {
   }
 
   /**
+   * Export the current HRTF set as a JSON string.
+   *
+   * When set, `this.filterPositions` reduce the actual number of filter, and
+   * thus the exported set. The coordinate system of the export is
+   * `this.filterCoordinateSystem`.
+   *
+   * @see {@link HrtfSet#filterCoordinateSystem}
+   * @see {@link HrtfSet#filterPositions}
+   *
+   * @returns {String} as a SOFA JSON file.
+   * @throws {Error} when this.filterCoordinateSystem is unknown.
+   */
+  export() {
+    // in a SOFA file, the source positions are the HrtfSet filter positions.
+
+    // SOFA listener is the reference for HrtfSet filter positions
+    // which is normalised in HrtfSet
+
+    let SourcePosition;
+    const SourcePositionType = coordinates.systemType(
+      this.filterCoordinateSystem);
+    switch (SourcePositionType) {
+      case 'cartesian':
+        SourcePosition = this._sofaSourcePosition.map( (position) => {
+          return coordinates.glToSofaCartesian([], position);
+        });
+        break;
+
+      case 'spherical':
+        SourcePosition = this._sofaSourcePosition.map( (position) => {
+          return coordinates.glToSofaSpherical([], position);
+        });
+        break;
+
+      default:
+        throw new Error(`Bad source position type ${SourcePositionType} ` +
+                        `for export.`);
+    }
+
+    const DataIR = this._sofaSourcePosition.map( (position) => {
+      // retrieve fir for each position, without conversion
+      const fir = this._kdt.nearest(
+        { x: position[0], y: position[1], z: position[2] }, 1)
+              .pop()[0].fir; // nearest data
+      const ir = [];
+      for (let channel = 0; channel < fir.numberOfChannels; ++channel) {
+        // Float32Array to array for stringify
+        ir.push([... fir.getChannelData(channel) ] );
+      }
+      return ir;
+    });
+
+    return stringifySofa({
+      name: this._sofaName,
+      metaData: this._sofaMetaData,
+      ListenerPosition: [0, 0, 0],
+      ListenerPositionType: 'cartesian',
+      ListenerUp: [0, 0, 1],
+      ListenerUpType: 'cartesian',
+      ListenerView: [1, 0, 0],
+      ListenerViewType: 'cartesian',
+      SourcePositionType,
+      SourcePosition,
+      DataSamplingRate: this._audioContext.sampleRate,
+      DataDelay: this._sofaDelay,
+      DataIR,
+      RoomVolume: this._sofaRoomVolume,
+    });
+  }
+
+  /**
    * @typedef {Object} HrtfSet.nearestType
    * @property {Number} distance from the request
    * @property {AudioBuffer} fir 2-channels impulse response
@@ -385,6 +466,10 @@ export class HrtfSet {
         z: value[1][2],
         fir,
       };
+    });
+
+    this._sofaSourcePosition = positions.map( (position) => {
+      return [position.x, position.y, position.z];
     });
 
     this._kdt = kdTree.tree.createKdTree(positions,
@@ -507,7 +592,7 @@ export class HrtfSet {
 
         try {
           const data = parseSofa(request.response);
-          this._setMetaData(data);
+          this._setMetaData(data, sourceUrl);
 
           const sourcePositions = this._sourcePositionsToGl(data);
           const hrtfPositions = sourcePositions.map( (position, index) => {
@@ -573,7 +658,7 @@ export class HrtfSet {
 
         try {
           const data = parseSofa(request.response);
-          this._setMetaData(data);
+          this._setMetaData(data, url);
           const sourcePositions = this._sourcePositionsToGl(data);
           this._generateIndicesPositionsFirs(
             sourcePositions.map( (position, index) => index), // full
@@ -662,36 +747,68 @@ export class HrtfSet {
   }
 
   /**
-   * Set meta-data.
+   * Set meta-data, and assert for supported HRTF type.
    *
    * @private
    *
    * @param {Object} data
    * @throws {Error} assertion for FIR data.
    */
-  _setMetaData(data) {
-    if (data.metaData.DataType !== 'FIR') {
-      throw new Error('SOFA data type is not FIR');
+  _setMetaData(data, sourceUrl) {
+    if (typeof data.metaData.DataType !== 'undefined'
+        && data.metaData.DataType !== 'FIR') {
+      throw new Error('According to meta-data, SOFA data type is not FIR');
     }
 
-    this._sofaMetaData = data.metaData;
-    this._sofaSampleRate = data['Data.SamplingRate'].data[0];
+    const dateString = new Date().toISOString();
+
+    this._sofaName = (typeof data.name !== 'undefined'
+                      ? `${data.name}`
+                      : `HRTF.sofa`);
+
+    this._sofaMetaData = (typeof data.metaData !== 'undefined'
+                          ? data.metaData
+                          : {} );
+
+    // append conversion information
+    if (typeof sourceUrl !== 'undefined') {
+      this._sofaMetaData.OriginalUrl = sourceUrl;
+    }
+
+    this._sofaMetaData.Converter = `Ircam ${info.name} ${info.version} `
+      + `javascript API `;
+    this._sofaMetaData.DateConverted = dateString;
+
+    this._sofaSampleRate = (typeof data['Data.SamplingRate'] !== 'undefined'
+                            ? data['Data.SamplingRate'].data[0]
+                            : 48000); // Table C.1
+    if (this._sofaSampleRate !== this._audioContext.sampleRate) {
+      this._sofaMetaData.OriginalSampleRate = this._sofaSampleRate;
+    }
+
+    this._sofaDelay = (typeof data['Data.Delay'] !== 'undefined'
+                         ? data['Data.Delay'].data[0]
+                         : 0);
+
+    this._sofaRoomVolume = (typeof data.RoomVolume !== 'undefined'
+                            ? data.RoomVolume.data[0]
+                            : undefined);
 
     // Convert listener position, up, and view to SOFA cartesian,
     // to generate a SOFA-to-GL look-at mat4.
     // Default SOFA type is 'cartesian' (see table D.4A).
 
-    const listenerPosition = coordinates.systemToSofaCartesian(
+    const listenerPosition = coordinates.sofaToSofaCartesian(
       [], data.ListenerPosition.data[0],
-      conformSofaType(data.ListenerPosition.Type || 'cartesian') );
+      conformSofaCoordinateSystem(data.ListenerPosition.Type || 'cartesian') );
 
-    const listenerView = coordinates.systemToSofaCartesian(
+    const listenerView = coordinates.sofaToSofaCartesian(
       [], data.ListenerView.data[0],
-      conformSofaType(data.ListenerView.Type || 'cartesian') );
+      conformSofaCoordinateSystem(data.ListenerView.Type || 'cartesian') );
 
-    const listenerUp = coordinates.systemToSofaCartesian(
+    const listenerUp = coordinates.sofaToSofaCartesian(
       [], data.ListenerUp.data[0],
-      conformSofaType(data.ListenerUp.Type || 'cartesian') );
+      conformSofaCoordinateSystem(data.ListenerUp.Type || 'cartesian') );
 
     this._sofaToGl = glMatrix.mat4.lookAt(
       [], listenerPosition, listenerView, listenerUp);

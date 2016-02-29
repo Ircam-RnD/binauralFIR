@@ -48,9 +48,9 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
-    "binaural/src/sofa/parsesofa.js~conformsofatype",
-    "function/index.html#static-function-conformSofaType",
-    "<span>conformSofaType</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
+    "binaural/src/sofa/parsesofa.js~conformsofacoordinatesystem",
+    "function/index.html#static-function-conformSofaCoordinateSystem",
+    "<span>conformSofaCoordinateSystem</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
     "function"
   ],
   [
@@ -76,6 +76,12 @@ window.esdocSearchIndex = [
     "function/index.html#static-function-dBToLin",
     "<span>dBToLin</span> <span class=\"search-result-import-path\">binaural/src/audio/utilities.js</span>",
     "function"
+  ],
+  [
+    "binaural/src/info.js~description",
+    "variable/index.html#static-variable-description",
+    "<span>description</span> <span class=\"search-result-import-path\">binaural/src/info.js</span>",
+    "variable"
   ],
   [
     "binaural/src/geometry/kdtree.js~distance",
@@ -132,6 +138,18 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
+    "binaural/src/info.js~license",
+    "variable/index.html#static-variable-license",
+    "<span>license</span> <span class=\"search-result-import-path\">binaural/src/info.js</span>",
+    "variable"
+  ],
+  [
+    "binaural/src/info.js~name",
+    "variable/index.html#static-variable-name",
+    "<span>name</span> <span class=\"search-result-import-path\">binaural/src/info.js</span>",
+    "variable"
+  ],
+  [
     "binaural/src/sofa/parsedataset.js~parsedataset",
     "function/index.html#static-function-parseDataSet",
     "<span>parseDataSet</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseDataSet.js</span>",
@@ -180,6 +198,12 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
+    "binaural/src/geometry/coordinates.js~sofatosofacartesian",
+    "function/index.html#static-function-sofaToSofaCartesian",
+    "<span>sofaToSofaCartesian</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
+    "function"
+  ],
+  [
     "binaural/src/geometry/coordinates.js~spat4cartesiantogl",
     "function/index.html#static-function-spat4CartesianToGl",
     "<span>spat4CartesianToGl</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
@@ -204,15 +228,21 @@ window.esdocSearchIndex = [
     "function"
   ],
   [
+    "binaural/src/sofa/parsesofa.js~stringifysofa",
+    "function/index.html#static-function-stringifySofa",
+    "<span>stringifySofa</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
+    "function"
+  ],
+  [
     "binaural/src/geometry/coordinates.js~systemtogl",
     "function/index.html#static-function-systemToGl",
     "<span>systemToGl</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
     "function"
   ],
   [
-    "binaural/src/geometry/coordinates.js~systemtosofacartesian",
-    "function/index.html#static-function-systemToSofaCartesian",
-    "<span>systemToSofaCartesian</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
+    "binaural/src/geometry/coordinates.js~systemtype",
+    "function/index.html#static-function-systemType",
+    "<span>systemType</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
     "function"
   ],
   [
@@ -225,6 +255,12 @@ window.esdocSearchIndex = [
     "binaural/src/geometry/degree.js~toradianfactor",
     "variable/index.html#static-variable-toRadianFactor",
     "<span>toRadianFactor</span> <span class=\"search-result-import-path\">binaural/src/geometry/degree.js</span>",
+    "variable"
+  ],
+  [
+    "binaural/src/info.js~version",
+    "variable/index.html#static-variable-version",
+    "<span>version</span> <span class=\"search-result-import-path\">binaural/src/info.js</span>",
     "variable"
   ],
   [
@@ -625,20 +661,14 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
-    "member"
-  ],
-  [
-    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
+    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
@@ -648,14 +678,20 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#filterpositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterPositions",
+    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterpositions",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterPositions",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterPositions",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#filterpositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterPositions",
     "src/audio/BinauralPanner.js~BinauralPanner#filterPositions",
     "member"
   ],
@@ -667,13 +703,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
@@ -685,20 +721,14 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerCoordinateSystem",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerCoordinateSystem",
-    "member"
-  ],
-  [
-    "src/audio/binauralpanner.js~binauralpanner#listenercoordinatesystem",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerCoordinateSystem",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerCoordinateSystem",
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#listenerposition",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
+    "src/audio/binauralpanner.js~binauralpanner#listenercoordinatesystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerCoordinateSystem",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerCoordinateSystem",
     "member"
   ],
   [
@@ -708,9 +738,9 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#listenerup",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
+    "src/audio/binauralpanner.js~binauralpanner#listenerposition",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
     "member"
   ],
   [
@@ -720,14 +750,20 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#listenerview",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
+    "src/audio/binauralpanner.js~binauralpanner#listenerup",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerview",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#listenerview",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
     "member"
   ],
@@ -757,13 +793,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
@@ -799,13 +835,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
@@ -883,13 +919,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
@@ -931,25 +967,25 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#view",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-view",
-    "src/geometry/Listener.js~Listener#view",
-    "member"
-  ],
-  [
-    "src/geometry/listener.js~listener#view",
     "class/src/geometry/Listener.js~Listener.html#instance-set-view",
     "src/geometry/Listener.js~Listener#view",
     "member"
   ],
   [
-    "src/geometry/listener.js~listener#viewisrelative",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative",
-    "src/geometry/Listener.js~Listener#viewIsRelative",
+    "src/geometry/listener.js~listener#view",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-view",
+    "src/geometry/Listener.js~Listener#view",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#viewisrelative",
     "class/src/geometry/Listener.js~Listener.html#instance-get-viewIsRelative",
+    "src/geometry/Listener.js~Listener#viewIsRelative",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#viewisrelative",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative",
     "src/geometry/Listener.js~Listener#viewIsRelative",
     "member"
   ],
@@ -1014,6 +1050,12 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
+    "src/info.js",
+    "file/src/info.js.html",
+    "src/info.js",
+    "file"
+  ],
+  [
     "src/sofa/hrtfset.js",
     "file/src/sofa/HrtfSet.js.html",
     "src/sofa/HrtfSet.js",
@@ -1033,14 +1075,26 @@ window.esdocSearchIndex = [
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#coordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-coordinateSystem",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-coordinateSystem",
     "src/sofa/HrtfSet.js~HrtfSet#coordinateSystem",
     "member"
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#coordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-coordinateSystem",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-coordinateSystem",
     "src/sofa/HrtfSet.js~HrtfSet#coordinateSystem",
+    "member"
+  ],
+  [
+    "src/sofa/hrtfset.js~hrtfset#export",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-export",
+    "src/sofa/HrtfSet.js~HrtfSet#export",
+    "method"
+  ],
+  [
+    "src/sofa/hrtfset.js~hrtfset#filterafterload",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterAfterLoad",
+    "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
     "member"
   ],
   [
@@ -1050,9 +1104,9 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/sofa/hrtfset.js~hrtfset#filterafterload",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterAfterLoad",
-    "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
+    "src/sofa/hrtfset.js~hrtfset#filtercoordinatesystem",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterCoordinateSystem",
+    "src/sofa/HrtfSet.js~HrtfSet#filterCoordinateSystem",
     "member"
   ],
   [
@@ -1062,20 +1116,14 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/sofa/hrtfset.js~hrtfset#filtercoordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterCoordinateSystem",
-    "src/sofa/HrtfSet.js~HrtfSet#filterCoordinateSystem",
-    "member"
-  ],
-  [
     "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions",
     "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
     "member"
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions",
     "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
     "member"
   ],
@@ -1107,6 +1155,12 @@ window.esdocSearchIndex = [
     "src/sofa/hrtfset.js~hrtfset#sofametadata",
     "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaMetaData",
     "src/sofa/HrtfSet.js~HrtfSet#sofaMetaData",
+    "member"
+  ],
+  [
+    "src/sofa/hrtfset.js~hrtfset#sofaname",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaName",
+    "src/sofa/HrtfSet.js~HrtfSet#sofaName",
     "member"
   ],
   [

@@ -10,9 +10,17 @@ import '../../include/AudioContextMonkeyPatch';
 
 import HrtfSet from '../../src/sofa/HrtfSet';
 
+import { almostEquals } from '../../src/common/utilities';
+const epsilon = 10e-6; // Float32
+
 const prefix = 'HRTF set';
 
-const audioContext = new window.AudioContext();
+const sampleRate = 44100;
+
+const audioContext = new window.OfflineAudioContext(
+                  2, // stereo output
+                  sampleRate, // 1 second
+                  sampleRate);
 
 const serverBad = 'http://server.bad';
 const serverDefault = 'http://bili2.ircam.fr';
@@ -53,8 +61,8 @@ test(`${prefix}: Load set`, (assert) => {
     audioContext,
   });
 
-  const listen1049Url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/LISTEN/'
-          + 'COMPENSATED/44100/IRC_1049_C_HRIR.sofa';
+  const listen1049Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/LISTEN/`
+          + `COMPENSATED/${sampleRate}/IRC_1049_C_HRIR.sofa`;
 
   const testPromises = [];
 
@@ -107,8 +115,8 @@ test(`${prefix}: Partial load set`, (assert) => {
     coordinateSystem,
   });
 
-  const bili1142Url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/'
-          + 'COMPENSATED/44100/IRC_1142_C_HRIR.sofa';
+  const bili1142Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/`
+          + `COMPENSATED/${sampleRate}/IRC_1142_C_HRIR.sofa`;
 
   const testPromises = [];
 
@@ -174,8 +182,8 @@ test(`${prefix}: Instantiate and set filter afterwards`, (assert) => {
 
   hrtfSet.filterPositions = filterPositions;
 
-  const url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/'
-          + 'COMPENSATED/44100/IRC_1142_C_HRIR.sofa';
+  const url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/BILI/`
+          + `COMPENSATED/${sampleRate}/IRC_1142_C_HRIR.sofa`;
 
   const testPromises = [];
 
@@ -238,8 +246,8 @@ test(`${prefix}: Load full set and post-filter`, (assert) => {
     coordinateSystem,
   });
 
-  const crossmod1071Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/CROSSMOD/COMPENSATED/`
-          + `${audioContext.sampleRate}/IRC_1071_C_HRIR.sofa`;
+  const crossmod1071Url = `http://bili2.ircam.fr/SimpleFreeFieldHRIR/CROSSMOD/`
+    + `COMPENSATED/${audioContext.sampleRate}/IRC_1071_C_HRIR.sofa`;
 
   const testPromises = [];
 
@@ -279,6 +287,146 @@ test(`${prefix}: Load full set and post-filter`, (assert) => {
       .catch( (error) => {
         assert.fail(`URL ${crossmod1071Url}.json failed: ${error.message}.`);
       })
+  );
+
+  return Promise.all(testPromises);
+});
+
+test(`${prefix}: Partial load, export, and re-load`, (assert) => {
+  // spherical in degrees
+  const coordinateSystem = 'sofaSpherical';
+  const url = `http://bili2.ircam.fr/hyrax/SimpleFreeFieldHRIR/BILI/COMPENSATED/`
+          + `${sampleRate}/IRC_1115_C_HRIR.sofa`;
+
+  const filterPositions = [];
+  for (let azimuth = 0; azimuth < 360; azimuth += 10) {
+    for (let elevation = -45; elevation <= 45; elevation += 10) {
+      filterPositions.push([azimuth, elevation, 2.06]);
+    }
+  }
+
+  const hrtfSet = new HrtfSet({
+    audioContext,
+    coordinateSystem,
+    filterPositions,
+  });
+
+  const testPromises = [];
+
+  testPromises.push(
+    hrtfSet.load(url)
+      .then( () => {
+
+        const exportedBlob = new window.Blob([hrtfSet.export()],
+                                             { type: 'application/json' });
+        const exportedUrl = window.URL.createObjectURL(exportedBlob);
+
+        // const $link = document.createElement('a');
+        // $link.href = exportedUrl;
+        // $link.download = hrtfSet.sofaName + '.json';
+        // $link.style.display = 'none';
+        // document.body.appendChild($link);
+        // $link.click();
+
+        const hrtfSet2 = new HrtfSet({
+          audioContext,
+          coordinateSystem,
+          filterPositions,
+        });
+
+        return hrtfSet2.load(exportedUrl)
+          .then( () => {
+            assert.equals(filterPositions.findIndex( (position, index) => {
+              const nearest = hrtfSet2.nearest(filterPositions[index]);
+              return nearest.distance > 0.02;
+            }), -1, 'got all expected positions form export');
+
+            assert.equals(filterPositions.findIndex( (position) => {
+              const fir = hrtfSet.nearestFir(position);
+              const fir2 = hrtfSet2.nearestFir(position);
+
+              const channelsNb = fir.numberOfChannels;
+              let equals = true;
+              for (let channel = 0; channel < channelsNb; ++channel) {
+                const firArray = [ ... fir.getChannelData(channel) ];
+                const fir2Array = [ ... fir2.getChannelData(channel) ];
+                /* eslint-disable no-loop-func */
+                equals = equals
+                  && firArray.findIndex( (sample, s) => {
+                    return !almostEquals(sample, fir2Array[s], epsilon);
+                  }) === -1;
+              }
+              return !equals;
+            }), -1, 'filters match');
+
+          }); // re-load
+      }) // load reference
+  );
+
+  return Promise.all(testPromises);
+});
+
+test(`${prefix}: Full load, export, and re-load`, (assert) => {
+  // spherical in degrees
+  const coordinateSystem = 'sofaSpherical';
+  const url = `http://bili2.ircam.fr/hyrax/SimpleFreeFieldHRIR/LISTEN/`
+          + `COMPENSATED/${sampleRate}/IRC_1033_C_HRIR.sofa`;
+
+  const testPositions = [];
+  for (let azimuth = 0; azimuth < 360; azimuth += 10) {
+    for (let elevation = -45; elevation <= 45; elevation += 10) {
+      testPositions.push([azimuth, elevation, 2.06]);
+    }
+  }
+
+  const hrtfSet = new HrtfSet({
+    audioContext,
+    coordinateSystem,
+  });
+
+  const testPromises = [];
+
+  testPromises.push(
+    hrtfSet.load(url)
+      .then( () => {
+
+        const exportedBlob = new window.Blob([hrtfSet.export()],
+                                             { type: 'application/json' });
+        const exportedUrl = window.URL.createObjectURL(exportedBlob);
+
+        const hrtfSet2 = new HrtfSet({
+          audioContext,
+          coordinateSystem,
+          testPositions,
+        });
+
+        return hrtfSet2.load(exportedUrl)
+          .then( () => {
+            assert.equals(testPositions.findIndex( (position, index) => {
+              const nearest = hrtfSet2.nearest(testPositions[index]);
+              return nearest.distance > 0.1; // few positions in LISTEN data-base
+            }), -1, 'got all expected positions form export');
+
+            assert.equals(testPositions.findIndex( (position) => {
+              const fir = hrtfSet.nearestFir(position);
+              const fir2 = hrtfSet2.nearestFir(position);
+
+              const channelsNb = fir.numberOfChannels;
+              let equals = true;
+              for (let channel = 0; channel < channelsNb; ++channel) {
+                const firArray = [ ... fir.getChannelData(channel) ];
+                const fir2Array = [ ... fir2.getChannelData(channel) ];
+                /* eslint-disable no-loop-func */
+                equals = equals
+                  && firArray.findIndex( (sample, s) => {
+                    return !almostEquals(sample, fir2Array[s], epsilon);
+                  }) === -1;
+              }
+              return !equals;
+            }), -1, 'filters match');
+
+          }); // re-load
+      }) // load reference
   );
 
   return Promise.all(testPromises);

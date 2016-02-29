@@ -77,9 +77,9 @@ export function sofaCartesianToGl(out, a) {
   const y = a[1];
   const z = a[2];
 
-  out[0] = -y;
+  out[0] = 0 - y;
   out[1] = z;
-  out[2] = -x;
+  out[2] = 0 - x;
 
   return out;
 }
@@ -97,8 +97,8 @@ export function glToSofaCartesian(out, a) {
   const y = a[1];
   const z = a[2];
 
-  out[0] = -z;
-  out[1] = -x;
+  out[0] = 0 - z;
+  out[1] = 0 - x;
   out[2] = y;
 
   return out;
@@ -163,9 +163,9 @@ export function sofaSphericalToGl(out, a) {
   const distance = a[2];
 
   const cosE = degree.cos(elevation);
-  out[0] = -distance * cosE * degree.sin(azimuth); // -SOFA.y
+  out[0] = 0 - distance * cosE * degree.sin(azimuth); // -SOFA.y
   out[1] = distance * degree.sin(elevation); // SOFA.z
-  out[2] = -distance * cosE * degree.cos(azimuth); // -SOFA.x
+  out[2] = 0 - distance * cosE * degree.cos(azimuth); // -SOFA.x
 
   return out;
 }
@@ -204,7 +204,7 @@ export function glToSofaSpherical(out, a) {
  * @returns {Coordinates} out
  * @throws {Error} when the system is unknown.
  */
-export function systemToSofaCartesian(out, a, system) {
+export function sofaToSofaCartesian(out, a, system) {
   switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
@@ -279,7 +279,7 @@ export function spat4CartesianToGl(out, a) {
 
   out[0] = x;
   out[1] = z;
-  out[2] = -y;
+  out[2] = 0 - y;
 
   return out;
 }
@@ -298,7 +298,7 @@ export function glToSpat4Cartesian(out, a) {
   const z = a[2];
 
   out[0] = x;
-  out[1] = -z;
+  out[1] = 0 - z;
   out[2] = y;
 
   return out;
@@ -363,7 +363,7 @@ export function spat4SphericalToGl(out, a) {
   const cosE = degree.cos(elevation);
   out[0] = distance * cosE * degree.sin(azimuth); // Spat4.x
   out[1] = distance * degree.sin(elevation); // Spat4.z
-  out[2] = -distance * cosE * degree.cos(azimuth); // -Spat4.y
+  out[2] = 0 - distance * cosE * degree.cos(azimuth); // -Spat4.y
 
   return out;
 }
@@ -391,7 +391,29 @@ export function glToSpat4Spherical(out, a) {
   return out;
 }
 
-// ---------------- named system to openGL
+// ---------------- named coordinate systems
+
+/**
+ * Get the coordinate system general type (cartesian or spherical).
+ *
+ * @param {String} system
+ * @returns {String} 'cartesian' or 'spherical', if `system` if of cartesian
+ * or spherical type.
+ */
+export function systemType(system) {
+  let type;
+  if (system === 'sofaCartesian'
+     || system === 'spat4Cartesian'
+     || system === 'gl') {
+    type = 'cartesian';
+  } else if (system === 'sofaSpherical'
+             || system === 'spat4Spherical') {
+    type = 'spherical';
+  } else {
+    throw new Error(`Unknown coordinate system type ${system}`);
+  }
+  return type;
+}
 
 /**
  * Convert coordinates to openGL.
@@ -481,10 +503,11 @@ export default {
   sofaCartesianToSofaSpherical,
   sofaSphericalToGl,
   sofaSphericalToSofaCartesian,
+  sofaToSofaCartesian,
   spat4CartesianToGl,
   spat4CartesianToSpat4Spherical,
   spat4SphericalToGl,
   spat4SphericalToSpat4Cartesian,
   systemToGl,
-  systemToSofaCartesian,
+  systemType,
 };

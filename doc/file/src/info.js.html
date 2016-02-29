@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../../">
-  <title data-ice="title">src/geometry/KdTree.js | API Document</title>
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/info.js | API Document</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -87,60 +87,54 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">src/geometry/KdTree.js</h1>
+<div class="content" data-ice="content"><h1 data-ice="title">src/info.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
- * @fileOverview Helpers for k-d tree.
+ * @fileOverview Information on the library, from the `package.json` file.
+ *
  * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
+ * @copyright 2016 IRCAM, Paris, France
  * @license BSD-3-Clause
  */
 
-import tree from &apos;kd.tree&apos;;
-export { tree };
+import packageJSON from &apos;../package.json&apos;;
 
 /**
- * Get the squared distance between to points.
- *
- * (Avoid computing the square-root when unnecessary.)
- *
- * @param {Object} a in cartesian coordinates.
- * @param {Number} a.x
- * @param {Number} a.y
- * @param {Number} a.z
- * @param {Object} b in cartesian coordinates.
- * @param {Number} b.x
- * @param {Number} b.y
- * @param {Number} b.z
- * @returns {Number}
+ * @module info
  */
-export function distanceSquared(a, b) {
-  const x = b.x - a.x;
-  const y = b.y - a.y;
-  const z = b.z - a.z;
-  return x * x + y * y + z * z;
-}
 
 /**
- * Get the distance between to points.
+ * Short description of the library.
  *
- * @param {Object} a in cartesian coordinates.
- * @param {Number} a.x
- * @param {Number} a.y
- * @param {Number} a.z
- * @param {Object} b in cartesian coordinates.
- * @param {Number} b.x
- * @param {Number} b.y
- * @param {Number} b.z
- * @returns {Number}
+ * @type {String}
  */
-export function distance(a, b) {
-  return Math.sqrt(this.distanceSquared(a, b) );
-}
+export const {description} = packageJSON;
+
+/**
+ * License of the library.
+ *
+ * @type {String}
+ */
+export const {license} = packageJSON;
+
+/**
+ * Name of the library.
+ *
+ * @type {String}
+ */
+export const {name} = packageJSON;
+
+/**
+ * Semantic version of the library.
+ *
+ * @type {String}
+ */
+export const {version} = packageJSON;
 
 export default {
-  distance,
-  distanceSquared,
-  tree,
+  description,
+  license,
+  name,
+  version,
 };
 </code></pre>
 

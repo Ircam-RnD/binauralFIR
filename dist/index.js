@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sofa = exports.geometry = exports.common = exports.audio = undefined;
+exports.sofa = exports.info = exports.geometry = exports.common = exports.audio = undefined;
 
 var _audio = require('./audio');
 
@@ -17,6 +17,10 @@ var _geometry = require('./geometry');
 
 var _geometry2 = _interopRequireDefault(_geometry);
 
+var _info = require('./info');
+
+var _info2 = _interopRequireDefault(_info);
+
 var _sofa = require('./sofa');
 
 var _sofa2 = _interopRequireDefault(_sofa);
@@ -26,10 +30,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.audio = _audio2.default;
 exports.common = _common2.default;
 exports.geometry = _geometry2.default;
+exports.info = _info2.default;
 exports.sofa = _sofa2.default;
 exports.default = {
   audio: _audio2.default,
   common: _common2.default,
   geometry: _geometry2.default,
+  info: _info2.default,
   sofa: _sofa2.default
 };

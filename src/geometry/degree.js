@@ -7,11 +7,15 @@
 
 /**
  * Degree to radian multiplication factor.
+ *
+ * @type {Number}
  */
 export const toRadianFactor = Math.PI / 180;
 
 /**
  * Radian to degree multiplication factor.
+ *
+ * @type {Number}
  */
 export const fromRadianFactor = 1 / toRadianFactor;
 

@@ -193,7 +193,7 @@ test(`${prefix}: SOFA spherical coordinates to GL`, (assert) => {
 
   positions = [];
   for (let a = 0; a < 360; a += 10) {
-    for (let e = -90; e < 90; e += 10) {
+    for (let e = -90; e <= 90; e += 10) {
       positions.push([a, e, 2.345]);
     }
   }

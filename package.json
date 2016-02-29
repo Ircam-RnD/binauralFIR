@@ -1,7 +1,7 @@
 {
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
@@ -14,11 +14,12 @@
     "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
     "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
     "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
-    "watch": "watch 'npm run browserify' ./src/"
+    "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"
   },
   "authors": [
+    "Jean-Philippe.Lambert@ircam.fr",
     "Arnau Julià <arnau.julia@gmail.com>",
-    "Jean-Philippe.Lambert@ircam.fr"
+    "Samuel.Goldszmidt@ircam.fr"
   ],
   "license": "BSD-3-Clause",
   "dependencies": {

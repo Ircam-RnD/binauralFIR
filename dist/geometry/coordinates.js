@@ -9,13 +9,14 @@ exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
 exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
 exports.sofaSphericalToGl = sofaSphericalToGl;
 exports.glToSofaSpherical = glToSofaSpherical;
-exports.systemToSofaCartesian = systemToSofaCartesian;
+exports.sofaToSofaCartesian = sofaToSofaCartesian;
 exports.spat4CartesianToGl = spat4CartesianToGl;
 exports.glToSpat4Cartesian = glToSpat4Cartesian;
 exports.spat4CartesianToSpat4Spherical = spat4CartesianToSpat4Spherical;
 exports.spat4SphericalToSpat4Cartesian = spat4SphericalToSpat4Cartesian;
 exports.spat4SphericalToGl = spat4SphericalToGl;
 exports.glToSpat4Spherical = glToSpat4Spherical;
+exports.systemType = systemType;
 exports.systemToGl = systemToGl;
 exports.glToSystem = glToSystem;
 
@@ -94,9 +95,9 @@ function sofaCartesianToGl(out, a) {
   var y = a[1];
   var z = a[2];
 
-  out[0] = -y;
+  out[0] = 0 - y;
   out[1] = z;
-  out[2] = -x;
+  out[2] = 0 - x;
 
   return out;
 }
@@ -122,8 +123,8 @@ function glToSofaCartesian(out, a) {
   var y = a[1];
   var z = a[2];
 
-  out[0] = -z;
-  out[1] = -x;
+  out[0] = 0 - z;
+  out[1] = 0 - x;
   out[2] = y;
 
   return out;
@@ -188,9 +189,9 @@ function sofaSphericalToGl(out, a) {
   var distance = a[2];
 
   var cosE = _degree2.default.cos(elevation);
-  out[0] = -distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
+  out[0] = 0 - distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
   out[1] = distance * _degree2.default.sin(elevation); // SOFA.z
-  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
 
   return out;
 }
@@ -229,7 +230,7 @@ function glToSofaSpherical(out, a) {
  * @returns {Coordinates} out
  * @throws {Error} when the system is unknown.
  */
-function systemToSofaCartesian(out, a, system) {
+function sofaToSofaCartesian(out, a, system) {
   switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
@@ -304,7 +305,7 @@ function spat4CartesianToGl(out, a) {
 
   out[0] = x;
   out[1] = z;
-  out[2] = -y;
+  out[2] = 0 - y;
 
   return out;
 }
@@ -323,7 +324,7 @@ function glToSpat4Cartesian(out, a) {
   var z = a[2];
 
   out[0] = x;
-  out[1] = -z;
+  out[1] = 0 - z;
   out[2] = y;
 
   return out;
@@ -388,7 +389,7 @@ function spat4SphericalToGl(out, a) {
   var cosE = _degree2.default.cos(elevation);
   out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
   out[1] = distance * _degree2.default.sin(elevation); // Spat4.z
-  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
 
   return out;
 }
@@ -416,7 +417,26 @@ function glToSpat4Spherical(out, a) {
   return out;
 }
 
-// ---------------- named system to openGL
+// ---------------- named coordinate systems
+
+/**
+ * Get the coordinate system general type (cartesian or spherical).
+ *
+ * @param {String} system
+ * @returns {String} 'cartesian' or 'spherical', if `system` if of cartesian
+ * or spherical type.
+ */
+function systemType(system) {
+  var type = undefined;
+  if (system === 'sofaCartesian' || system === 'spat4Cartesian' || system === 'gl') {
+    type = 'cartesian';
+  } else if (system === 'sofaSpherical' || system === 'spat4Spherical') {
+    type = 'spherical';
+  } else {
+    throw new Error('Unknown coordinate system type ' + system);
+  }
+  return type;
+}
 
 /**
  * Convert coordinates to openGL.
@@ -506,10 +526,11 @@ exports.default = {
   sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   sofaSphericalToGl: sofaSphericalToGl,
   sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  sofaToSofaCartesian: sofaToSofaCartesian,
   spat4CartesianToGl: spat4CartesianToGl,
   spat4CartesianToSpat4Spherical: spat4CartesianToSpat4Spherical,
   spat4SphericalToGl: spat4SphericalToGl,
   spat4SphericalToSpat4Cartesian: spat4SphericalToSpat4Cartesian,
   systemToGl: systemToGl,
-  systemToSofaCartesian: systemToSofaCartesian
+  systemType: systemType
 };

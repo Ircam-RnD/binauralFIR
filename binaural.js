@@ -5355,6 +5355,61 @@ module.exports = {
 }
 
 },{}],12:[function(require,module,exports){
+module.exports={
+  "name": "binaural",
+  "exports": "binaural",
+  "version": "0.3.5",
+  "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
+  "main": "./dist/",
+  "standalone": "binaural",
+  "scripts": {
+    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/ ",
+    "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
+    "browserify": "browserify ./src/index.js -t [ babelify ] --standalone binaural > binaural.js",
+    "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
+    "doc": "esdoc -c esdoc.json",
+    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
+    "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
+    "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
+    "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"
+  },
+  "authors": [
+    "Jean-Philippe.Lambert@ircam.fr",
+    "Arnau Julià <arnau.julia@gmail.com>",
+    "Samuel.Goldszmidt@ircam.fr"
+  ],
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "gl-matrix": "^2.3.1",
+    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ircam-RnD/binauralFIR"
+  },
+  "engines": {
+    "node": "0.12 || 4.2",
+    "npm": ">=1.0.0 <3.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-eslint": "^4.1.8",
+    "babel-preset-es2015": "^6.5.0",
+    "babelify": "^7.2.0",
+    "blue-tape": "^0.1.11",
+    "browserify": "^12.0.2",
+    "esdoc": "^0.4.4",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^1.0.2",
+    "jscs": "^2.8.0",
+    "tape": "^4.4.0",
+    "tape-run": "^2.1.2",
+    "testling": "^1.7.1",
+    "watch": "^0.17.1"
+  }
+}
+
+},{}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6073,7 +6128,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
 exports.default = BinauralPanner;
 
-},{"../geometry/Listener":19,"../geometry/coordinates":20,"../sofa/HrtfSet":24,"./Source":13,"gl-matrix":1}],13:[function(require,module,exports){
+},{"../geometry/Listener":20,"../geometry/coordinates":21,"../sofa/HrtfSet":26,"./Source":14,"gl-matrix":1}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6349,7 +6404,7 @@ var Source = exports.Source = function () {
 
 exports.default = Source;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6376,7 +6431,7 @@ exports.default = {
   utilities: _utilities2.default
 };
 
-},{"./BinauralPanner":12,"./Source":13,"./utilities":15}],15:[function(require,module,exports){
+},{"./BinauralPanner":13,"./Source":14,"./utilities":16}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6526,7 +6581,7 @@ exports.default = {
   resampleFloat32Array: resampleFloat32Array
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6543,7 +6598,7 @@ exports.default = {
   utilities: _utilities2.default
 };
 
-},{"./utilities":17}],17:[function(require,module,exports){
+},{"./utilities":18}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6593,7 +6648,7 @@ exports.default = {
   almostEqualsModulo: almostEqualsModulo
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6663,7 +6718,7 @@ exports.default = {
   tree: _kd2.default
 };
 
-},{"kd.tree":11}],19:[function(require,module,exports){
+},{"kd.tree":11}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6916,7 +6971,7 @@ var Listener = exports.Listener = function () {
 
 exports.default = Listener;
 
-},{"../geometry/coordinates":20,"gl-matrix":1}],20:[function(require,module,exports){
+},{"../geometry/coordinates":21,"gl-matrix":1}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6928,13 +6983,14 @@ exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
 exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
 exports.sofaSphericalToGl = sofaSphericalToGl;
 exports.glToSofaSpherical = glToSofaSpherical;
-exports.systemToSofaCartesian = systemToSofaCartesian;
+exports.sofaToSofaCartesian = sofaToSofaCartesian;
 exports.spat4CartesianToGl = spat4CartesianToGl;
 exports.glToSpat4Cartesian = glToSpat4Cartesian;
 exports.spat4CartesianToSpat4Spherical = spat4CartesianToSpat4Spherical;
 exports.spat4SphericalToSpat4Cartesian = spat4SphericalToSpat4Cartesian;
 exports.spat4SphericalToGl = spat4SphericalToGl;
 exports.glToSpat4Spherical = glToSpat4Spherical;
+exports.systemType = systemType;
 exports.systemToGl = systemToGl;
 exports.glToSystem = glToSystem;
 
@@ -7013,9 +7069,9 @@ function sofaCartesianToGl(out, a) {
   var y = a[1];
   var z = a[2];
 
-  out[0] = -y;
+  out[0] = 0 - y;
   out[1] = z;
-  out[2] = -x;
+  out[2] = 0 - x;
 
   return out;
 }
@@ -7041,8 +7097,8 @@ function glToSofaCartesian(out, a) {
   var y = a[1];
   var z = a[2];
 
-  out[0] = -z;
-  out[1] = -x;
+  out[0] = 0 - z;
+  out[1] = 0 - x;
   out[2] = y;
 
   return out;
@@ -7107,9 +7163,9 @@ function sofaSphericalToGl(out, a) {
   var distance = a[2];
 
   var cosE = _degree2.default.cos(elevation);
-  out[0] = -distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
+  out[0] = 0 - distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
   out[1] = distance * _degree2.default.sin(elevation); // SOFA.z
-  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
 
   return out;
 }
@@ -7148,7 +7204,7 @@ function glToSofaSpherical(out, a) {
  * @returns {Coordinates} out
  * @throws {Error} when the system is unknown.
  */
-function systemToSofaCartesian(out, a, system) {
+function sofaToSofaCartesian(out, a, system) {
   switch (system) {
     case 'sofaCartesian':
       out[0] = a[0];
@@ -7223,7 +7279,7 @@ function spat4CartesianToGl(out, a) {
 
   out[0] = x;
   out[1] = z;
-  out[2] = -y;
+  out[2] = 0 - y;
 
   return out;
 }
@@ -7242,7 +7298,7 @@ function glToSpat4Cartesian(out, a) {
   var z = a[2];
 
   out[0] = x;
-  out[1] = -z;
+  out[1] = 0 - z;
   out[2] = y;
 
   return out;
@@ -7307,7 +7363,7 @@ function spat4SphericalToGl(out, a) {
   var cosE = _degree2.default.cos(elevation);
   out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
   out[1] = distance * _degree2.default.sin(elevation); // Spat4.z
-  out[2] = -distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
 
   return out;
 }
@@ -7335,7 +7391,26 @@ function glToSpat4Spherical(out, a) {
   return out;
 }
 
-// ---------------- named system to openGL
+// ---------------- named coordinate systems
+
+/**
+ * Get the coordinate system general type (cartesian or spherical).
+ *
+ * @param {String} system
+ * @returns {String} 'cartesian' or 'spherical', if `system` if of cartesian
+ * or spherical type.
+ */
+function systemType(system) {
+  var type = undefined;
+  if (system === 'sofaCartesian' || system === 'spat4Cartesian' || system === 'gl') {
+    type = 'cartesian';
+  } else if (system === 'sofaSpherical' || system === 'spat4Spherical') {
+    type = 'spherical';
+  } else {
+    throw new Error('Unknown coordinate system type ' + system);
+  }
+  return type;
+}
 
 /**
  * Convert coordinates to openGL.
@@ -7425,15 +7500,16 @@ exports.default = {
   sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
   sofaSphericalToGl: sofaSphericalToGl,
   sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  sofaToSofaCartesian: sofaToSofaCartesian,
   spat4CartesianToGl: spat4CartesianToGl,
   spat4CartesianToSpat4Spherical: spat4CartesianToSpat4Spherical,
   spat4SphericalToGl: spat4SphericalToGl,
   spat4SphericalToSpat4Cartesian: spat4SphericalToSpat4Cartesian,
   systemToGl: systemToGl,
-  systemToSofaCartesian: systemToSofaCartesian
+  systemType: systemType
 };
 
-},{"./degree":21}],21:[function(require,module,exports){
+},{"./degree":22}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7453,11 +7529,15 @@ exports.atan2 = atan2;
 
 /**
  * Degree to radian multiplication factor.
+ *
+ * @type {Number}
  */
 var toRadianFactor = exports.toRadianFactor = Math.PI / 180;
 
 /**
  * Radian to degree multiplication factor.
+ *
+ * @type {Number}
  */
 var fromRadianFactor = exports.fromRadianFactor = 1 / toRadianFactor;
 
@@ -7522,7 +7602,7 @@ exports.default = {
   toRadianFactor: toRadianFactor
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7554,13 +7634,13 @@ exports.default = {
   Listener: _Listener2.default
 };
 
-},{"./KdTree":18,"./Listener":19,"./coordinates":20,"./degree":21}],23:[function(require,module,exports){
+},{"./KdTree":19,"./Listener":20,"./coordinates":21,"./degree":22}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sofa = exports.geometry = exports.common = exports.audio = undefined;
+exports.sofa = exports.info = exports.geometry = exports.common = exports.audio = undefined;
 
 var _audio = require('./audio');
 
@@ -7574,6 +7654,10 @@ var _geometry = require('./geometry');
 
 var _geometry2 = _interopRequireDefault(_geometry);
 
+var _info = require('./info');
+
+var _info2 = _interopRequireDefault(_info);
+
 var _sofa = require('./sofa');
 
 var _sofa2 = _interopRequireDefault(_sofa);
@@ -7583,15 +7667,83 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.audio = _audio2.default;
 exports.common = _common2.default;
 exports.geometry = _geometry2.default;
+exports.info = _info2.default;
 exports.sofa = _sofa2.default;
 exports.default = {
   audio: _audio2.default,
   common: _common2.default,
   geometry: _geometry2.default,
+  info: _info2.default,
   sofa: _sofa2.default
 };
 
-},{"./audio":14,"./common":16,"./geometry":22,"./sofa":26}],24:[function(require,module,exports){
+},{"./audio":15,"./common":17,"./geometry":23,"./info":25,"./sofa":28}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.version = exports.name = exports.license = exports.description = undefined;
+
+var _package = require('../package.json');
+
+var _package2 = _interopRequireDefault(_package);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @module info
+ */
+
+/**
+ * Short description of the library.
+ *
+ * @type {String}
+ */
+var description = _package2.default.description;
+
+/**
+ * License of the library.
+ *
+ * @type {String}
+ */
+/**
+ * @fileOverview Information on the library, from the `package.json` file.
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+exports.description = description;
+var license = _package2.default.license;
+
+/**
+ * Name of the library.
+ *
+ * @type {String}
+ */
+
+exports.license = license;
+var name = _package2.default.name;
+
+/**
+ * Semantic version of the library.
+ *
+ * @type {String}
+ */
+
+exports.name = name;
+var version = _package2.default.version;
+exports.version = version;
+exports.default = {
+  description: description,
+  license: license,
+  name: name,
+  version: version
+};
+
+},{"../package.json":12}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7611,6 +7763,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _glMatrix = require('gl-matrix');
 
 var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+var _info = require('../info');
+
+var _info2 = _interopRequireDefault(_info);
 
 var _parseDataSet = require('./parseDataSet');
 
@@ -7766,6 +7922,78 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
+     * Export the current HRTF set as a JSON string.
+     *
+     * When set, `this.filterPositions` reduce the actual number of filter, and
+     * thus the exported set. The coordinate system of the export is
+     * `this.filterCoordinateSystem`.
+     *
+     * @see {@link HrtfSet#filterCoordinateSystem}
+     * @see {@link HrtfSet#filterPositions}
+     *
+     * @returns {String} as a SOFA JSON file.
+     * @throws {Error} when this.filterCoordinateSystem is unknown.
+     */
+
+  }, {
+    key: 'export',
+    value: function _export() {
+      var _this3 = this;
+
+      // in a SOFA file, the source positions are the HrtfSet filter positions.
+
+      // SOFA listener is the reference for HrtfSet filter positions
+      // which is normalised in HrtfSet
+
+      var SourcePosition = undefined;
+      var SourcePositionType = _coordinates2.default.systemType(this.filterCoordinateSystem);
+      switch (SourcePositionType) {
+        case 'cartesian':
+          SourcePosition = this._sofaSourcePosition.map(function (position) {
+            return _coordinates2.default.glToSofaCartesian([], position);
+          });
+          break;
+
+        case 'spherical':
+          SourcePosition = this._sofaSourcePosition.map(function (position) {
+            return _coordinates2.default.glToSofaSpherical([], position);
+          });
+          break;
+
+        default:
+          throw new Error('Bad source position type ' + SourcePositionType + ' ' + 'for export.');
+      }
+
+      var DataIR = this._sofaSourcePosition.map(function (position) {
+        // retrieve fir for each position, without conversion
+        var fir = _this3._kdt.nearest({ x: position[0], y: position[1], z: position[2] }, 1).pop()[0].fir; // nearest data
+        var ir = [];
+        for (var channel = 0; channel < fir.numberOfChannels; ++channel) {
+          // Float32Array to array for stringify
+          ir.push([].concat(_toConsumableArray(fir.getChannelData(channel))));
+        }
+        return ir;
+      });
+
+      return (0, _parseSofa.stringifySofa)({
+        name: this._sofaName,
+        metaData: this._sofaMetaData,
+        ListenerPosition: [0, 0, 0],
+        ListenerPositionType: 'cartesian',
+        ListenerUp: [0, 0, 1],
+        ListenerUpType: 'cartesian',
+        ListenerView: [1, 0, 0],
+        ListenerViewType: 'cartesian',
+        SourcePositionType: SourcePositionType,
+        SourcePosition: SourcePosition,
+        DataSamplingRate: this._audioContext.sampleRate,
+        DataDelay: this._sofaDelay,
+        DataIR: DataIR,
+        RoomVolume: this._sofaRoomVolume
+      });
+    }
+
+    /**
      * @typedef {Object} HrtfSet.nearestType
      * @property {Number} distance from the request
      * @property {AudioBuffer} fir 2-channels impulse response
@@ -7830,11 +8058,11 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_createKdTree',
     value: function _createKdTree(indicesPositionsFirs) {
-      var _this3 = this;
+      var _this4 = this;
 
       var positions = indicesPositionsFirs.map(function (value) {
         var impulseResponses = value[2];
-        var fir = _this3._audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this3._audioContext.sampleRate);
+        var fir = _this4._audioContext.createBuffer(impulseResponses.length, impulseResponses[0].length, _this4._audioContext.sampleRate);
         impulseResponses.forEach(function (samples, channel) {
           // do not use copyToChannel because of Safari <= 9
           fir.getChannelData(channel).set(samples);
@@ -7847,6 +8075,10 @@ var HrtfSet = exports.HrtfSet = function () {
           z: value[1][2],
           fir: fir
         };
+      });
+
+      this._sofaSourcePosition = positions.map(function (position) {
+        return [position.x, position.y, position.z];
       });
 
       this._kdt = _KdTree2.default.tree.createKdTree(positions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
@@ -7868,7 +8100,7 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_generateIndicesPositionsFirs',
     value: function _generateIndicesPositionsFirs(indices, positions, firs) {
-      var _this4 = this;
+      var _this5 = this;
 
       var sofaFirsPromises = firs.map(function (sofaFirChannels, index) {
         var channelCount = sofaFirChannels.length;
@@ -7879,8 +8111,8 @@ var HrtfSet = exports.HrtfSet = function () {
         var sofaFirsChannelsPromises = sofaFirChannels.map(function (fir) {
           return (0, _utilities.resampleFloat32Array)({
             inputSamples: fir,
-            inputSampleRate: _this4._sofaSampleRate,
-            outputSampleRate: _this4._audioContext.sampleRate
+            inputSampleRate: _this5._sofaSampleRate,
+            outputSampleRate: _this5._audioContext.sampleRate
           });
         });
         return Promise.all(sofaFirsChannelsPromises).then(function (firChannels) {
@@ -7947,7 +8179,7 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_loadMetaAndPositions',
     value: function _loadMetaAndPositions(sourceUrl) {
-      var _this5 = this;
+      var _this6 = this;
 
       var promise = new Promise(function (resolve, reject) {
         var positionsUrl = sourceUrl + '.json?' + 'ListenerPosition,ListenerUp,ListenerView,SourcePosition,' + 'Data.Delay,Data.SamplingRate,' + 'EmitterPosition,ReceiverPosition,RoomVolume'; // meta
@@ -7967,9 +8199,9 @@ var HrtfSet = exports.HrtfSet = function () {
           try {
             (function () {
               var data = (0, _parseSofa.parseSofa)(request.response);
-              _this5._setMetaData(data);
+              _this6._setMetaData(data, sourceUrl);
 
-              var sourcePositions = _this5._sourcePositionsToGl(data);
+              var sourcePositions = _this6._sourcePositionsToGl(data);
               var hrtfPositions = sourcePositions.map(function (position, index) {
                 return {
                   x: position[0],
@@ -7981,7 +8213,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
               var kdt = _KdTree2.default.tree.createKdTree(hrtfPositions, _KdTree2.default.distanceSquared, ['x', 'y', 'z']);
 
-              var nearestIndices = _this5._filterPositions.map(function (current) {
+              var nearestIndices = _this6._filterPositions.map(function (current) {
                 return kdt.nearest({ x: current[0], y: current[1], z: current[2] }, 1).pop()[0] // nearest data
                 .index;
               });
@@ -7989,7 +8221,7 @@ var HrtfSet = exports.HrtfSet = function () {
               // filter out duplicates
               nearestIndices = [].concat(_toConsumableArray(new Set(nearestIndices)));
 
-              _this5._sofaUrl = sourceUrl;
+              _this6._sofaUrl = sourceUrl;
               resolve(nearestIndices);
             })();
           } catch (error) {
@@ -8016,7 +8248,7 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_loadSofaFull',
     value: function _loadSofaFull(url) {
-      var _this6 = this;
+      var _this7 = this;
 
       var promise = new Promise(function (resolve, reject) {
         var request = new window.XMLHttpRequest();
@@ -8033,15 +8265,15 @@ var HrtfSet = exports.HrtfSet = function () {
 
           try {
             var data = (0, _parseSofa.parseSofa)(request.response);
-            _this6._setMetaData(data);
-            var sourcePositions = _this6._sourcePositionsToGl(data);
-            _this6._generateIndicesPositionsFirs(sourcePositions.map(function (position, index) {
+            _this7._setMetaData(data, url);
+            var sourcePositions = _this7._sourcePositionsToGl(data);
+            _this7._generateIndicesPositionsFirs(sourcePositions.map(function (position, index) {
               return index;
             }), // full
             sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
-              _this6._createKdTree(indicesPositionsFirs);
-              _this6._sofaUrl = url;
-              resolve(_this6);
+              _this7._createKdTree(indicesPositionsFirs);
+              _this7._sofaUrl = url;
+              resolve(_this7);
             });
           } catch (error) {
             // re-throw
@@ -8069,7 +8301,7 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_loadSofaPartial',
     value: function _loadSofaPartial(sourceUrl, indices, dataSet) {
-      var _this7 = this;
+      var _this8 = this;
 
       var urlPromises = indices.map(function (index) {
         var urlPromise = new Promise(function (resolve, reject) {
@@ -8090,8 +8322,8 @@ var HrtfSet = exports.HrtfSet = function () {
               var data = (0, _parseSofa.parseSofa)(request.response);
               // (meta-data is already loaded)
 
-              var sourcePositions = _this7._sourcePositionsToGl(data);
-              _this7._generateIndicesPositionsFirs([index], sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
+              var sourcePositions = _this8._sourcePositionsToGl(data);
+              _this8._generateIndicesPositionsFirs([index], sourcePositions, data['Data.IR'].data).then(function (indicesPositionsFirs) {
                 // One position per URL here
                 // Array made of multiple promises, later
                 resolve(indicesPositionsFirs[0]);
@@ -8109,13 +8341,13 @@ var HrtfSet = exports.HrtfSet = function () {
       });
 
       return Promise.all(urlPromises).then(function (indicesPositionsFirs) {
-        _this7._createKdTree(indicesPositionsFirs);
-        return _this7; // final resolve
+        _this8._createKdTree(indicesPositionsFirs);
+        return _this8; // final resolve
       });
     }
 
     /**
-     * Set meta-data.
+     * Set meta-data, and assert for supported HRTF type.
      *
      * @private
      *
@@ -8125,23 +8357,44 @@ var HrtfSet = exports.HrtfSet = function () {
 
   }, {
     key: '_setMetaData',
-    value: function _setMetaData(data) {
-      if (data.metaData.DataType !== 'FIR') {
-        throw new Error('SOFA data type is not FIR');
+    value: function _setMetaData(data, sourceUrl) {
+      if (typeof data.metaData.DataType !== 'undefined' && data.metaData.DataType !== 'FIR') {
+        throw new Error('According to meta-data, SOFA data type is not FIR');
       }
 
-      this._sofaMetaData = data.metaData;
-      this._sofaSampleRate = data['Data.SamplingRate'].data[0];
+      var dateString = new Date().toISOString();
+
+      // tag the possible filtering
+      this._sofaName = typeof data.name !== 'undefined' ? data.name + '_B.json' : 'HRTF.json';
+
+      this._sofaMetaData = typeof data.metaData !== 'undefined' ? data.metaData : {};
+
+      // append conversion information
+      if (typeof sourceUrl !== 'undefined') {
+        this._sofaMetaData.OriginalUrl = sourceUrl;
+      }
+
+      this._sofaMetaData.Converter = 'Ircam ' + _info2.default.name + ' ' + _info2.default.version + ' ' + 'javascript API ';
+      this._sofaMetaData.DateConverted = dateString;
+
+      this._sofaSampleRate = typeof data['Data.SamplingRate'] !== 'undefined' ? data['Data.SamplingRate'].data[0] : 48000; // Table C.1
+      if (this._sofaSampleRate !== this._audioContext.sampleRate) {
+        this._sofaMetaData.OriginalSampleRate = this._sofaSampleRate;
+      }
+
+      this._sofaDelay = typeof data['Data.Delay'] !== 'undefined' ? data['Data.Delay'].data[0] : 0;
+
+      this._sofaRoomVolume = typeof data.RoomVolume !== 'undefined' ? data.RoomVolume.data[0] : undefined;
 
       // Convert listener position, up, and view to SOFA cartesian,
       // to generate a SOFA-to-GL look-at mat4.
       // Default SOFA type is 'cartesian' (see table D.4A).
 
-      var listenerPosition = _coordinates2.default.systemToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaType)(data.ListenerPosition.Type || 'cartesian'));
+      var listenerPosition = _coordinates2.default.sofaToSofaCartesian([], data.ListenerPosition.data[0], (0, _parseSofa.conformSofaCoordinateSystem)(data.ListenerPosition.Type || 'cartesian'));
 
-      var listenerView = _coordinates2.default.systemToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaType)(data.ListenerView.Type || 'cartesian'));
+      var listenerView = _coordinates2.default.sofaToSofaCartesian([], data.ListenerView.data[0], (0, _parseSofa.conformSofaCoordinateSystem)(data.ListenerView.Type || 'cartesian'));
 
-      var listenerUp = _coordinates2.default.systemToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaType)(data.ListenerUp.Type || 'cartesian'));
+      var listenerUp = _coordinates2.default.sofaToSofaCartesian([], data.ListenerUp.data[0], (0, _parseSofa.conformSofaCoordinateSystem)(data.ListenerUp.Type || 'cartesian'));
 
       this._sofaToGl = _glMatrix2.default.mat4.lookAt([], listenerPosition, listenerView, listenerUp);
     }
@@ -8159,21 +8412,21 @@ var HrtfSet = exports.HrtfSet = function () {
   }, {
     key: '_sourcePositionsToGl',
     value: function _sourcePositionsToGl(data) {
-      var _this8 = this;
+      var _this9 = this;
 
       var sourcePositions = data.SourcePosition.data; // reference
       var sourceCoordinateSystem = typeof data.SourcePosition.Type !== 'undefined' ? data.SourcePosition.Type : 'spherical'; // default (SOFA Table D.4C)
       switch (sourceCoordinateSystem) {
         case 'cartesian':
           sourcePositions.forEach(function (position) {
-            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
+            _glMatrix2.default.vec3.transformMat4(position, position, _this9._sofaToGl);
           });
           break;
 
         case 'spherical':
           sourcePositions.forEach(function (position) {
             _coordinates2.default.sofaSphericalToSofaCartesian(position, position); // in-place
-            _glMatrix2.default.vec3.transformMat4(position, position, _this8._sofaToGl);
+            _glMatrix2.default.vec3.transformMat4(position, position, _this9._sofaToGl);
           });
           break;
 
@@ -8333,6 +8586,18 @@ var HrtfSet = exports.HrtfSet = function () {
     }
 
     /**
+     * Get the original name of the HRTF set.
+     *
+     * @returns {String} that is undefined before a successfully load.
+     */
+
+  }, {
+    key: 'sofaName',
+    get: function get() {
+      return this._sofaName;
+    }
+
+    /**
      * Get the URL used to actually load the HRTF set.
      *
      * @returns {String} that is undefined before a successfully load.
@@ -8374,7 +8639,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
 exports.default = HrtfSet;
 
-},{"../audio/utilities":15,"../geometry/KdTree":18,"../geometry/coordinates":20,"./parseDataSet":27,"./parseSofa":28,"gl-matrix":1}],25:[function(require,module,exports){
+},{"../audio/utilities":16,"../geometry/KdTree":19,"../geometry/coordinates":21,"../info":25,"./parseDataSet":29,"./parseSofa":30,"gl-matrix":1}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8666,7 +8931,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
 
 exports.default = ServerDataBase;
 
-},{"./parseDataSet":27,"./parseXml":29}],26:[function(require,module,exports){
+},{"./parseDataSet":29,"./parseXml":31}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8696,7 +8961,7 @@ exports.default = {
   ServerDataBase: _ServerDataBase2.default
 };
 
-},{"./HrtfSet":24,"./ServerDataBase":25}],27:[function(require,module,exports){
+},{"./HrtfSet":26,"./ServerDataBase":27}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8846,7 +9111,7 @@ function parseDataSet(input) {
 
 exports.default = parseDataSet;
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8856,7 +9121,8 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 exports.parseSofa = parseSofa;
-exports.conformSofaType = conformSofaType;
+exports.stringifySofa = stringifySofa;
+exports.conformSofaCoordinateSystem = conformSofaCoordinateSystem;
 /**
  * @fileOverview Parser functions for SOFA files
  * @author Jean-Philippe.Lambert@ircam.fr
@@ -8865,10 +9131,12 @@ exports.conformSofaType = conformSofaType;
  */
 
 /**
- * Parses a SOFA JSON string with into an object with `data` and `metaData`
- * attributes.
+ * Parses a SOFA JSON string with into an object with `name`, `data` and
+ * `metaData` attributes.
  *
- * @param {String} sofaString
+ * @see {@link stringifySofa}
+ *
+ * @param {String} sofaString in SOFA JSON format
  * @returns {Object} with `data` and `metaData` attributes
  * @throws {Error} when the parsing fails
  */
@@ -8876,18 +9144,18 @@ function parseSofa(sofaString) {
   try {
     var _ret = function () {
       var sofa = JSON.parse(sofaString);
-      var hrtf = {};
+      var sofaSet = {};
 
-      hrtf.name = sofa.name;
+      sofaSet.name = sofa.name;
 
       if (typeof sofa.attributes !== 'undefined') {
-        hrtf.metaData = {};
+        sofaSet.metaData = {};
         var metaData = sofa.attributes.find(function (e) {
           return e.name === 'NC_GLOBAL';
         });
         if (typeof metaData !== 'undefined') {
           metaData.attributes.forEach(function (e) {
-            hrtf.metaData[e.name] = e.value[0];
+            sofaSet.metaData[e.name] = e.value[0];
           });
         }
       }
@@ -8895,17 +9163,17 @@ function parseSofa(sofaString) {
       if (typeof sofa.leaves !== 'undefined') {
         var data = sofa.leaves;
         data.forEach(function (d) {
-          hrtf[d.name] = {};
+          sofaSet[d.name] = {};
           d.attributes.forEach(function (a) {
-            hrtf[d.name][a.name] = a.value[0];
+            sofaSet[d.name][a.name] = a.value[0];
           });
-          hrtf[d.name].shape = d.shape;
-          hrtf[d.name].data = d.data;
+          sofaSet[d.name].shape = d.shape;
+          sofaSet[d.name].data = d.data;
         });
       }
 
       return {
-        v: hrtf
+        v: sofaSet
       };
     }();
 
@@ -8916,16 +9184,175 @@ function parseSofa(sofaString) {
 }
 
 /**
+ * Generates a SOFA JSON string from an object.
+ *
+ * Note that the properties differ from either an {@link HrtfSet} and from
+ * the result of the parsing of a SOFA JSON. In particular, the listener
+ * attributes correspond to the reference for the filters; the source
+ * positions are the positions in the data-base.
+ *
+ * @see {@link parseSofa}
+ * @see {@link HrtfSet}
+ *
+ * @param {Object} sofaSet
+ * @param {Coordinates} sofaSet.ListenerPosition
+ * @param {CoordinateSystem} sofaSet.ListenerPositionType
+ * @param {Coordinates} sofaSet.ListenerUp
+ * @param {CoordinateSystem} sofaSet.ListenerUpType
+ * @param {Coordinates} sofaSet.ListenerView
+ * @param {CoordinateSystem} sofaSet.ListenerViewType
+ * @param {Array.<Array.<Number>>} sofaSet.SourcePosition
+ * @param {CoordinateSystem} sofaSet.SourcePositionType
+ * @param {Number} sofaSet.DataSamplingRate
+ * @param {Array.<Array.<Array.<Number>>>} sofaSet.DataIR
+ * @param {Array.<Number>} sofaSet.RoomVolume
+ * @returns {String} in SOFA JSON format
+ * @throws {Error} when the export fails, because of missing data or
+ * unknown coordinate system
+ */
+function stringifySofa(sofaSet) {
+  var sofa = {};
+
+  if (typeof sofaSet.name !== 'undefined') {
+    sofa.name = sofaSet.name;
+  }
+
+  if (typeof sofaSet.metaData !== 'undefined') {
+    sofa.attributes = [];
+    var ncGlobal = {
+      name: 'NC_GLOBAL',
+      attributes: []
+    };
+
+    for (var attribute in sofaSet.metaData) {
+      if (sofaSet.metaData.hasOwnProperty(attribute)) {
+        ncGlobal.attributes.push({
+          name: attribute,
+          value: [sofaSet.metaData[attribute]]
+        });
+      }
+    }
+
+    sofa.attributes.push(ncGlobal);
+  }
+
+  // always the same;
+  var type = 'Float64';
+
+  var attributes = undefined;
+
+  sofa.leaves = [];
+
+  [['ListenerPosition', 'ListenerPositionType'], ['ListenerUp', 'ListenerUpType'], ['ListenerView', 'ListenerViewType']].forEach(function (listenerAttributeAndType) {
+    var listenerAttributeName = listenerAttributeAndType[0];
+    var listenerAttribute = sofaSet[listenerAttributeName];
+    var listenerType = sofaSet[listenerAttributeAndType[1]];
+    if (typeof listenerAttribute !== 'undefined') {
+      switch (listenerType) {
+        case 'cartesian':
+          attributes = [{ name: 'Type', value: ['cartesian'] }, { name: 'Units', value: ['metre, metre, metre'] }];
+          break;
+
+        case 'spherical':
+          attributes = [{ name: 'Type', value: ['spherical'] }, { name: 'Units', value: ['degree, degree, metre'] }];
+          break;
+
+        default:
+          throw new Error('Unknown coordinate system type ' + (listenerType + ' for ' + listenerAttribute));
+      }
+      // in SOFA, everything is contained by an array, even an array.
+      sofa.leaves.push({
+        name: listenerAttributeName,
+        type: type,
+        attributes: attributes,
+        shape: [1, 3],
+        data: [listenerAttribute]
+      });
+    }
+  });
+
+  if (typeof sofaSet.SourcePosition !== 'undefined') {
+    switch (sofaSet.SourcePositionType) {
+      case 'cartesian':
+        attributes = [{ name: 'Type', value: ['cartesian'] }, { name: 'Units', value: ['metre, metre, metre'] }];
+        break;
+
+      case 'spherical':
+        attributes = [{ name: 'Type', value: ['spherical'] }, { name: 'Units', value: ['degree, degree, metre'] }];
+        break;
+
+      default:
+        throw new Error('Unknown coordinate system type ' + ('' + sofaSet.SourcePositionType));
+    }
+    sofa.leaves.push({
+      name: 'SourcePosition',
+      type: type,
+      attributes: attributes,
+      shape: [sofaSet.SourcePosition.length, sofaSet.SourcePosition[0].length],
+      data: sofaSet.SourcePosition
+    });
+  }
+
+  if (typeof sofaSet.DataSamplingRate !== 'undefined') {
+    sofa.leaves.push({
+      name: 'Data.SamplingRate',
+      type: type,
+      attributes: [{ name: 'Unit', value: 'hertz' }],
+      shape: [1],
+      data: [sofaSet.DataSamplingRate]
+    });
+  } else {
+    throw new Error('No data sampling-rate');
+  }
+
+  if (typeof sofaSet.DataDelay !== 'undefined') {
+    sofa.leaves.push({
+      name: 'Data.Delay',
+      type: type,
+      attributes: [],
+      shape: [1, sofaSet.DataDelay.length],
+      data: [sofaSet.DataDelay]
+    });
+  }
+
+  if (typeof sofaSet.DataIR !== 'undefined') {
+    sofa.leaves.push({
+      name: 'Data.IR',
+      type: type,
+      attributes: [],
+      shape: [sofaSet.DataIR.length, sofaSet.DataIR[0].length, sofaSet.DataIR[0][0].length],
+      data: sofaSet.DataIR
+    });
+  } else {
+    throw new Error('No data IR');
+  }
+
+  if (typeof sofaSet.RoomVolume !== 'undefined') {
+    sofa.leaves.push({
+      name: 'RoomVolume',
+      type: type,
+      attributes: [{ name: 'Units', value: ['cubic metre'] }],
+      shape: [1],
+      data: [sofaSet.RoomVolume]
+    });
+  }
+
+  sofa.nodes = [];
+
+  return JSON.stringify(sofa);
+}
+
+/**
  * Prefix SOFA coordinate system with `sofa`.
  *
- * @param {String} sofaType : either `cartesian` or `spherical`
+ * @param {String} system : either `cartesian` or `spherical`
  * @returns {String} either `sofaCartesian` or `sofaSpherical`
- * @throws {Error} if sofaType is unknown
+ * @throws {Error} if system is unknown
  */
-function conformSofaType(sofaType) {
+function conformSofaCoordinateSystem(system) {
   var type = undefined;
 
-  switch (sofaType) {
+  switch (system) {
     case 'cartesian':
       type = 'sofaCartesian';
       break;
@@ -8935,17 +9362,17 @@ function conformSofaType(sofaType) {
       break;
 
     default:
-      throw new Error('Bad SOFA type ' + sofaType);
+      throw new Error('Bad SOFA type ' + system);
   }
   return type;
 }
 
 exports.default = {
   parseSofa: parseSofa,
-  conformSofaType: conformSofaType
+  conformSofaCoordinateSystem: conformSofaCoordinateSystem
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9000,5 +9427,5 @@ if (typeof window.DOMParser !== 'undefined') {
 
 exports.default = parseXml;
 
-},{}]},{},[23])(23)
+},{}]},{},[24])(24)
 });

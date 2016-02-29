@@ -187,6 +187,8 @@ urlsFound.then(function(urls) {
 - Spat coordinates
 - attenuation with distance
 - dry/wet outputs for (shared) reverberation
+- support for infinite impulse responses, once [IIRFilterNode] is
+  implemented.
 
 ## Developers ##
 
@@ -266,6 +268,7 @@ project, funded by ANR.
 [JSDoc]: http://usejsdoc.org/
 [jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
+[IIRFilterNode]: https://webaudio.github.io/web-audio-api/#idl-def-IIRFilterNode
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
 [test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
 [src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
