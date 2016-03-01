@@ -213,7 +213,8 @@ export class ServerDataBase {
    * Get URLs, possibly filtered.
    *
    * Any filter can be partial, and is case-insensitive. The result must
-   * match every supplied filter. Undefined filters are not applied.
+   * match every supplied filter. Undefined filters are not applied. For
+   * any filter, `|` is the or operator.
    *
    * @param {Object} [options] optional filters
    * @param {String} [options.convention] &apos;HRIR&apos; or &apos;SOS&apos;
@@ -224,7 +225,8 @@ export class ServerDataBase {
    * @param {String} [options.freePattern] any pattern matched
    * globally. Use separators (spaces, tabs, etc.) to combine multiple
    * patterns: &apos;44100 listen&apos; will restrict on URLs matching &apos;44100&apos; and
-   * &apos;listen&apos;
+   * &apos;listen&apos;; &apos;44100|48000 bili|listen&apos; matches (&apos;44100&apos; or &apos;48000&apos;) and
+   * (&apos;bili&apos; or &apos;listen&apos;).
    * @returns {Array.&lt;String&gt;} URLs that match every filter.
    */
   getUrls(options = {}) {
@@ -246,7 +248,7 @@ export class ServerDataBase {
     const pattern = filters.reduce( (global, local) =&gt; {
       // partial filter inside slashes
       return `${global}/` + (typeof local !== &apos;undefined&apos;
-                             ? `[^/]*${local}[^/]*`
+                             ? `[^/]*(?:${local})[^/]*`
                              : &apos;[^/]*&apos;);
     }, &apos;&apos;);
 

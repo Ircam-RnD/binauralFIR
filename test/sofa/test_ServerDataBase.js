@@ -92,6 +92,14 @@ test(`${prefix}: Default catalogue`, (assert) => {
       assert.equals(filteredUrls[0], bili1121Url,
                     'filtered URL is the right one');
 
+      filteredUrls = dataBase.getUrls({
+        dataBase: 'listen|bili',
+        freePattern: '1121|1012 48000|44100 sos 12order',
+      });
+
+      assert.equals(filteredUrls.length, 4,
+                    `4 URLs left after filters with '|' operator.`);
+
     })
     .catch( (error) => {
       assert.fail(`Top catalogue failed to load: ${error.message}`);

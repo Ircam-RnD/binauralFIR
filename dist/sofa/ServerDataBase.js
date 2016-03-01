@@ -142,7 +142,8 @@ var ServerDataBase = exports.ServerDataBase = function () {
      * Get URLs, possibly filtered.
      *
      * Any filter can be partial, and is case-insensitive. The result must
-     * match every supplied filter. Undefined filters are not applied.
+     * match every supplied filter. Undefined filters are not applied. For
+     * any filter, `|` is the or operator.
      *
      * @param {Object} [options] optional filters
      * @param {String} [options.convention] 'HRIR' or 'SOS'
@@ -153,7 +154,8 @@ var ServerDataBase = exports.ServerDataBase = function () {
      * @param {String} [options.freePattern] any pattern matched
      * globally. Use separators (spaces, tabs, etc.) to combine multiple
      * patterns: '44100 listen' will restrict on URLs matching '44100' and
-     * 'listen'
+     * 'listen'; '44100|48000 bili|listen' matches ('44100' or '48000') and
+     * ('bili' or 'listen').
      * @returns {Array.<String>} URLs that match every filter.
      */
 
@@ -172,7 +174,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
 
       var pattern = filters.reduce(function (global, local) {
         // partial filter inside slashes
-        return global + '/' + (typeof local !== 'undefined' ? '[^/]*' + local + '[^/]*' : '[^/]*');
+        return global + '/' + (typeof local !== 'undefined' ? '[^/]*(?:' + local + ')[^/]*' : '[^/]*');
       }, '');
 
       var regExp = new RegExp(pattern, 'i');

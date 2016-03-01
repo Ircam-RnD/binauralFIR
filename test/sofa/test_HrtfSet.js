@@ -11,7 +11,7 @@ import '../../include/AudioContextMonkeyPatch';
 import HrtfSet from '../../src/sofa/HrtfSet';
 
 import { almostEquals } from '../../src/common/utilities';
-const epsilon = 10e-6; // Float32
+const epsilon = 10e-7; // Float32
 
 const prefix = 'HRTF set';
 

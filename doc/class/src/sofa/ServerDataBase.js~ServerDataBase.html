@@ -363,7 +363,7 @@ mixed contents (that are often blocked).</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber195">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber197">source</a></span></span>
     </span>
   </h3>
 
@@ -436,7 +436,7 @@ objects; the promise will reject is the transfer fails, with an error.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber231">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber233">source</a></span></span>
     </span>
   </h3>
 
@@ -510,7 +510,7 @@ with an error.</p>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber140">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sofa/ServerDataBase.js.html#lineNumber142">source</a></span></span>
     </span>
   </h3>
 
@@ -519,7 +519,8 @@ with an error.</p>
   
   <div data-ice="description"><p>Get URLs, possibly filtered.</p>
 <p>Any filter can be partial, and is case-insensitive. The result must
-match every supplied filter. Undefined filters are not applied.</p>
+match every supplied filter. Undefined filters are not applied. For
+any filter, <code>|</code> is the or operator.</p>
 </div>
 
   
@@ -581,7 +582,8 @@ match every supplied filter. Undefined filters are not applied.</p>
       <td data-ice="description"><p>any pattern matched
 globally. Use separators (spaces, tabs, etc.) to combine multiple
 patterns: &apos;44100 listen&apos; will restrict on URLs matching &apos;44100&apos; and
-&apos;listen&apos;</p>
+&apos;listen&apos;; &apos;44100|48000 bili|listen&apos; matches (&apos;44100&apos; or &apos;48000&apos;) and
+(&apos;bili&apos; or &apos;listen&apos;).</p>
 </td>
     </tr>
 </tbody>
