@@ -1,263 +1,35 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <title>Binaural FIR Example</title>
+        <title>Binaural Panner Examples</title>
         <meta charset="utf-8"/>
-        <script src="../include/AudioContextMonkeyPatch.js"></script>
-        <script src="../binaural.js"></script>
-        <script src="./js/jquery-1.11.1.min.js"></script>
-        <script src="./js/jquery.knob.js"></script>
-        <style type="text/css">
-         .warning,.stop
-         {
-             background-color: rgba(255, 0, 0, 0.7);
-         }
-
-         .play
-         {
-             background-color: rgba(0, 255, 0, 0.5);
-         }
-
-         .control
-         {
-             font-size: 2em;
-         }
-
-         input[type=range][orient=vertical]
-         {
-             writing-mode: bt-lr; /* IE */
-             -webkit-appearance: slider-vertical; /* WebKit */
-             width: 8px;
-             height: 175px;
-             padding: 0 5px;
-         }
-        </style>
     </head>
     <body>
-        <h1>Binaural FIR Example</h1>
+        <h1>Binaural Panner Examples</h1>
 
-        <p>This example illustrates the use of the
+        <p>This examples illustrates the use of the
             <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next">BinauralPanner</a>
-        to spatialize in real-time an incoming monophonic audio stream
-        around the head of the listener. The process can be easily extended
-        for multiple sources audio streams. In this implementation, the
+        to spatialize in real-time a incoming monophonic audio streams
+        around the head of the listener. In this implementation, the
         binaural process simply relies on the convolution of the incoming
         audio stream with Head Related Impulse Responses (HRIRs) measured
-        on a human head in free field conditions (anechoïc room). See [1]
-        for implementation details and implementation alternative.</p>
+        on a human head in free field conditions (anechoïc room).</p>
 
-        <p>The basic user interface provides control of the rotation on the
-        horizontal plane (azimuth) and on the vertical dimension
-        (elevation). The user interface also proposes to download different
-        sets of HRIRs, either from a server or from an URL. The public
-        server that hosts a database of individual HRIRs is available for
-        beta-testers only and will open to public in 2016.</p>
-
-        <p>[1] T. Carpentier, Binaural Synthesis with the Web Audio API,
-        1st Web Audio Conference (WAC15), Paris
+        <p>For implementation details and implementation alternative, see
+        T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web
+        Audio Conference (WAC15), Paris
         2015 <a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">PDF</a></p>
 
-        <button id="player-control" class="control stop">Play</button>
+        <p>The API provides control on the positions of the sources and of
+        the listener. It also proposes to download different sets of HRIRs,
+        either from a server or from an URL. The public server that hosts a
+        database of individual HRIRs is available for beta-testers only and
+        will open to public in 2016.</p>
 
-        <select id="hrtf-set"></select>
-        <div id="sample-rate-warning" class="warning"></div>
-
-        <center>
-            <pre> Azimuth </pre> <input id="azimuth" type="text"
-            data-angleOffset=180 class="vs1" data-width="180"
-            data-cursor=true data-thickness=".5" data-min="-180"
-            data-max="180" data-rotation="clockwise" />
-            <pre> Elevation </pre> <input id="elevation" type="range"
-            min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
-        </center>
-
-        <script>
-         var audioContext = new AudioContext();
-         var serverDataBase = new binaural.sofa.ServerDataBase();
-
-         // Audio Nodes
-         var binauralPanner = new binaural.audio.BinauralPanner({
-             audioContext,
-             crossfadeDuration: 0.05, // in seconds
-             coordinateSystem: 'spat4Spherical', // [azimuth, elevation, distance]
-             sourceCount: 1,
-             sourcePositions: [ [0, 0, 1] ], // initial position
-         });
-         binauralPanner.connectOutputs(audioContext.destination);
-
-         // player
-         var playerBuffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
-         var player = audioContext.createBufferSource();
-         player.buffer = playerBuffer;
-
-         var $playerControl = document.querySelector('#player-control');
-         $playerControl.onclick
-             = $playerControl.ontouchstart = function(event) {
-                 event.preventDefault(); // do not click after touch
-                 $playerControl.classList.toggle('play');
-                 $playerControl.classList.toggle('stop');
-                 if ($playerControl.classList.contains('play') ) {
-                     $playerControl.textContent = 'Stop';
-                     playerStart();
-                 } else if ($playerControl.classList.contains('stop') ) {
-                     $playerControl.textContent = 'Play';
-                     playerStop();
-                 }
-             }
-
-         function playerStart() {
-             player = audioContext.createBufferSource();
-             player.buffer = playerBuffer;
-             player.loop = true;
-             binauralPanner.connectInputByIndex(0, player);
-             player.start(0);
-         }
-
-         function playerStop() {
-             player.stop(0);
-         }
-
-         function getAudioData() {
-             var request = new XMLHttpRequest();
-             var url = './snd/breakbeat.wav';
-             request.open('GET', url, true);
-             request.responseType = 'arraybuffer';
-
-             request.onload = function() {
-                 var audioData = request.response;
-
-                 audioContext.decodeAudioData(audioData, function(buffer) {
-                     playerBuffer = buffer;
-                     if ($playerControl.classList.contains('play') ) {
-                         playerStop();
-                         playerStart();
-                     }
-
-                 }, function(error){
-                     throw new Error('Error with decoding audio data' + error.message);
-                 });
-             }
-
-             request.onerror = function() {
-                 throw new Error('Error while loading ' + url
-                               + request.status + request.responseText);
-             }
-
-             request.send();
-         }
-         getAudioData();
-
-         // Knobs
-         var $azimuth = $("#azimuth");
-         $azimuth.val(0);
-         $azimuth.knob({
-             'change': function(value) {
-                 // get current position
-                 var position = binauralPanner.getSourcePositionByIndex(0);
-
-                 // update azimuth
-                 position[0] = value;
-                 binauralPanner.setSourcePositionByIndex(0, position);
-
-                 // update filters
-                 window.requestAnimationFrame(function () {
-                     binauralPanner.update();
-                 });
-             }
-         });
-
-         var $elevation = $('#elevation');
-         $elevation.on("input", function(event) {
-             // get current position
-             var position = binauralPanner.getSourcePositionByIndex(0);
-
-             // update elevation
-             position[1] = event.target.value;
-             binauralPanner.setSourcePositionByIndex(0, position);
-
-             // update filters
-             window.requestAnimationFrame(function () {
-                 binauralPanner.update();
-             });
-         });
-
-         // HRTF set selection
-         var $hrtfSet = document.querySelector('#hrtf-set');
-         $hrtfSet.onchange = function () {
-             loadHrtfSet($hrtfSet.value);
-         };
-
-         serverDataBase
-         .loadCatalogue()
-         .then(function () {
-             var urls = serverDataBase.getUrls({
-                 convention: 'HRIR',
-                 equalisation: 'compensated',
-                 sampleRate: audioContext.sampleRate,
-             });
-
-             return urls;
-         })
-         .catch(function(error) {
-             console.error('Error accessing HRTF server. ' + error.message);
-
-             // local HRTF sets FIR sample-rates are 44100 and 48000 Hz
-             var sampleRate = audioContext.sampleRate;
-             if (sampleRate !== 44100 && sampleRate !== 48000) {
-                 $sampleRateWarning
-                     = document.querySelector('#sample-rate-warning');
-
-                 // Chrome 48 crashes on OX 10.9 at 96000 Hz
-                 // Firefox and Safari seem to re-sample correctly
-                 $sampleRateWarning.innerHTML
-                     = `Audio sample-rate at ${sampleRate} Hz is unsupported. `
-                     + `Please use 44100 or 48000 Hz instead. `
-                     + `(Trying to re-sample HRIRs.)`
-
-                 window.alert($sampleRateWarning.innerHTML);
-
-                 if (sampleRate === 88200 || sampleRate === 96000) {
-                     sampleRate *= 0.5;
-                 } else {
-                     sampleRate = 44100;
-                 }
-             }
-
-             // local files (1076 as default in menu)
-             var hrtfIds = [1037, 1076, 1129];
-
-             var urls = hrtfIds.map(function(id) {
-                 return './hrtf/IRC_' + id + '_C_HRIR_'
-                      + sampleRate + '.sofa.json';
-             });
-
-             return urls;
-         })
-         .then(function(urls) {
-             var $option;
-             urls.forEach(function (url) {
-                 $option = document.createElement('option');
-                 $option.textContent = url;
-                 $hrtfSet.add($option);
-             });
-
-             defaultUrl = urls.findIndex(function (url) {
-                 return url.match('1076');
-             });
-             $hrtfSet.value = urls[defaultUrl];
-             $hrtfSet.onchange();
-         });
-
-
-         function loadHrtfSet(url) {
-             // invalidate current
-             $hrtfSet.classList.add('warning');
-             return binauralPanner
-               .loadHrtfSet(url)
-               .then(function () {
-                   $hrtfSet.classList.remove('warning');
-               });
-         }
-        </script>
+        <p>Here are some examples:</p>
+        <ul>
+          <li><a href="single-source.html">Single source</a></li>
+          <li><a href="hrtf-set-selection.html">HRTF set selection</a></li>
+        </ul>
     </body>
 </html>
