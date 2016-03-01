@@ -82,8 +82,7 @@
 
         <label>Load an HRTF set from the selection: <select id="hrtf-set"></select></label>
         <div id="sample-rate-warning" class="warning"></div>
-        <label>Add local files to the HRTF set selection: <input accept="application/json" id="hrtf-set-local" multiple="true" type="file"></label>
-
+        <label>Use local files instead of the selection: <input accept="application/json" id="hrtf-set-local" multiple="true" type="file"></label>
 
         <center>
             <button id="player-control" class="control stop">Play</button>
@@ -310,6 +309,8 @@
 
          var $hrtfSetLocal = document.querySelector('#hrtf-set-local');
          $hrtfSetLocal.onchange = function() {
+             clearHrtfList();
+
              var files = $hrtfSetLocal.files;
 
              for (var i = 0; i < files.length; ++i) {
@@ -322,12 +323,14 @@
 
          var catalogLoaded = serverDataBase.loadCatalogue();
 
-         function generateHrtfList() {
+         function clearHrtfList() {
              for(var option = $hrtfSet.options.length - 1; option >= 0; --option) {
                  $hrtfSet.options[option].remove();
              }
-             
+         }
 
+         function generateHrtfList() {
+             clearHrtfList();
              catalogLoaded
                  .then(function () {
                      $serverWarning.innerHTML = ''
