@@ -199,7 +199,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
     }
 
     /**
-     * Get all source positions of a given URL.
+     * Get the data-set definitions of a given URL.
      *
      * @param {String} sourceUrl is the complete SOFA URL, with the
      * server, like

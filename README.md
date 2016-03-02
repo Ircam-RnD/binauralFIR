@@ -181,10 +181,10 @@ urlsFound.then(function(urls) {
   the way.
 - clicks on Firefox 44-45 (during update of `convolver.buffer`)
 - in documentation, links to BinauralPanner methods are broken (esdoc)
+- ServerDataBase: avoid server with free pattern filter?
 
 ## To do ##
 
-- Spat coordinates
 - attenuation with distance
 - dry/wet outputs for (shared) reverberation
 - support for infinite impulse responses, once [IIRFilterNode] is

@@ -5358,7 +5358,7 @@ module.exports = {
 module.exports={
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.3.5",
+  "version": "0.3.7",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
@@ -7811,7 +7811,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
-   * full load of SOFA file
+   * full load of SOFA file, instead of multiple partial loading.
    * {@link HrtfSet#filterAfterLoad}
    */
 
@@ -8840,7 +8840,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
     }
 
     /**
-     * Get all source positions of a given URL.
+     * Get the data-set definitions of a given URL.
      *
      * @param {String} sourceUrl is the complete SOFA URL, with the
      * server, like

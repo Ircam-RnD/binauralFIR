@@ -307,6 +307,15 @@
              loadHrtfSet($hrtfSet.value);
          };
 
+         // trigger load on single option (it may trigger too much)
+         $hrtfSet.onfocus = $hrtfSet.onclick = function(event) {
+             if ($hrtfSet.options.length === 1) {
+                 event.preventDefault();
+                 $hrtfSet.value = $hrtfSet.options[0].value;
+                 $hrtfSet.onchange();
+             }
+         }
+
          var $hrtfSetLocal = document.querySelector('#hrtf-set-local');
          $hrtfSetLocal.onchange = function() {
              clearHrtfList();
@@ -348,17 +357,15 @@
                      $serverWarning.innerHTML = 'Error accessing HRTF server. '
                                                 + error.message + '. '
                                               + 'Local files only.';
-
-                     // local files (1076 as default in menu)
-                     var hrtfIds = [1037, 1076, 1129];
-
-                     var urls = [];
-                     hrtfIds.forEach(function(id) {
-                         ['44100', '48000'].forEach(function(sampleRate) {
-                             urls.push('./hrtf/IRC_' + id + '_C_HRIR_'
-                                     + sampleRate + '.sofa.json');
-                         });
-                     });
+                     // local files
+                     var urls = [
+                         './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
+                         './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
+                         './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
+                         './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
+                         './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
+                         './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
+                     ];
 
                      return urls;
                  })

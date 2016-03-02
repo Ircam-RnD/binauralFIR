@@ -65,7 +65,7 @@ var HrtfSet = exports.HrtfSet = function () {
    * {@link HrtfSet#filterPositions}
    * array of positions to filter. Use undefined to use all positions.
    * @param {Boolean} [options.filterAfterLoad=false] true to filter after
-   * full load of SOFA file
+   * full load of SOFA file, instead of multiple partial loading.
    * {@link HrtfSet#filterAfterLoad}
    */
 

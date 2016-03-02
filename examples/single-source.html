@@ -209,13 +209,17 @@
                  }
              }
 
-             // local files (1076 as default in menu)
-             var hrtfIds = [1037, 1076, 1129];
-
-             var urls = hrtfIds.map(function(id) {
-                 return './hrtf/IRC_' + id + '_C_HRIR_'
-                      + sampleRate + '.sofa.json';
-             });
+             // local files (1147 as default in menu)
+             var urls = [
+                 './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
+                 './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
+                 './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
+                 './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
+                 './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
+                 './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
+             ].filter(function(url) {
+                 return url.match(sampleRate.toString() );
+             })
 
              return urls;
          })
@@ -228,7 +232,7 @@
              });
 
              defaultUrl = urls.findIndex(function (url) {
-                 return url.match('1076');
+                 return url.match('1147');
              });
              $hrtfSet.value = urls[defaultUrl];
              $hrtfSet.onchange();
