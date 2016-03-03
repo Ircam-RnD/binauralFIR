@@ -44,7 +44,7 @@
     "esdoc": "^0.4.4",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^1.0.2",
-    "jscs": "^2.8.0",
+    "jscs": "2.11.0",
     "tape": "^4.4.0",
     "tape-run": "^2.1.2",
     "testling": "^1.7.1",
