@@ -348,6 +348,7 @@ test(`${prefix}: Partial load, export, and re-load`, (assert) => {
               const channelsNb = fir.numberOfChannels;
               let equals = true;
               for (let channel = 0; channel < channelsNb; ++channel) {
+                // conversion to un-typed array for Safari ≤ 9
                 const firArray = [ ... fir.getChannelData(channel) ];
                 const fir2Array = [ ... fir2.getChannelData(channel) ];
                 /* eslint-disable no-loop-func */
@@ -414,6 +415,7 @@ test(`${prefix}: Full load, export, and re-load`, (assert) => {
               const channelsNb = fir.numberOfChannels;
               let equals = true;
               for (let channel = 0; channel < channelsNb; ++channel) {
+                // conversion to un-typed array for Safari ≤ 9
                 const firArray = [ ... fir.getChannelData(channel) ];
                 const fir2Array = [ ... fir2.getChannelData(channel) ];
                 /* eslint-disable no-loop-func */

@@ -20,10 +20,10 @@ export class Source {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinate system.
+   * @param {HrtfSet} options.hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [options.position=[0,0,0]] in 'gl' coordinate system.
    * {@link Source#position}
-   * @param {Number} [crossfadeDuration] in seconds
+   * @param {Number} [options.crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
    */
   constructor(options = {}) {

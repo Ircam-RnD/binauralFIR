@@ -100,6 +100,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
 
                 const channelsNb = firBuffer.numberOfChannels;
                 for (let channel = 0; channel < channelsNb; ++channel) {
+                  // conversion to un-typed array for Safari ≤ 9
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 
@@ -182,6 +183,7 @@ test(`${prefix} with an internal HRTF set`, (assert) => {
 
                 const channelsNb = firBuffer.numberOfChannels;
                 for (let channel = 0; channel < channelsNb; ++channel) {
+                  // conversion to un-typed array for Safari ≤ 9
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 
@@ -266,6 +268,7 @@ test(`${prefix} with a listener`, (assert) => {
 
                 const channelsNb = firBuffer.numberOfChannels;
                 for (let channel = 0; channel < channelsNb; ++channel) {
+                  // conversion to un-typed array for Safari ≤ 9
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 

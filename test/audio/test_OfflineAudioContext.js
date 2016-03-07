@@ -30,7 +30,7 @@ test(`${prefix}: test for offline context`, (assert) => {
                                                          sampleRate);
           const buffer = context.createBuffer(1, input.length, sampleRate);
           const data = buffer.getChannelData(0);
-          data.set([...input]);
+          data.set(input);
           const bufferSource = context.createBufferSource();
           bufferSource.buffer = buffer;
           bufferSource.connect(context.destination);

@@ -139,7 +139,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
       var url = extension === 'sofa' ? sourceUrl + '.json' : sourceUrl;
 
-      var promise = undefined;
+      var promise = void 0;
 
       // need a server for partial downloading ("sofa" extension may be naive)
       var preFilter = typeof this._filterPositions !== 'undefined' && !this.filterAfterLoad && extension === 'sofa';
@@ -199,7 +199,7 @@ var HrtfSet = exports.HrtfSet = function () {
       // SOFA listener is the reference for HrtfSet filter positions
       // which is normalised in HrtfSet
 
-      var SourcePosition = undefined;
+      var SourcePosition = void 0;
       var SourcePositionType = _coordinates2.default.systemType(this.filterCoordinateSystem);
       switch (SourcePositionType) {
         case 'cartesian':
@@ -304,8 +304,7 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * @private
      *
-     * @param {Array}
-     * indicesPositionsFirs
+     * @param {Array} indicesPositionsFirs
      * @returns {this}
      */
 
@@ -606,6 +605,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {Object} data
+     * @param {String} sourceUrl
      * @throws {Error} assertion for FIR data.
      */
 
@@ -719,8 +719,6 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get coordinate system for filter positions.
-     *
-     * @param {CoordinateSystem} system
      */
     ,
     get: function get() {
@@ -766,12 +764,10 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get filter positions.
-     *
-     * @param {Array.<Coordinates>} positions
      */
     ,
     get: function get() {
-      var positions = undefined;
+      var positions = void 0;
       if (typeof this._filterPositions !== 'undefined') {
         switch (this.filterCoordinateSystem) {
           case 'gl':

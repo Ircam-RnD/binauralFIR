@@ -33,7 +33,7 @@ Object.defineProperty(exports, "__esModule", {
  * }
  * request.send();
  */
-var parseXml = exports.parseXml = undefined;
+var parseXml = exports.parseXml = void 0;
 
 if (typeof window.DOMParser !== 'undefined') {
   exports.parseXml = parseXml = function parseXmlDOM(xmlStr) {

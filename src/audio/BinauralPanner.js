@@ -192,7 +192,7 @@ export class BinauralPanner {
   // ------------- HRTF set proxies
 
   /**
-   * Set the filter positions of the HRTF set
+   * Set the filter positions of the HRTF set.
    *
    * @see {@link HrtfSet#filterPositions}
    *
@@ -203,7 +203,7 @@ export class BinauralPanner {
   }
 
   /**
-   * Get the filter positions of the HRTF set
+   * Get the filter positions of the HRTF set.
    *
    * @see {@link HrtfSet#filterPositions}
    *
@@ -282,9 +282,9 @@ export class BinauralPanner {
    *
    * @param {CoordinateSystem} [system='gl']
    */
-  set listenerCoordinateSystem(coordinateSystem) {
-    this._listener.coordinateSystem = (typeof coordinateSystem !== 'undefined'
-                                       ? coordinateSystem
+  set listenerCoordinateSystem(system) {
+    this._listener.coordinateSystem = (typeof system !== 'undefined'
+                                       ? system
                                        : this.coordinateSystem);
   }
 
@@ -331,7 +331,7 @@ export class BinauralPanner {
    * @see {@link Listener#up}
    * @see {@link BinauralPanner#update}
    *
-   * @param {Coordinates} positionRequest
+   * @param {Coordinates} upRequest
    */
   set listenerUp(upRequest) {
     this._listener.up = upRequest;
@@ -357,7 +357,7 @@ export class BinauralPanner {
    * @see {@link Listener#viewIsRelative}
    * @see {@link BinauralPanner#update}
    *
-   * @param {Coordinates} positionRequest
+   * @param {Coordinates} viewRequest
    */
   set listenerView(viewRequest) {
     this._listener.view = viewRequest;

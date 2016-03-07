@@ -12,6 +12,14 @@ import ServerDataBase from '../../src/sofa/ServerDataBase';
 const prefix = 'ServerDataBase';
 
 // helpers
+
+/**
+ * Find one value matching the reference in an array.
+ *
+ * @param {Array} values
+ * @param {Array} reference
+ * @returns {Number} index of matched reference
+ */
 function findOne(values, reference) {
   return values.findIndex( (currentArray) => {
     return currentArray.every( (currentValue, index) => {
@@ -20,6 +28,12 @@ function findOne(values, reference) {
   });
 }
 
+/**
+ * Test an array contains all references.
+ * @param {Array} values
+ * @param {Array} references
+ * @returns {Boolean} false when at least a reference misses.
+ */
 function findEvery(values, references) {
   return references.every( (reference) => {
     return findOne(values, reference) !== -1;

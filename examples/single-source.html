@@ -58,12 +58,14 @@
         </center>
 
         <script>
+         /* global binaural, $ */
+
          var audioContext = new AudioContext();
          var serverDataBase = new binaural.sofa.ServerDataBase();
 
          // Audio Nodes
          var binauralPanner = new binaural.audio.BinauralPanner({
-             audioContext,
+             audioContext: audioContext,
              crossfadeDuration: 0.05, // in seconds
              coordinateSystem: 'spat4Spherical', // [azimuth, elevation, distance]
              sourceCount: 1,
@@ -89,7 +91,7 @@
                      $playerControl.textContent = 'Play';
                      playerStop();
                  }
-             }
+             };
 
          function playerStart() {
              player = audioContext.createBufferSource();
@@ -119,22 +121,22 @@
                          playerStart();
                      }
 
-                 }, function(error){
+                 }, function(error) {
                      throw new Error('Error with decoding audio data' + error.message);
                  });
-             }
+             };
 
              request.onerror = function() {
                  throw new Error('Error while loading ' + url
                                + request.status + request.responseText);
-             }
+             };
 
              request.send();
          }
          getAudioData();
 
          // Knobs
-         var $azimuth = $("#azimuth");
+         var $azimuth = $('#azimuth');
          $azimuth.val(0);
          $azimuth.knob({
              'change': function(value) {
@@ -146,14 +148,14 @@
                  binauralPanner.setSourcePositionByIndex(0, position);
 
                  // update filters
-                 window.requestAnimationFrame(function () {
+                 window.requestAnimationFrame(function() {
                      binauralPanner.update();
                  });
-             }
+             },
          });
 
          var $elevation = $('#elevation');
-         $elevation.on("input", function(event) {
+         $elevation.on('input', function(event) {
              // get current position
              var position = binauralPanner.getSourcePositionByIndex(0);
 
@@ -162,20 +164,55 @@
              binauralPanner.setSourcePositionByIndex(0, position);
 
              // update filters
-             window.requestAnimationFrame(function () {
+             window.requestAnimationFrame(function() {
                  binauralPanner.update();
              });
          });
 
          // HRTF set selection
          var $hrtfSet = document.querySelector('#hrtf-set');
-         $hrtfSet.onchange = function () {
+         $hrtfSet.onchange = function() {
              loadHrtfSet($hrtfSet.value);
          };
 
-         serverDataBase
-         .loadCatalogue()
-         .then(function () {
+         var $sampleRateWarning = document.querySelector('#sample-rate-warning');
+
+         var catalogLoaded = serverDataBase.loadCatalogue();
+
+         function clearHrtfList() {
+             for (var option = $hrtfSet.options.length - 1; option >= 0; --option) {
+                 $hrtfSet.options[option].remove();
+             }
+         }
+
+         // local files (1147 as default in menu)
+         var localUrls = [
+             './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
+             './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
+             './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
+             './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
+             './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
+             './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
+         ];
+
+         function fillHrtfList(urls) {
+             clearHrtfList();
+             var $option;
+             urls.forEach(function(url) {
+                 $option = document.createElement('option');
+                 $option.textContent = url;
+                 $hrtfSet.add($option);
+             });
+             $hrtfSet.classList.add('warning');
+             var defaultUrl = urls.findIndex(function(url) {
+                 return url.match('1147');
+             });
+             $hrtfSet.value = urls[defaultUrl];
+             $hrtfSet.onchange();
+         }
+         fillHrtfList(localUrls);
+
+         catalogLoaded.then(function() {
              var urls = serverDataBase.getUrls({
                  convention: 'HRIR',
                  equalisation: 'compensated',
@@ -185,21 +222,20 @@
              return urls;
          })
          .catch(function(error) {
+             /* eslint no-console: 0 */
              console.error('Error accessing HRTF server. ' + error.message);
 
              // local HRTF sets FIR sample-rates are 44100 and 48000 Hz
              var sampleRate = audioContext.sampleRate;
              if (sampleRate !== 44100 && sampleRate !== 48000) {
-                 $sampleRateWarning
-                     = document.querySelector('#sample-rate-warning');
-
                  // Chrome 48 crashes on OX 10.9 at 96000 Hz
                  // Firefox and Safari seem to re-sample correctly
                  $sampleRateWarning.innerHTML
                      = 'Audio sample-rate at ' + sampleRate + ' Hz is unsupported.'
                      + 'Please use 44100 or 48000 Hz instead.'
-                     + '(Trying to re-sample HRIRs.)'
+                     + '(Trying to re-sample HRIRs.)';
 
+                 /* eslint no-alert: 0 */
                  window.alert($sampleRateWarning.innerHTML);
 
                  if (sampleRate === 88200 || sampleRate === 96000) {
@@ -209,42 +245,22 @@
                  }
              }
 
-             // local files (1147 as default in menu)
-             var urls = [
-                 './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
-                 './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
-                 './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
-                 './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
-                 './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
-                 './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
-             ].filter(function(url) {
+             var urls = localUrls.filter(function(url) {
                  return url.match(sampleRate.toString() );
-             })
+             });
 
              return urls;
          })
          .then(function(urls) {
-             var $option;
-             urls.forEach(function (url) {
-                 $option = document.createElement('option');
-                 $option.textContent = url;
-                 $hrtfSet.add($option);
-             });
-
-             defaultUrl = urls.findIndex(function (url) {
-                 return url.match('1147');
-             });
-             $hrtfSet.value = urls[defaultUrl];
-             $hrtfSet.onchange();
+             fillHrtfList(urls);
          });
-
 
          function loadHrtfSet(url) {
              // invalidate current
              $hrtfSet.classList.add('warning');
              return binauralPanner
                .loadHrtfSet(url)
-               .then(function () {
+               .then(function() {
                    $hrtfSet.classList.remove('warning');
                });
          }

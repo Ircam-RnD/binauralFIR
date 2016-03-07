@@ -33,6 +33,7 @@ var Listener = exports.Listener = function () {
   /**
    * Constructs a listener.
    *
+   * @param {Object} options
    * @param {CoordinateSystem} [options.coordinateSystem='gl']
    * {@link Listener#coordinateSystem}
    * @param {Coordinates} [options.position=[0,0,0]]
@@ -112,13 +113,13 @@ var Listener = exports.Listener = function () {
     /**
      * Set coordinate system.
      *
-     * @param {CoordinateSystem} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
     key: 'coordinateSystem',
-    set: function set(coordinateSystem) {
-      this._coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : 'gl';
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
     }
 
     /**
@@ -167,7 +168,7 @@ var Listener = exports.Listener = function () {
      *
      * @see {@link Listener#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} upRequest
      */
 
   }, {
@@ -197,7 +198,7 @@ var Listener = exports.Listener = function () {
      * @see {@link Listener#viewIsRelative}
      * @see {@link Listener#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} viewRequest
      */
 
   }, {

@@ -19,6 +19,7 @@ export class Listener {
   /**
    * Constructs a listener.
    *
+   * @param {Object} options
    * @param {CoordinateSystem} [options.coordinateSystem='gl']
    * {@link Listener#coordinateSystem}
    * @param {Coordinates} [options.position=[0,0,0]]
@@ -73,11 +74,11 @@ export class Listener {
   /**
    * Set coordinate system.
    *
-   * @param {CoordinateSystem} [type='gl']
+   * @param {CoordinateSystem} [system='gl']
    */
-  set coordinateSystem(coordinateSystem) {
-    this._coordinateSystem = (typeof coordinateSystem !== 'undefined'
-                              ? coordinateSystem
+  set coordinateSystem(system) {
+    this._coordinateSystem = (typeof system !== 'undefined'
+                              ? system
                               : 'gl');
   }
 
@@ -122,7 +123,7 @@ export class Listener {
    *
    * @see {@link Listener#update}
    *
-   * @param {Coordinates} positionRequest
+   * @param {Coordinates} upRequest
    */
   set up(upRequest) {
     systemToGl(this._up, upRequest, this._coordinateSystem);
@@ -148,7 +149,7 @@ export class Listener {
    * @see {@link Listener#viewIsRelative}
    * @see {@link Listener#update}
    *
-   * @param {Coordinates} positionRequest
+   * @param {Coordinates} viewRequest
    */
   set view(viewRequest) {
     systemToGl(this._view, viewRequest, this._coordinateSystem);

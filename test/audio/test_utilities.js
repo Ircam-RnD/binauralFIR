@@ -74,7 +74,7 @@ test(`${prefix}: resample`, (assert) => {
                   'go back to almost the same number of samples'
                   + ' after down-sampling.');
 
-        // conversion to un-typed array for Safari
+        // conversion to un-typed array for Safari ≤ 9
         assert.equals([...inputSamples].findIndex( (current, index) => {
           return !almostEquals(current, outputSamples[index], epsilon);
         }), -1, 'almost back to original samples');

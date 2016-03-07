@@ -116,9 +116,9 @@ var ServerDataBase = exports.ServerDataBase = function () {
           } else {
             // recursion
             var promises = [];
-            for (var ref = 0; ref < catalogueReferences.length; ++ref) {
-              var name = catalogueReferences[ref].getAttribute('name');
-              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[ref].getAttribute('xlink:href');
+            for (var _ref = 0; _ref < catalogueReferences.length; ++_ref) {
+              var name = catalogueReferences[_ref].getAttribute('name');
+              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[_ref].getAttribute('xlink:href');
               destination[name] = {};
               promises.push(_this.loadCatalogue(recursiveUrl, destination[name]));
             }

@@ -118,7 +118,7 @@ $azimuth.on("input", function(event) {
     window.requestAnimationFrame(function () {
         binauralPanner.update();
     });
-}
+});
 ```
 
 Note that a call to the `update` method actually updates the filters.

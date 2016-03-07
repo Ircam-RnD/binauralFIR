@@ -17,6 +17,24 @@
   "requirePaddingNewLinesAfterBlocks": false,
   "requirePaddingNewLinesBeforeLineComments": false,
   "requireShorthandArrowFunctions": false,
-  "requireSpacesInsideObjectBrackets": false
+  "requireSpacesInsideObjectBrackets": false,
+  "plugins": [
+    "jscs-jsdoc"
+  ],
+  "jsDoc": {
+    "checkAnnotations": true,
+    "checkParamNames": true,
+    "checkRedundantParams": true,
+    "checkRedundantReturns": true,
+    "checkReturnTypes": true,
+    "checkTypes": true,
+    "enforceExistence": {
+      "allExcept": [
+        "arrow",
+        "expressions"
+      ]
+    },
+    "requireParamTypes": true,
+    "requireReturnTypes": true
+  }
 }
-

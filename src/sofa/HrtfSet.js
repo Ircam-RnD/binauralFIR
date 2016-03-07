@@ -89,8 +89,6 @@ export class HrtfSet {
 
   /**
    * Get coordinate system for filter positions.
-   *
-   * @param {CoordinateSystem} system
    */
   get filterCoordinateSystem() {
     return this._filterCoordinateSystem;
@@ -132,8 +130,6 @@ export class HrtfSet {
 
   /**
    * Get filter positions.
-   *
-   * @param {Array.<Coordinates>} positions
    */
   get filterPositions() {
     let positions;
@@ -443,8 +439,7 @@ export class HrtfSet {
    *
    * @private
    *
-   * @param {Array}
-   * indicesPositionsFirs
+   * @param {Array} indicesPositionsFirs
    * @returns {this}
    */
   _createKdTree(indicesPositionsFirs) {
@@ -752,6 +747,7 @@ export class HrtfSet {
    * @private
    *
    * @param {Object} data
+   * @param {String} sourceUrl
    * @throws {Error} assertion for FIR data.
    */
   _setMetaData(data, sourceUrl) {

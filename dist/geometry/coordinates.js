@@ -427,7 +427,7 @@ function glToSpat4Spherical(out, a) {
  * or spherical type.
  */
 function systemType(system) {
-  var type = undefined;
+  var type = void 0;
   if (system === 'sofaCartesian' || system === 'spat4Cartesian' || system === 'gl') {
     type = 'cartesian';
   } else if (system === 'sofaSpherical' || system === 'spat4Spherical') {

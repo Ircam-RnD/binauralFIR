@@ -84,6 +84,7 @@ test(`${prefix}`, (assert) => {
                 const firBuffer = hrtfSet.nearestFir(position);
 
                 for (let channel = 0; channel < 2; ++channel) {
+                  // conversion to un-typed array for Safari ≤ 9
                   const firArray = [ ...firBuffer.getChannelData(channel) ];
                   const sourceArray = [ ...sourceBuffer.getChannelData(channel) ];
 

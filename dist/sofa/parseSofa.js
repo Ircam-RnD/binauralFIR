@@ -125,7 +125,7 @@ function stringifySofa(sofaSet) {
   // always the same;
   var type = 'Float64';
 
-  var attributes = undefined;
+  var attributes = void 0;
 
   sofa.leaves = [];
 
@@ -236,7 +236,7 @@ function stringifySofa(sofaSet) {
  * @throws {Error} if system is unknown
  */
 function conformSofaCoordinateSystem(system) {
-  var type = undefined;
+  var type = void 0;
 
   switch (system) {
     case 'cartesian':

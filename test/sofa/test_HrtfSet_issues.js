@@ -33,6 +33,7 @@ test(`${prefix}: Load small set with different sample-rate`, (assert) => {
     audioContext.sampleRate,
   ];
 
+  // filter-out duplicates
   sofaSampleRates = [ ... new Set(sofaSampleRates) ];
 
   const urls = sofaSampleRates.map( (sampleRate) => {
@@ -65,6 +66,7 @@ test(`${prefix}: Load medium set with different sample-rate`, (assert) => {
     audioContext.sampleRate,
   ];
 
+  // filter-out duplicates
   sofaSampleRates = [ ... new Set(sofaSampleRates) ];
 
   const urls = sofaSampleRates.map( (sampleRate) => {
@@ -97,6 +99,7 @@ test(`${prefix}: Load big set with different sample-rate`, (assert) => {
     audioContext.sampleRate,
   ];
 
+  // filter-out duplicates
   sofaSampleRates = [ ... new Set(sofaSampleRates) ];
 
   const urls = sofaSampleRates.map( (sampleRate) => {

@@ -435,7 +435,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     // ------------- HRTF set proxies
 
     /**
-     * Set the filter positions of the HRTF set
+     * Set the filter positions of the HRTF set.
      *
      * @see {@link HrtfSet#filterPositions}
      *
@@ -449,7 +449,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Get the filter positions of the HRTF set
+     * Get the filter positions of the HRTF set.
      *
      * @see {@link HrtfSet#filterPositions}
      *
@@ -541,8 +541,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
   }, {
     key: 'listenerCoordinateSystem',
-    set: function set(coordinateSystem) {
-      this._listener.coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : this.coordinateSystem;
+    set: function set(system) {
+      this._listener.coordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
     }
 
     /**
@@ -593,7 +593,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#up}
      * @see {@link BinauralPanner#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} upRequest
      */
 
   }, {
@@ -623,7 +623,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#viewIsRelative}
      * @see {@link BinauralPanner#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} viewRequest
      */
 
   }, {

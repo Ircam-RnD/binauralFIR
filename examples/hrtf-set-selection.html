@@ -95,12 +95,14 @@
         </center>
 
         <script>
+         /* global binaural, $ */
+
          var audioContext = new AudioContext();
          var serverDataBase = new binaural.sofa.ServerDataBase();
 
          // Audio Nodes
          var binauralPanner = new binaural.audio.BinauralPanner({
-             audioContext,
+             audioContext: audioContext,
              crossfadeDuration: 0.05, // in seconds
              coordinateSystem: 'spat4Spherical', // [azimuth, elevation, distance]
              sourceCount: 1,
@@ -129,7 +131,7 @@
                  $playerControl.textContent = 'Play';
                  playerStop();
              }
-         }
+         };
 
          function playerStart() {
              player = audioContext.createBufferSource();
@@ -159,22 +161,22 @@
                          playerStart();
                      }
 
-                 }, function(error){
+                 }, function(error) {
                      throw new Error('Error with decoding audio data' + error.message);
                  });
-             }
+             };
 
              request.onerror = function() {
                  throw new Error('Error while loading ' + url
                                + request.status + request.responseText);
-             }
+             };
 
              request.send();
          }
          getAudioData();
 
          // Knobs
-         var $azimuth = $("#azimuth");
+         var $azimuth = $('#azimuth');
          $azimuth.val(0);
          $azimuth.knob({
              'change': function(value) {
@@ -186,10 +188,10 @@
                  binauralPanner.setSourcePositionByIndex(0, position);
 
                  // update filters
-                 window.requestAnimationFrame(function () {
+                 window.requestAnimationFrame(function() {
                      binauralPanner.update();
                  });
-             }
+             },
          });
 
          var $elevation = $('#elevation');
@@ -202,14 +204,14 @@
              binauralPanner.setSourcePositionByIndex(0, position);
 
              // update filters
-             window.requestAnimationFrame(function () {
+             window.requestAnimationFrame(function() {
                  binauralPanner.update();
              });
          });
 
          // HRTF filters
          var filterDataBase;
-         $filterDataBase = document.querySelector('#filter-data-base');
+         var $filterDataBase = document.querySelector('#filter-data-base');
          ['', 'BiLi', 'CIPIC', 'CrossMod', 'Listen'].forEach(function(base, index) {
              $filterDataBase.add(new window.Option(base, base) );
              $filterDataBase.size = index + 1;
@@ -220,16 +222,16 @@
              } else {
                  var filters = [];
                  var options = $filterDataBase.selectedOptions;
-                 for(var option = 0; option < options.length; ++option) {
+                 for (var option = 0; option < options.length; ++option) {
                      filters.push(options[option].value);
                  }
                  filterDataBase = filters.join('|');
              }
              generateHrtfList();
-         }
+         };
 
          var filterEqualisation;
-         $filterEqualisation = document.querySelector('#filter-equalisation');
+         var $filterEqualisation = document.querySelector('#filter-equalisation');
          ['', 'Raw', 'Compensated'].forEach(function(base, index) {
              $filterEqualisation.add(new window.Option(base, base) );
              $filterEqualisation.size = index + 1;
@@ -240,20 +242,20 @@
              } else {
                  var filters = [];
                  var options = $filterEqualisation.selectedOptions;
-                 for(var option = 0; option < options.length; ++option) {
+                 for (var option = 0; option < options.length; ++option) {
                      filters.push(options[option].value);
                  }
                  filterEqualisation = filters.join('|');
              }
              generateHrtfList();
-         }
+         };
          // default
          $filterEqualisation.value = filterEqualisation = 'Compensated';
 
          var filterSampleRate;
-         $filterSampleRate = document.querySelector('#filter-sample-rate');
+         var $filterSampleRate = document.querySelector('#filter-sample-rate');
          ['', '44100', '48000', '96000'].forEach(function(base, index) {
-             $option = new window.Option(base, base);
+             var $option = new window.Option(base, base);
              $filterSampleRate.add($option);
              if (base !== '' && base !== audioContext.sampleRate.toString() ) {
                  $option.classList.add('mismatch');
@@ -266,27 +268,27 @@
              } else {
                  var filters = [];
                  var options = $filterSampleRate.selectedOptions;
-                 for(var option = 0; option < options.length; ++option) {
+                 for (var option = 0; option < options.length; ++option) {
                      filters.push(options[option].value);
                  }
                  filterSampleRate = filters.join('|');
              }
              generateHrtfList();
-         }
+         };
          // default
          $filterSampleRate.value = filterSampleRate = audioContext.sampleRate.toString();
 
          var filterFreePattern;
-         $filterFreePattern = document.querySelector('#filter-free-pattern');
+         var $filterFreePattern = document.querySelector('#filter-free-pattern');
          $filterFreePattern.oninput
              = $filterFreePattern.onchange = function() {
                  filterFreePattern = $filterFreePattern.value;
                  generateHrtfList();
-             }
+             };
          // default
          $filterFreePattern.value = filterFreePattern = '';
 
-         $clearFilters = document.querySelector('#clear-filters');
+         var $clearFilters = document.querySelector('#clear-filters');
          $clearFilters.onclick
              = $clearFilters.ontouchstart = function(event) {
                  event.preventDefault(); // do not click after touch
@@ -294,7 +296,7 @@
                      $filterDataBase,
                      $filterEqualisation,
                      $filterSampleRate,
-                     $filterFreePattern
+                     $filterFreePattern,
                  ].forEach(function(filter) {
                      filter.value = '';
                      filter.onchange();
@@ -303,7 +305,7 @@
 
          // HRTF set selection
          var $hrtfSet = document.querySelector('#hrtf-set');
-         $hrtfSet.onchange = function () {
+         $hrtfSet.onchange = function() {
              loadHrtfSet($hrtfSet.value);
          };
 
@@ -314,7 +316,7 @@
                  $hrtfSet.value = $hrtfSet.options[0].value;
                  $hrtfSet.onchange();
              }
-         }
+         };
 
          var $hrtfSetLocal = document.querySelector('#hrtf-set-local');
          $hrtfSetLocal.onchange = function() {
@@ -333,16 +335,38 @@
          var catalogLoaded = serverDataBase.loadCatalogue();
 
          function clearHrtfList() {
-             for(var option = $hrtfSet.options.length - 1; option >= 0; --option) {
+             for (var option = $hrtfSet.options.length - 1; option >= 0; --option) {
                  $hrtfSet.options[option].remove();
              }
          }
 
-         function generateHrtfList() {
+         // local files (1147 as default in menu)
+         var localUrls = [
+             './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
+             './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
+             './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
+             './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
+             './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
+             './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
+         ];
+
+         function fillHrtfList(urls) {
              clearHrtfList();
+             var $option;
+             urls.forEach(function(url) {
+                 $option = document.createElement('option');
+                 $option.textContent = url;
+                 $hrtfSet.add($option);
+             });
+             $hrtfSet.classList.add('warning');
+         }
+         fillHrtfList(localUrls);
+
+         function generateHrtfList() {
+             fillHrtfList(localUrls);
              catalogLoaded
-                 .then(function () {
-                     $serverWarning.innerHTML = ''
+                 .then(function() {
+                     $serverWarning.innerHTML = '';
                      var urls = serverDataBase.getUrls({
                          convention: 'HRIR',
                          dataBase: filterDataBase,
@@ -357,26 +381,10 @@
                      $serverWarning.innerHTML = 'Error accessing HRTF server. '
                                                 + error.message + '. '
                                               + 'Local files only.';
-                     // local files
-                     var urls = [
-                         './hrtf/IRC_1037_C_HRIR_44100.sofa.json',
-                         './hrtf/IRC_1037_C_HRIR_48000.sofa.json',
-                         './hrtf/IRC_1076_C_HRIR_44100.sofa.json',
-                         './hrtf/IRC_1076_C_HRIR_48000.sofa.json',
-                         './hrtf/IRC_1147_C_HRIR_M_44100.sofa.json',
-                         './hrtf/IRC_1147_C_HRIR_M_48000.sofa.json',
-                     ];
-
-                     return urls;
+                     return localUrls;
                  })
                  .then(function(urls) {
-                     var $option;
-                     urls.forEach(function (url) {
-                         $option = document.createElement('option');
-                         $option.textContent = url;
-                         $hrtfSet.add($option);
-                     });
-                     $hrtfSet.classList.add('warning');
+                     fillHrtfList(urls);
                  });
          }
          generateHrtfList();
@@ -386,20 +394,21 @@
              $hrtfSet.classList.add('warning');
              return binauralPanner
                .loadHrtfSet(url)
-               .then(function () {
+               .then(function() {
                    $hrtfSet.classList.remove('warning');
                    var hrtfSampleRate = binauralPanner.hrtfSet.sofaSampleRate;
                    if (audioContext.sampleRate !== hrtfSampleRate) {
                        $sampleRateWarning.innerHTML
                            = 'HRTF sample-rate (' + hrtfSampleRate + ' Hz) is different '
                            + 'from the browser sample-rate (' + audioContext.sampleRate
-                           + ' Hz). Trying to re-sample the HRIRs.'
+                           + ' Hz). Trying to re-sample the HRIRs.';
                    } else {
                        $sampleRateWarning.innerHTML = '';
                    }
                })
                .catch(function(error) {
-                   alert('Unable to load HRTF set from ' + url + '. '
+                   /* eslint no-alert: 0 */
+                   window.alert('Unable to load HRTF set from ' + url + '. '
                          + error.message);
                });
          }

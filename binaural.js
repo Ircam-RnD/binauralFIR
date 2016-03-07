@@ -6947,15 +6947,16 @@ module.exports = {
 module.exports={
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
   "scripts": {
-    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/ ",
+    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/",
+    "lint-examples": "eslint -c examples/.eslintrc ./examples/*.html",
     "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
     "browserify": "browserify ./src/index.js -t [ babelify ] --standalone binaural > binaural.js",
-    "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
+    "bundle": "npm run lint && npm run lint-examples && npm run test && npm run doc && npm run compile && npm run browserify",
     "doc": "esdoc -c esdoc.json",
     "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
     "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
@@ -6977,7 +6978,7 @@ module.exports={
     "url": "https://github.com/Ircam-RnD/binauralFIR"
   },
   "engines": {
-    "node": "0.12 || 4.2",
+    "node": "0.12 || 4",
     "npm": ">=1.0.0 <3.0.0"
   },
   "devDependencies": {
@@ -6990,7 +6991,9 @@ module.exports={
     "esdoc": "^0.4.4",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^1.0.2",
+    "eslint-plugin-html": "^1.4.0",
     "jscs": "2.11.0",
+    "jscs-jsdoc": "^1.3.1",
     "tape": "^4.4.0",
     "tape-run": "^2.1.2",
     "testling": "^1.7.1",
@@ -7436,7 +7439,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     // ------------- HRTF set proxies
 
     /**
-     * Set the filter positions of the HRTF set
+     * Set the filter positions of the HRTF set.
      *
      * @see {@link HrtfSet#filterPositions}
      *
@@ -7450,7 +7453,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
     }
 
     /**
-     * Get the filter positions of the HRTF set
+     * Get the filter positions of the HRTF set.
      *
      * @see {@link HrtfSet#filterPositions}
      *
@@ -7542,8 +7545,8 @@ var BinauralPanner = exports.BinauralPanner = function () {
 
   }, {
     key: 'listenerCoordinateSystem',
-    set: function set(coordinateSystem) {
-      this._listener.coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : this.coordinateSystem;
+    set: function set(system) {
+      this._listener.coordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
     }
 
     /**
@@ -7594,7 +7597,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#up}
      * @see {@link BinauralPanner#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} upRequest
      */
 
   }, {
@@ -7624,7 +7627,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      * @see {@link Listener#viewIsRelative}
      * @see {@link BinauralPanner#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} viewRequest
      */
 
   }, {
@@ -7751,10 +7754,10 @@ var Source = exports.Source = function () {
    * @param {Object} options
    * @param {AudioContext} options.audioContext mandatory for the creation
    * of FIR audio buffers
-   * @param {HrtfSet} hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [position=[0,0,0]] in 'gl' coordinate system.
+   * @param {HrtfSet} options.hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [options.position=[0,0,0]] in 'gl' coordinate system.
    * {@link Source#position}
-   * @param {Number} [crossfadeDuration] in seconds
+   * @param {Number} [options.crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
    */
 
@@ -8343,6 +8346,7 @@ var Listener = exports.Listener = function () {
   /**
    * Constructs a listener.
    *
+   * @param {Object} options
    * @param {CoordinateSystem} [options.coordinateSystem='gl']
    * {@link Listener#coordinateSystem}
    * @param {Coordinates} [options.position=[0,0,0]]
@@ -8422,13 +8426,13 @@ var Listener = exports.Listener = function () {
     /**
      * Set coordinate system.
      *
-     * @param {CoordinateSystem} [type='gl']
+     * @param {CoordinateSystem} [system='gl']
      */
 
   }, {
     key: 'coordinateSystem',
-    set: function set(coordinateSystem) {
-      this._coordinateSystem = typeof coordinateSystem !== 'undefined' ? coordinateSystem : 'gl';
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
     }
 
     /**
@@ -8477,7 +8481,7 @@ var Listener = exports.Listener = function () {
      *
      * @see {@link Listener#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} upRequest
      */
 
   }, {
@@ -8507,7 +8511,7 @@ var Listener = exports.Listener = function () {
      * @see {@link Listener#viewIsRelative}
      * @see {@link Listener#update}
      *
-     * @param {Coordinates} positionRequest
+     * @param {Coordinates} viewRequest
      */
 
   }, {
@@ -8990,7 +8994,7 @@ function glToSpat4Spherical(out, a) {
  * or spherical type.
  */
 function systemType(system) {
-  var type = undefined;
+  var type = void 0;
   if (system === 'sofaCartesian' || system === 'spat4Cartesian' || system === 'gl') {
     type = 'cartesian';
   } else if (system === 'sofaSpherical' || system === 'spat4Spherical') {
@@ -9474,7 +9478,7 @@ var HrtfSet = exports.HrtfSet = function () {
 
       var url = extension === 'sofa' ? sourceUrl + '.json' : sourceUrl;
 
-      var promise = undefined;
+      var promise = void 0;
 
       // need a server for partial downloading ("sofa" extension may be naive)
       var preFilter = typeof this._filterPositions !== 'undefined' && !this.filterAfterLoad && extension === 'sofa';
@@ -9534,7 +9538,7 @@ var HrtfSet = exports.HrtfSet = function () {
       // SOFA listener is the reference for HrtfSet filter positions
       // which is normalised in HrtfSet
 
-      var SourcePosition = undefined;
+      var SourcePosition = void 0;
       var SourcePositionType = _coordinates2.default.systemType(this.filterCoordinateSystem);
       switch (SourcePositionType) {
         case 'cartesian':
@@ -9639,8 +9643,7 @@ var HrtfSet = exports.HrtfSet = function () {
      *
      * @private
      *
-     * @param {Array}
-     * indicesPositionsFirs
+     * @param {Array} indicesPositionsFirs
      * @returns {this}
      */
 
@@ -9941,6 +9944,7 @@ var HrtfSet = exports.HrtfSet = function () {
      * @private
      *
      * @param {Object} data
+     * @param {String} sourceUrl
      * @throws {Error} assertion for FIR data.
      */
 
@@ -10054,8 +10058,6 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get coordinate system for filter positions.
-     *
-     * @param {CoordinateSystem} system
      */
     ,
     get: function get() {
@@ -10101,12 +10103,10 @@ var HrtfSet = exports.HrtfSet = function () {
 
     /**
      * Get filter positions.
-     *
-     * @param {Array.<Coordinates>} positions
      */
     ,
     get: function get() {
-      var positions = undefined;
+      var positions = void 0;
       if (typeof this._filterPositions !== 'undefined') {
         switch (this.filterCoordinateSystem) {
           case 'gl':
@@ -10346,9 +10346,9 @@ var ServerDataBase = exports.ServerDataBase = function () {
           } else {
             // recursion
             var promises = [];
-            for (var ref = 0; ref < catalogueReferences.length; ++ref) {
-              var name = catalogueReferences[ref].getAttribute('name');
-              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[ref].getAttribute('xlink:href');
+            for (var _ref = 0; _ref < catalogueReferences.length; ++_ref) {
+              var name = catalogueReferences[_ref].getAttribute('name');
+              var recursiveUrl = _this._server + dataSet.getAttribute('name') + '/' + catalogueReferences[_ref].getAttribute('xlink:href');
               destination[name] = {};
               promises.push(_this.loadCatalogue(recursiveUrl, destination[name]));
             }
@@ -10829,7 +10829,7 @@ function stringifySofa(sofaSet) {
   // always the same;
   var type = 'Float64';
 
-  var attributes = undefined;
+  var attributes = void 0;
 
   sofa.leaves = [];
 
@@ -10940,7 +10940,7 @@ function stringifySofa(sofaSet) {
  * @throws {Error} if system is unknown
  */
 function conformSofaCoordinateSystem(system) {
-  var type = undefined;
+  var type = void 0;
 
   switch (system) {
     case 'cartesian':
@@ -10998,7 +10998,7 @@ Object.defineProperty(exports, "__esModule", {
  * }
  * request.send();
  */
-var parseXml = exports.parseXml = undefined;
+var parseXml = exports.parseXml = void 0;
 
 if (typeof window.DOMParser !== 'undefined') {
   exports.parseXml = parseXml = function parseXmlDOM(xmlStr) {
