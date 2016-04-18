@@ -271,7 +271,7 @@ test(`${prefix}: SOFA spherical coordinates to GL`, (assert) => {
 
 // ----------------- Spat4
 
-test(`${prefix}: Spat coordinates`, (assert) => {
+test(`${prefix}: Spat4 coordinates`, (assert) => {
   let positions = [
     [0, 0, 0],
     [1, 0, 0],
@@ -536,7 +536,7 @@ test(`${prefix}: named coordinate systems`, (assert) => {
       return !position.every( (coordinate, c) => {
         return almostEquals(coordinate, positionModified[c], epsilon);
       });
-    }), -1, `coordinate system ${system} converted from to to openGL`);
+    }), -1, `coordinate system ${system} converted from and to openGL`);
   });
 
   assert.end();

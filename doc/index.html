@@ -218,8 +218,6 @@ problem for cloning, and for installing with npm.</li>
 (<code>gh-pages</code>?) to limit the history on real commits.</li>
 <li>re-sampling is broken on full set (Chrome 48 issue): too many parallel
 audio contexts?</li>
-<li>no HTTPS on SOFA server, yet (mixed content blocked). Let&apos;s Encrypt is on
-the way.</li>
 <li>clicks on Firefox 44-45 (during update of <code>convolver.buffer</code>)</li>
 <li>in documentation, links to BinauralPanner methods are broken (esdoc)</li>
 <li>ServerDataBase: avoid server with free pattern filter?</li>
@@ -257,7 +255,9 @@ major points:</p>
 end with <code>_listen.js</code></li>
 <li><code>npm run test-issues</code> for unsolved issues. The issues may depend on the
 host: operating system, user-agent, sound-device, sample-rate, etc. The
-test files must end with <code>_issues.js</code></li>
+test files must end with <code>_issues.js</code>. Once an issue is solved, the
+corresponding tests are added to the automated test set.</li>
+<li><code>npm run test-browser</code> starts a server for running the tests in any browser.</li>
 </ul>
 <h3 id="documentation">Documentation</h3>
 <p>Document any public function and method with <a href="http://usejsdoc.org/">JSDoc</a>, and generate the HTML

@@ -6947,7 +6947,7 @@ module.exports = {
 module.exports={
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
@@ -6959,6 +6959,7 @@ module.exports={
     "bundle": "npm run lint && npm run lint-examples && npm run test && npm run doc && npm run compile && npm run browserify",
     "doc": "esdoc -c esdoc.json",
     "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
+    "test-browser": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | testling -u",
     "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
     "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
     "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"

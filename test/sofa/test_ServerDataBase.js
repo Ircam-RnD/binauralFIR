@@ -7,6 +7,12 @@
 
 import test from 'blue-tape';
 
+import {
+  almostEquals,
+  almostEqualsModulo,
+} from '../../src/common/utilities';
+const epsilon = 1e-6;
+
 import ServerDataBase from '../../src/sofa/ServerDataBase';
 
 const prefix = 'ServerDataBase';
@@ -18,25 +24,32 @@ const prefix = 'ServerDataBase';
  *
  * @param {Array} values
  * @param {Array} reference
+ * @param {Number} tolerance to consider a matching value
  * @returns {Number} index of matched reference
  */
-function findOne(values, reference) {
+function findOne(values, reference, tolerance = epsilon) {
   return values.findIndex( (currentArray) => {
     return currentArray.every( (currentValue, index) => {
-      return currentValue === reference[index];
+      return almostEquals(currentValue, reference[index], tolerance);
     });
   });
 }
 
 /**
- * Test an array contains all references.
+ * Find one value matching the reference in an array, with modulo
+ *
  * @param {Array} values
- * @param {Array} references
- * @returns {Boolean} false when at least a reference misses.
+ * @param {Array} reference
+ * @param {Number} modulo used for comparison
+ * @param {Number} tolerance to consider a matching value
+ * @returns {Number} index of matched reference
  */
-function findEvery(values, references) {
-  return references.every( (reference) => {
-    return findOne(values, reference) !== -1;
+function findOneModulo(values, reference, modulo, tolerance = epsilon) {
+  return values.findIndex( (currentArray) => {
+    return currentArray.every( (currentValue, index) => {
+      return almostEqualsModulo(currentValue, reference[index],
+                                modulo, tolerance);
+    });
   });
 }
 
@@ -95,11 +108,11 @@ test(`${prefix}: Default catalogue`, (assert) => {
       assert.equals(filteredUrls[0], listen1012Url,
                     'filtered URL is the right one');
 
-      const bili1121Url = 'http://bili2.ircam.fr/SimpleFreeFieldSOS/'
-              + 'BILI/COMPENSATED/48000/IRC_1121_C_SOS_12order.sofa';
-      // un-ordered multiple strings
+      const bili1121Url = 'http://bili2.ircam.fr/SimpleFreeFieldHRIR/'
+              + 'BILI/COMPENSATED/48000/IRC_1121_C_HRIR.sofa';
+      // Un-ordered multiple strings
       filteredUrls = dataBase.getUrls({
-        freePattern: '1121 bili 48000 sos 12order',
+        freePattern: '1121 bili 48000 compensated HRIR',
       });
 
       assert.equals(filteredUrls.length, 1, '1 URL left after combined free filter.');
@@ -108,7 +121,7 @@ test(`${prefix}: Default catalogue`, (assert) => {
 
       filteredUrls = dataBase.getUrls({
         dataBase: 'listen|bili',
-        freePattern: '1121|1012 48000|44100 sos 12order',
+        freePattern: '1121|1012 48000|44100 compensated HRIR',
       });
 
       assert.equals(filteredUrls.length, 4,
@@ -170,8 +183,16 @@ test(`${prefix}: Source positions`, (assert) => {
           [0, 90, 2.06],
         ];
 
-        assert.true(findEvery(sourcePositions, listen1012Positions),
-                    'Found expected positions');
+        // // current issue on server
+        // assert.equals(listen1012Positions.findIndex( (current) => {
+        //   return findOne(sourcePositions, current) === -1;
+        // }), -1, 'Found expected positions');
+
+        // accept positions with modulo,
+        // they may not conform to SOFA standard
+        assert.equals(listen1012Positions.findIndex( (current) => {
+          return findOneModulo(sourcePositions, current, 360) === -1;
+        }), -1, 'Found expected positions, modulo 360');
 
         assert.equals(findOne(sourcePositions, [0, 0, 0]),
                       -1,

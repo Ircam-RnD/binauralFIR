@@ -177,8 +177,6 @@ urlsFound.then(function(urls) {
   (`gh-pages`?) to limit the history on real commits.
 - re-sampling is broken on full set (Chrome 48 issue): too many parallel
   audio contexts?
-- no HTTPS on SOFA server, yet (mixed content blocked). Let's Encrypt is on
-  the way.
 - clicks on Firefox 44-45 (during update of `convolver.buffer`)
 - in documentation, links to BinauralPanner methods are broken (esdoc)
 - ServerDataBase: avoid server with free pattern filter?
@@ -220,7 +218,9 @@ For any function or method, there is at least a test. The hierarchy in the
   end with `_listen.js`
 - `npm run test-issues` for unsolved issues. The issues may depend on the
   host: operating system, user-agent, sound-device, sample-rate, etc. The
-  test files must end with `_issues.js`
+  test files must end with `_issues.js`. Once an issue is solved, the
+  corresponding tests are added to the automated test set.
+- `npm run test-browser` starts a server for running the tests in any browser.
 
 ### Documentation ###
 
