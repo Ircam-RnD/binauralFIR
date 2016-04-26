@@ -194,8 +194,15 @@ compile` with [Babel] to the [dist directory]. Note that there is a
 [.babelrc] file. `npm run bundle` runs the linters, the tests,
 generates the documentation, and compiles the code.
 
-Be sure to commit the distribution files and the documentation for any
-release, and tag it.
+Commit the source files to the branch `develop`, and update the version in
+[package.json] if this is intended to be a release.
+
+On the `master` branch, merge from the `develop` branch. Commit the
+generated documentation and the generated distribution files. Put a release
+tag that corresponds to the version in [package.json].
+
+On the `gh-pages` branch, merge from the `master` branch. Commit the
+examples, and the extra files (audio and HRTF set files).
 
 ### Style ###
 
@@ -249,34 +256,41 @@ the SOFA standard, and the access to a server, is part of the [CoSiMa]
 project, funded by ANR.
 
 [//]: # (Avoid relative links for use with https://github.com/README.md)
-[//]: # (and http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html)
+[//]: # (and http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/doc/index.html)
 
-[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc
-[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc
-[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc
+[//]: # (Use relative links after the release, and drop rawgit.com)
+[//]: # (next-develop => develop)
+[//]: # (next-master => master)
+[//]: # (next-gh-pages => gh-pages)
+
+[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.babelrc
+[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.eslintrc
+[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.jscsrc
 [Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
 [AirBnB]: https://github.com/airbnb/javascript/
 [Analysis of Musical Practices]: http://apm.ircam.fr/
-[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/doc/
-[API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html
+[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-master/doc/
+[API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-master/doc/index.html
 [Babel]: https://babeljs.io/
 [BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause
 [CoSiMa]: http://cosima.ircam.fr/
-[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/
+[doc directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next-master/doc/
+[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next-master/dist/
 [documentation]: #documentation
 [ES2015]: https://babeljs.io/docs/learn-es2015/
-[esdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/esdoc.json
-[examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/
-[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/
-[examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html
+[esdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/esdoc.json
+[examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/
+[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/hrtf/
+[examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/examples/index.html
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
 [IIRFilterNode]: https://webaudio.github.io/web-audio-api/#idl-def-IIRFilterNode
-[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json
+[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/jsdoc.json
 [JSDoc]: http://usejsdoc.org/
+[package.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
-[src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
-[src/geometry]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry
+[src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/
+[src/geometry]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/geometry/
 [T. Carpentier article]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
-[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
+[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/test/
 [Web Audio API]: https://webaudio.github.io/web-audio-api/
