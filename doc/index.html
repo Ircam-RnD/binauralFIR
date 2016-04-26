@@ -99,7 +99,7 @@ library is that it permits to use a custom <a href="http://en.wikipedia.org/wiki
 <p>It is possible to use it without a server, with a direct URL to an <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a>
 set.</p>
 <h2 id="documentation">Documentation</h2>
-<p>You can consult the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html">API documentation</a> for the complete documentation.</p>
+<p>You can consult the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-master/doc/index.html">API documentation</a> for the complete documentation.</p>
 <h3 id="binauralpanner">BinauralPanner</h3>
 <p>A <code>BinauralPanner</code> is a panner for use with the <a href="https://webaudio.github.io/web-audio-api/">Web Audio API</a>. It
 spatialises multiple audio sources, given a set of head-related transfer
@@ -113,17 +113,17 @@ and any free pattern.</p>
 <h3 id="hrtf-dataset">HRTF dataset</h3>
 <p>You can use any <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a> data-set that follows the <a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a> standard, in JSON
 format, using finite impulse responses (FIR). Second-order sections (SOS)
-are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/">examples HRTF directory</a> for a few samples.</p>
+are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/hrtf/">examples HRTF directory</a> for a few samples.</p>
 <h3 id="coordinate-system-types">Coordinate system types</h3>
-<p>See the files in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry">src/geometry</a>, for conversions:</p>
+<p>See the files in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/geometry/">src/geometry</a>, for conversions:</p>
 <ul>
 <li>OpenGL, <a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a>, and Spat4 (Ircam) conventions</li>
 <li>cartesian and spherical coordinates</li>
 <li>radian and degree angles</li>
 </ul>
 <h2 id="examples">Examples</h2>
-<p>Please see the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/">examples directory</a> for complete code, and the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html">examples online</a>.</p>
-<p>See also the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html">API documentation</a> for the complete options.</p>
+<p>Please see the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/">examples directory</a> for complete code, and the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/examples/index.html">examples online</a>.</p>
+<p>See also the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-master/doc/index.html">API documentation</a> for the complete options.</p>
 <h3 id="binauralpanner">BinauralPanner</h3>
 <p>Given an audio element, and a global binaural module,</p>
 <pre><code class="lang-html"><code class="source-code prettyprint">&lt;html&gt;
@@ -211,7 +211,7 @@ sample-rate matching the one of the audio context.</p>
 </code></pre>
 <h2 id="issues">Issues</h2>
 <ul>
-<li>the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/">examples HRTF directory</a> is too big for a repository: this is a
+<li>the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/hrtf/">examples HRTF directory</a> is too big for a repository: this is a
 problem for cloning, and for installing with npm.</li>
 <li>documentation and distribution files should go to a release branch
 (<code>gh-pages</code>?) to limit the history on real commits.</li>
@@ -229,15 +229,20 @@ audio contexts?</li>
 implemented.</li>
 </ul>
 <h2 id="developers">Developers</h2>
-<p>The source code is in the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src">src directory</a>, in <a href="https://babeljs.io/docs/learn-es2015/">ES2015</a> standard. <code>npm run
-compile</code> with <a href="https://babeljs.io/">Babel</a> to the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/">dist directory</a>. Note that there is a
-<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc">.babelrc</a> file. <code>npm run bundle</code> runs the linters, the tests,
+<p>The source code is in the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/">src directory</a>, in <a href="https://babeljs.io/docs/learn-es2015/">ES2015</a> standard. <code>npm run
+compile</code> with <a href="https://babeljs.io/">Babel</a> to the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-master/dist/">dist directory</a>. Note that there is a
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.babelrc">.babelrc</a> file. <code>npm run bundle</code> runs the linters, the tests,
 generates the documentation, and compiles the code.</p>
-<p>Be sure to commit the distribution files and the documentation for any
-release, and tag it.</p>
+<p>Commit the source files to the branch <code>develop</code>, and update the version in
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json">package.json</a> if this is intended to be a release.</p>
+<p>On the <code>master</code> branch, merge from the <code>develop</code> branch. Commit the
+generated documentation and the generated distribution files. Put a release
+tag that corresponds to the version in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json">package.json</a>.</p>
+<p>On the <code>gh-pages</code> branch, merge from the <code>master</code> branch. Commit the
+examples, and the extra files (audio and HRTF set files).</p>
 <h3 id="style">Style</h3>
-<p><code>npm run lint</code> to check that the code conforms with <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc">.eslintrc</a> and
-<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc">.jscsrc</a> files. The rules derive from <a href="https://github.com/airbnb/javascript/">AirBnB</a> with these
+<p><code>npm run lint</code> to check that the code conforms with <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.eslintrc">.eslintrc</a> and
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.jscsrc">.jscsrc</a> files. The rules derive from <a href="https://github.com/airbnb/javascript/">AirBnB</a> with these
 major points:</p>
 <ul>
 <li><a href="https://babeljs.io/docs/learn-es2015/">ES2015</a></li>
@@ -247,7 +252,7 @@ major points:</p>
 </ul>
 <h3 id="test">Test</h3>
 <p>For any function or method, there is at least a test. The hierarchy in the
-<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/test">test directory</a> is the same as in the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src">src directory</a>.</p>
+<a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/test/">test directory</a> is the same as in the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/">src directory</a>.</p>
 <ul>
 <li><code>npm run test</code> for all automated tests</li>
 <li><code>npm run test-listen</code> for supervised listening tests. The test files must
@@ -270,7 +275,7 @@ for an URL to open in any browser</li>
 pages with <code>npm run doc</code>. At this point, neither
 <a href="https://www.npmjs.com/package/jsdoc">jsdoc</a> nor
 <a href="https://www.npmjs.com/package/esdoc">esdoc</a> gives perfect
-transcription. (See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json">jsdoc.json</a> and <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/esdoc.json">esdoc.json</a> files.)</p>
+transcription. (See the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/jsdoc.json">jsdoc.json</a> and <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/esdoc.json">esdoc.json</a> files.)</p>
 <h2 id="license">License</h2>
 <p>This module is released under the <a href="http://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a> license.</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
