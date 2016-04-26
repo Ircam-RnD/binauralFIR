@@ -49,7 +49,8 @@ See the files in [src/geometry], for conversions:
 
 ## Examples ##
 
-Please see the [examples directory] for complete code, and the [examples online].
+Please see the [examples directory] for complete code (on branch
+`gh-pages`), and the [examples online].
 
 See also the [API documentation] for the complete options.
 
@@ -172,7 +173,8 @@ urlsFound.then(function(urls) {
 
 - re-sampling is broken on full set (Chrome 48 issue): too many parallel
   audio contexts?
-- clicks on Firefox 44-45 (during update of `convolver.buffer`)
+- clicks on Firefox 44-45 (during update of `convolver.buffer`, because
+  `AudioContext.currentTime` does not advance)
 - ServerDataBase: avoid server with free pattern filter?
 
 ## To do ##
@@ -192,9 +194,9 @@ generates the documentation, and compiles the code.
 Commit the source files to the branch `develop`, and update the version in
 [package.json] if this is intended to be a release.
 
-On the `master` branch, merge from the `develop` branch. Commit the
-generated documentation and the generated distribution files. Put a release
-tag that corresponds to the version in [package.json].
+On the `master` branch, merge from the `develop` branch. Generate and
+commit the documentation and the distribution files. Put a release tag that
+corresponds to the version in [package.json].
 
 On the `gh-pages` branch, merge from the `master` branch. Commit the
 examples, and the extra files (audio and HRTF set files).
