@@ -170,14 +170,9 @@ urlsFound.then(function(urls) {
 
 ## Issues ##
 
-- the [examples HRTF directory] is too big for a repository: this is a
-  problem for cloning, and for installing with npm.
-- documentation and distribution files should go to a release branch
-  (`gh-pages`?) to limit the history on real commits.
 - re-sampling is broken on full set (Chrome 48 issue): too many parallel
   audio contexts?
 - clicks on Firefox 44-45 (during update of `convolver.buffer`)
-- in documentation, links to BinauralPanner methods are broken (esdoc)
 - ServerDataBase: avoid server with free pattern filter?
 
 ## To do ##
