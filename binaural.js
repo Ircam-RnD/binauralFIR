@@ -6947,7 +6947,7 @@ module.exports = {
 module.exports={
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",

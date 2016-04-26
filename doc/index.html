@@ -122,7 +122,8 @@ are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFI
 <li>radian and degree angles</li>
 </ul>
 <h2 id="examples">Examples</h2>
-<p>Please see the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/">examples directory</a> for complete code, and the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/examples/index.html">examples online</a>.</p>
+<p>Please see the <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/">examples directory</a> for complete code (on branch
+<code>gh-pages</code>), and the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/examples/index.html">examples online</a>.</p>
 <p>See also the <a href="http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-master/doc/index.html">API documentation</a> for the complete options.</p>
 <h3 id="binauralpanner">BinauralPanner</h3>
 <p>Given an audio element, and a global binaural module,</p>
@@ -213,7 +214,8 @@ sample-rate matching the one of the audio context.</p>
 <ul>
 <li>re-sampling is broken on full set (Chrome 48 issue): too many parallel
 audio contexts?</li>
-<li>clicks on Firefox 44-45 (during update of <code>convolver.buffer</code>)</li>
+<li>clicks on Firefox 44-45 (during update of <code>convolver.buffer</code>, because
+<code>AudioContext.currentTime</code> does not advance)</li>
 <li>ServerDataBase: avoid server with free pattern filter?</li>
 </ul>
 <h2 id="to-do">To do</h2>
@@ -230,9 +232,9 @@ compile</code> with <a href="https://babeljs.io/">Babel</a> to the <a href="http
 generates the documentation, and compiles the code.</p>
 <p>Commit the source files to the branch <code>develop</code>, and update the version in
 <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json">package.json</a> if this is intended to be a release.</p>
-<p>On the <code>master</code> branch, merge from the <code>develop</code> branch. Commit the
-generated documentation and the generated distribution files. Put a release
-tag that corresponds to the version in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json">package.json</a>.</p>
+<p>On the <code>master</code> branch, merge from the <code>develop</code> branch. Generate and
+commit the documentation and the distribution files. Put a release tag that
+corresponds to the version in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json">package.json</a>.</p>
 <p>On the <code>gh-pages</code> branch, merge from the <code>master</code> branch. Commit the
 examples, and the extra files (audio and HRTF set files).</p>
 <h3 id="style">Style</h3>
