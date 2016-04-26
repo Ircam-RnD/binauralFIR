@@ -1,7 +1,7 @@
 {
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
@@ -43,7 +43,7 @@
     "babelify": "^7.2.0",
     "blue-tape": "^0.1.11",
     "browserify": "^12.0.2",
-    "esdoc": "^0.4.4",
+    "esdoc": "^0.4.6",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^1.0.2",
     "eslint-plugin-html": "^1.4.0",

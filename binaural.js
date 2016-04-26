@@ -6989,7 +6989,7 @@ module.exports={
     "babelify": "^7.2.0",
     "blue-tape": "^0.1.11",
     "browserify": "^12.0.2",
-    "esdoc": "^0.4.4",
+    "esdoc": "^0.4.6",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^1.0.2",
     "eslint-plugin-html": "^1.4.0",

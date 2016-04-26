@@ -91,8 +91,8 @@
 <p>This library permits to render sources in three-dimensional space with
 binaural audio.</p>
 <p>This library provides an access to a server, in order to load a set of
-<a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a>. The set of filters applies to any number of sources, given their
-position, and a listener.</p>
+Head-related transfer functions (<a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a>). The set of filters applies to any
+number of sources, given their position, and a listener.</p>
 <p>This library is compatible with the <a href="https://webaudio.github.io/web-audio-api/">Web Audio API</a>. The novelty of this
 library is that it permits to use a custom <a href="http://en.wikipedia.org/wiki/Head-related_transfer_function">HRTF</a> dataset (see
 <a href="http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf">T. Carpentier article</a>).</p>
@@ -117,7 +117,7 @@ are not supported, yet. See the <a href="https://github.com/Ircam-RnD/binauralFI
 <h3 id="coordinate-system-types">Coordinate system types</h3>
 <p>See the files in <a href="https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry">src/geometry</a>, for conversions:</p>
 <ul>
-<li>openGL, <a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a>, and Spat4 (Ircam) conventions</li>
+<li>OpenGL, <a href="http://www.aes.org/publications/standards/search.cfm?docID=99">SOFA</a>, and Spat4 (Ircam) conventions</li>
 <li>cartesian and spherical coordinates</li>
 <li>radian and degree angles</li>
 </ul>
@@ -151,14 +151,13 @@ var player = audioContext.createMediaElementSource($mediaElement);</code>
 binauralPanner.connectOutputs(audioContext.destination);
 binauralPanner.connectInputByIndex(0, player);</code>
 </code></pre>
-<p>Load an HRTF set (this returns a promise).</p>
+<p>Load an HRTF set (this returns a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>).</p>
 <pre><code class="lang-js"><code class="source-code prettyprint">binauralPanner.loadHrtfSet(url)
     .then(function () {
         console.log(&apos;loaded&apos;);
     })
     .catch(function (error) {
-        console.log(&apos;Error while loading &apos; + url
-                    + error.message);
+        console.log(&apos;Error while loading &apos; + url + error.message);
     });</code>
 </code></pre>
 <p>Then, any source can move:</p>
@@ -185,7 +184,7 @@ binauralPanner.connectInputByIndex(0, player);</code>
 <pre><code class="lang-js"><code class="source-code prettyprint">var catalogLoaded = serverDataBase.loadCatalogue();</code>
 </code></pre>
 <p>Find URLs with <code>HRIR</code> convention, <code>COMPENSATED</code> equalisation, and a
-sample-rate matching those of the audio context.</p>
+sample-rate matching the one of the audio context.</p>
 <pre><code class="lang-js"><code class="source-code prettyprint">var urlsFound = catalogLoaded.then(function () {
     var urls = serverDataBase.getUrls({
         convention: &apos;HRIR&apos;,
@@ -198,7 +197,7 @@ sample-rate matching those of the audio context.</p>
     console.log(&apos;Error accessing HRTF server. &apos; + error.message);
 });</code>
 </code></pre>
-<p>Then, a <code>BinauralPanner</code> can load one of these URLs</p>
+<p>Then, a <code>BinauralPanner</code> can load one of these URLs.</p>
 <pre><code class="lang-js"><code class="source-code prettyprint">urlsFound.then(function(urls) {
     binauralPanner.loadHrtfSet(urls[0])
         .then(function () {
@@ -242,7 +241,7 @@ release, and tag it.</p>
 major points:</p>
 <ul>
 <li><a href="https://babeljs.io/docs/learn-es2015/">ES2015</a></li>
-<li>no <code>&apos;strict&apos;</code> globally (already there via babel)</li>
+<li>no <code>&apos;use strict&apos;</code> globally (already there via babel)</li>
 <li>enforce curly braces (<code>if</code>, <code>for</code>, etc.)</li>
 <li>allow spaces and new lines, with fewer requirements: use them for clarity</li>
 </ul>
@@ -258,6 +257,13 @@ host: operating system, user-agent, sound-device, sample-rate, etc. The
 test files must end with <code>_issues.js</code>. Once an issue is solved, the
 corresponding tests are added to the automated test set.</li>
 <li><code>npm run test-browser</code> starts a server for running the tests in any browser.</li>
+</ul>
+<p>Examples for specific testing, when developing or resolving an issue:</p>
+<ul>
+<li><code>browserify test/geometry/test_Listener.js -t babelify | tape-run</code> in a
+headless browser</li>
+<li><code>browserify test/geometry/test_Listener.js -t babelify | testling -u</code>
+for an URL to open in any browser</li>
 </ul>
 <h3 id="documentation">Documentation</h3>
 <p>Document any public function and method with <a href="http://usejsdoc.org/">JSDoc</a>, and generate the HTML

@@ -4,8 +4,8 @@ This library permits to render sources in three-dimensional space with
 binaural audio.
 
 This library provides an access to a server, in order to load a set of
-[HRTF]. The set of filters applies to any number of sources, given their
-position, and a listener.
+Head-related transfer functions ([HRTF]). The set of filters applies to any
+number of sources, given their position, and a listener.
 
 This library is compatible with the [Web Audio API]. The novelty of this
 library is that it permits to use a custom [HRTF] dataset (see
@@ -42,7 +42,7 @@ are not supported, yet. See the [examples HRTF directory] for a few samples.
 ### Coordinate system types ###
 
 See the files in [src/geometry], for conversions:
-- openGL, [SOFA], and Spat4 (Ircam) conventions
+- OpenGL, [SOFA], and Spat4 (Ircam) conventions
 - cartesian and spherical coordinates
 - radian and degree angles
 
@@ -90,7 +90,7 @@ binauralPanner.connectInputByIndex(0, player);
 
 ```
 
-Load an HRTF set (this returns a promise).
+Load an HRTF set (this returns a [Promise]).
 
 ```js
 binauralPanner.loadHrtfSet(url)
@@ -98,8 +98,7 @@ binauralPanner.loadHrtfSet(url)
         console.log('loaded');
     })
     .catch(function (error) {
-        console.log('Error while loading ' + url
-                    + error.message);
+        console.log('Error while loading ' + url + error.message);
     });
 ```
 
@@ -138,7 +137,7 @@ var catalogLoaded = serverDataBase.loadCatalogue();
 ```
 
 Find URLs with `HRIR` convention, `COMPENSATED` equalisation, and a
-sample-rate matching those of the audio context.
+sample-rate matching the one of the audio context.
 
 ```js
 var urlsFound = catalogLoaded.then(function () {
@@ -154,7 +153,7 @@ var urlsFound = catalogLoaded.then(function () {
 });
 ```
 
-Then, a `BinauralPanner` can load one of these URLs
+Then, a `BinauralPanner` can load one of these URLs.
 
 ```js
 urlsFound.then(function(urls) {
@@ -204,7 +203,7 @@ release, and tag it.
 [.jscsrc] files. The rules derive from [AirBnB] with these
 major points:
 - [ES2015]
-- no `'strict'` globally (already there via babel)
+- no `'use strict'` globally (already there via babel)
 - enforce curly braces (`if`, `for`, etc.)
 - allow spaces and new lines, with fewer requirements: use them for clarity
 
@@ -221,6 +220,12 @@ For any function or method, there is at least a test. The hierarchy in the
   test files must end with `_issues.js`. Once an issue is solved, the
   corresponding tests are added to the automated test set.
 - `npm run test-browser` starts a server for running the tests in any browser.
+
+Examples for specific testing, when developing or resolving an issue:
+- `browserify test/geometry/test_Listener.js -t babelify | tape-run` in a
+  headless browser
+- `browserify test/geometry/test_Listener.js -t babelify | testling -u`
+  for an URL to open in any browser
 
 ### Documentation ###
 
@@ -246,31 +251,32 @@ project, funded by ANR.
 [//]: # (Avoid relative links for use with https://github.com/README.md)
 [//]: # (and http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html)
 
+[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc
+[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc
+[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc
+[Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
 [AirBnB]: https://github.com/airbnb/javascript/
+[Analysis of Musical Practices]: http://apm.ircam.fr/
 [API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/doc/
 [API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/doc/index.html
-[Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/
-[Analysis of Musical Practices]: http://apm.ircam.fr/
 [Babel]: https://babeljs.io/
-[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.babelrc
 [BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause
-[T. Carpentier article]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
 [CoSiMa]: http://cosima.ircam.fr/
 [dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next/dist/
 [documentation]: #documentation
 [ES2015]: https://babeljs.io/docs/learn-es2015/
-[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.eslintrc
 [esdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/esdoc.json
 [examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/
 [examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/examples/hrtf/
 [examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next/examples/index.html
-[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next/.jscsrc
-[JSDoc]: http://usejsdoc.org/
-[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json
 [HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function
 [IIRFilterNode]: https://webaudio.github.io/web-audio-api/#idl-def-IIRFilterNode
+[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next/jsdoc.json
+[JSDoc]: http://usejsdoc.org/
+[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99
-[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
 [src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src
 [src/geometry]: https://github.com/Ircam-RnD/binauralFIR/tree/next/src/geometry
+[T. Carpentier article]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf
+[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next/test
 [Web Audio API]: https://webaudio.github.io/web-audio-api/
