@@ -33,14 +33,18 @@ export class Source {
     this._convolverCurrent = this._audioContext.createConvolver();
     this._convolverCurrent.normalize = false;
 
+    this._gainDistCurrent = this._audioContext.createGain();
     this._gainCurrent = this._audioContext.createGain();
-    this._convolverCurrent.connect(this._gainCurrent);
+    this._convolverCurrent.connect(this._gainDistCurrent);
+    this._gainDistCurrent.connect(this._gainCurrent);
 
     this._convolverNext = this._audioContext.createConvolver();
     this._convolverNext.normalize = false;
 
+    this._gainDistNext = this._audioContext.createGain();
     this._gainNext = this._audioContext.createGain();
-    this._convolverNext.connect(this._gainNext);
+    this._convolverNext.connect(this._gainDistNext);
+    this._gainDistNext.connect(this._gainNext);
 
     this.crossfadeDuration = options.crossfadeDuration;
 
@@ -127,6 +131,19 @@ export class Source {
       this._gainCurrent.gain.setValueAtTime(1, now);
       this._gainCurrent.gain.linearRampToValueAtTime(
         0, now + this._crossfadeDuration);
+
+      // update distance gain
+      const dist = Math.max(1.0,
+        Math.sqrt(
+          Math.pow(positionRequest[0], 2) +
+          Math.pow(positionRequest[1], 2) +
+          Math.pow(positionRequest[2], 2)
+        ));
+      const gainDist = 1.0 / Math.pow(dist, 1.0);
+      this._gainDistCurrent.gain.cancelScheduledValues(now);
+      this._gainDistCurrent.gain.setValueAtTime(gainDist, now);
+      this._gainDistNext.gain.cancelScheduledValues(now);
+      this._gainDistNext.gain.setValueAtTime(gainDist, now);
     } else {
       // re-schedule later
       this._crossfadeTimeout = setTimeout( () => {
