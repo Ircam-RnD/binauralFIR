@@ -392,7 +392,7 @@ export class BinauralPanner {
    * @returns {Boolean}
    */
   get listenerViewIsRelative() {
-    return this._listerner.viewIsRelative;
+    return this._listener.viewIsRelative;
   }
 
   /**

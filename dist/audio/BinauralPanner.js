@@ -666,7 +666,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
      */
     ,
     get: function get() {
-      return this._listerner.viewIsRelative;
+      return this._listener.viewIsRelative;
     }
 
     /**
