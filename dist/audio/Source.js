@@ -67,9 +67,6 @@ var Source = exports.Source = function () {
     this._crossfadeAfterTime = this._audioContext.currentTime;
     this._crossfadeTimeout = undefined;
 
-    // parameters related to ambisonic reverb
-    this._gainRoom = this._audioContext.createGain();
-
     // set position when everything is ready
     if (typeof options.position !== 'undefined') {
       this.position = options.position;
@@ -270,10 +267,14 @@ var Source = exports.Source = function () {
         // update distance gain
         var dist = Math.max(1.0, Math.sqrt(Math.pow(positionRequest[0], 2) + Math.pow(positionRequest[1], 2) + Math.pow(positionRequest[2], 2)));
         var gainDist = 1.0 / Math.pow(dist, 1.0);
+
         this._gainDistCurrent.gain.cancelScheduledValues(now);
-        this._gainDistCurrent.gain.setValueAtTime(gainDist, now);
+        this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
+        this._gainDistCurrent.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+
         this._gainDistNext.gain.cancelScheduledValues(now);
-        this._gainDistNext.gain.setValueAtTime(gainDist, now);
+        this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
+        this._gainDistNext.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
       } else {
         // re-schedule later
         this._crossfadeTimeout = setTimeout(function () {

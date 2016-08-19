@@ -140,10 +140,14 @@ export class Source {
           Math.pow(positionRequest[2], 2)
         ));
       const gainDist = 1.0 / Math.pow(dist, 1.0);
+
       this._gainDistCurrent.gain.cancelScheduledValues(now);
-      this._gainDistCurrent.gain.setValueAtTime(gainDist, now);
+      this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
+      this._gainDistCurrent.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+
       this._gainDistNext.gain.cancelScheduledValues(now);
-      this._gainDistNext.gain.setValueAtTime(gainDist, now);
+      this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
+      this._gainDistNext.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
     } else {
       // re-schedule later
       this._crossfadeTimeout = setTimeout( () => {
