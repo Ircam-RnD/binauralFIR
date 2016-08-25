@@ -65,6 +65,7 @@ test(`${prefix}`, (assert) => {
                 hrtfSet,
                 position,
                 crossfadeDuration: 0, // immediate positions
+                distAttenuationExponent: 0, // no distance test here
               });
 
               const diracBuffer = audio.createDiracBuffer( {

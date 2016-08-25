@@ -1,7 +1,7 @@
 {
   "coverage": "100%",
-  "expectCount": 126,
-  "actualCount": 126,
+  "expectCount": 128,
+  "actualCount": 128,
   "files": {
     "src/audio/BinauralPanner.js": {
       "expectCount": 36,
@@ -24,8 +24,8 @@
       "undocumentLines": []
     },
     "src/audio/Source.js": {
-      "expectCount": 11,
-      "actualCount": 11,
+      "expectCount": 13,
+      "actualCount": 13,
       "undocumentLines": []
     },
     "src/common/utilities.js": {

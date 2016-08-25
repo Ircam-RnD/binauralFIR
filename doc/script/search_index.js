@@ -661,25 +661,25 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
-    "member"
-  ],
-  [
-    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterCoordinateSystem",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
+    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterCoordinateSystem",
     "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
     "member"
   ],
@@ -703,13 +703,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
@@ -733,20 +733,14 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerposition",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
-    "member"
-  ],
-  [
-    "src/audio/binauralpanner.js~binauralpanner#listenerposition",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerPosition",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#listenerup",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
+    "src/audio/binauralpanner.js~binauralpanner#listenerposition",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerPosition",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerPosition",
     "member"
   ],
   [
@@ -756,14 +750,20 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#listenerview",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView",
-    "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
+    "src/audio/binauralpanner.js~binauralpanner#listenerup",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerview",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerView",
+    "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#listenerview",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerView",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerView",
     "member"
   ],
@@ -835,13 +835,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
   [
     "src/audio/source.js~source#crossfadeduration",
-    "class/src/audio/Source.js~Source.html#instance-set-crossfadeDuration",
+    "class/src/audio/Source.js~Source.html#instance-get-crossfadeDuration",
     "src/audio/Source.js~Source#crossfadeDuration",
     "member"
   ],
@@ -858,14 +858,26 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "src/audio/source.js~source#hrtfset",
-    "class/src/audio/Source.js~Source.html#instance-get-hrtfSet",
-    "src/audio/Source.js~Source#hrtfSet",
+    "src/audio/source.js~source#distattenuationexponent",
+    "class/src/audio/Source.js~Source.html#instance-set-distAttenuationExponent",
+    "src/audio/Source.js~Source#distAttenuationExponent",
+    "member"
+  ],
+  [
+    "src/audio/source.js~source#distattenuationexponent",
+    "class/src/audio/Source.js~Source.html#instance-get-distAttenuationExponent",
+    "src/audio/Source.js~Source#distAttenuationExponent",
     "member"
   ],
   [
     "src/audio/source.js~source#hrtfset",
     "class/src/audio/Source.js~Source.html#instance-set-hrtfSet",
+    "src/audio/Source.js~Source#hrtfSet",
+    "member"
+  ],
+  [
+    "src/audio/source.js~source#hrtfset",
+    "class/src/audio/Source.js~Source.html#instance-get-hrtfSet",
     "src/audio/Source.js~Source#hrtfSet",
     "member"
   ],
@@ -919,13 +931,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#coordinatesystem",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-coordinateSystem",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-coordinateSystem",
     "src/geometry/Listener.js~Listener#coordinateSystem",
     "member"
   ],
@@ -967,25 +979,25 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#view",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-view",
-    "src/geometry/Listener.js~Listener#view",
-    "member"
-  ],
-  [
-    "src/geometry/listener.js~listener#view",
     "class/src/geometry/Listener.js~Listener.html#instance-get-view",
     "src/geometry/Listener.js~Listener#view",
     "member"
   ],
   [
-    "src/geometry/listener.js~listener#viewisrelative",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-viewIsRelative",
-    "src/geometry/Listener.js~Listener#viewIsRelative",
+    "src/geometry/listener.js~listener#view",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-view",
+    "src/geometry/Listener.js~Listener#view",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#viewisrelative",
     "class/src/geometry/Listener.js~Listener.html#instance-set-viewIsRelative",
+    "src/geometry/Listener.js~Listener#viewIsRelative",
+    "member"
+  ],
+  [
+    "src/geometry/listener.js~listener#viewisrelative",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-viewIsRelative",
     "src/geometry/Listener.js~Listener#viewIsRelative",
     "member"
   ],
@@ -1117,13 +1129,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions",
     "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
     "member"
   ],
   [
     "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions",
+    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions",
     "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
     "member"
   ],

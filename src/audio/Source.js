@@ -25,6 +25,9 @@ export class Source {
    * {@link Source#position}
    * @param {Number} [options.crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
+   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
+   * of form: 1/(dist^distAttenuationExponent).
+   * {@link BinauralPanner#distAttenuationExponent}
    */
   constructor(options = {}) {
     this._audioContext = options.audioContext;
@@ -46,7 +49,8 @@ export class Source {
     this._convolverNext.connect(this._gainDistNext);
     this._gainDistNext.connect(this._gainNext);
 
-    this.crossfadeDuration = options.crossfadeDuration;
+    this._crossfadeDuration = options.crossfadeDuration;
+    this._distAttenuationExponent = options.distAttenuationExponent;
 
     this._crossfadeAfterTime = this._audioContext.currentTime;
     this._crossfadeTimeout = undefined;
@@ -96,6 +100,24 @@ export class Source {
   }
 
   /**
+   * Set the distance attenuation exponent
+   *
+   * @param {Number} distAttenuationExponent
+   */
+  set distAttenuationExponent(distAttenuationExponent) {
+    this._distAttenuationExponent = distAttenuationExponent;
+  }
+
+  /**
+   * Get the distance attenuation exponent
+   *
+   * @returns {Number} distAttenuationExponent
+   */
+  get distAttenuationExponent() {
+    return this._distAttenuationExponent;
+  }
+
+  /**
    * Set the position of the source and updates.
    *
    * @param {Coordinates} positionRequest
@@ -139,15 +161,15 @@ export class Source {
           Math.pow(positionRequest[1], 2) +
           Math.pow(positionRequest[2], 2)
         ));
-      const gainDist = 1.0 / Math.pow(dist, 1.0);
+      const gainDist = 1.0 / Math.pow(dist, this._distAttenuationExponent);
 
       this._gainDistCurrent.gain.cancelScheduledValues(now);
       this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
-      this._gainDistCurrent.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+      this._gainDistCurrent.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
 
       this._gainDistNext.gain.cancelScheduledValues(now);
       this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
-      this._gainDistNext.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+      this._gainDistNext.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
     } else {
       // re-schedule later
       this._crossfadeTimeout = setTimeout( () => {

@@ -36,6 +36,9 @@ var Source = exports.Source = function () {
    * {@link Source#position}
    * @param {Number} [options.crossfadeDuration] in seconds
    * {@link Source#crossfadeDuration}
+   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
+   * of form: 1/(dist^distAttenuationExponent).
+   * {@link BinauralPanner#distAttenuationExponent}
    */
 
   function Source() {
@@ -62,7 +65,8 @@ var Source = exports.Source = function () {
     this._convolverNext.connect(this._gainDistNext);
     this._gainDistNext.connect(this._gainNext);
 
-    this.crossfadeDuration = options.crossfadeDuration;
+    this._crossfadeDuration = options.crossfadeDuration;
+    this._distAttenuationExponent = options.distAttenuationExponent;
 
     this._crossfadeAfterTime = this._audioContext.currentTime;
     this._crossfadeTimeout = undefined;
@@ -225,6 +229,28 @@ var Source = exports.Source = function () {
     }
 
     /**
+     * Set the distance attenuation exponent
+     *
+     * @param {Number} distAttenuationExponent
+     */
+
+  }, {
+    key: 'distAttenuationExponent',
+    set: function set(distAttenuationExponent) {
+      this._distAttenuationExponent = distAttenuationExponent;
+    }
+
+    /**
+     * Get the distance attenuation exponent
+     *
+     * @returns {Number} distAttenuationExponent
+     */
+    ,
+    get: function get() {
+      return this._distAttenuationExponent;
+    }
+
+    /**
      * Set the position of the source and updates.
      *
      * @param {Coordinates} positionRequest
@@ -266,15 +292,15 @@ var Source = exports.Source = function () {
 
         // update distance gain
         var dist = Math.max(1.0, Math.sqrt(Math.pow(positionRequest[0], 2) + Math.pow(positionRequest[1], 2) + Math.pow(positionRequest[2], 2)));
-        var gainDist = 1.0 / Math.pow(dist, 1.0);
+        var gainDist = 1.0 / Math.pow(dist, this._distAttenuationExponent);
 
         this._gainDistCurrent.gain.cancelScheduledValues(now);
         this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
-        this._gainDistCurrent.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+        this._gainDistCurrent.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
 
         this._gainDistNext.gain.cancelScheduledValues(now);
         this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
-        this._gainDistNext.gain.setValueAtTime(gainDist, now + this._crossfadeDuration);
+        this._gainDistNext.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
       } else {
         // re-schedule later
         this._crossfadeTimeout = setTimeout(function () {

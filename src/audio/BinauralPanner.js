@@ -34,6 +34,9 @@ export class BinauralPanner {
    * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
    * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
    * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
+   * form: 1/(dist^distAttenuationExponent).
+   * {@link BinauralPanner#distAttenuationExponent}
    * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
    * {@link BinauralPanner#hrtfSet}
    * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
@@ -93,10 +96,15 @@ export class BinauralPanner {
 
     this._sourcesOutdated = new Array(sourceCount).fill(true);
 
+    const distAttenuationExponent = (typeof options.distAttenuationExponent !== 'undefined'
+                         ? options.distAttenuationExponent
+                         : 0);
+
     this._sources = this._sourcesOutdated.map( () => {
       return new Source({
         audioContext: this._audioContext,
         crossfadeDuration: options.crossfadeDuration,
+        distAttenuationExponent: distAttenuationExponent,
       });
     });
 

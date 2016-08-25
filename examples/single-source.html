@@ -49,12 +49,24 @@
         <div id="sample-rate-warning" class="warning"></div>
 
         <center>
-            <pre> Azimuth </pre> <input id="azimuth" type="text"
-            data-angleOffset=180 class="vs1" data-width="180"
-            data-cursor=true data-thickness=".5" data-min="-180"
-            data-max="180" data-rotation="clockwise" />
-            <pre> Elevation </pre> <input id="elevation" type="range"
-            min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
+            <table>
+                <tr>
+                    <th> Azimuth  (deg) </th>
+                    <th> Elevation (deg) </th>
+                    <th> Distance  (mm) </th>
+                </tr>
+                <tr>
+                    <td>
+                        <input id="azimuth" type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5" data-min="-180" data-max="180" data-rotation="clockwise" />
+                    </td>
+                    <td>
+                        <input id="elevation" type="text" value="0" class="dial" data-width="180" data-min="-90" data-max="90" data-cursor=true data-rotation="clockwise" data-angleArc="180" data-angleOffset="180" />
+                    </td>
+                    <td>
+                        <input id="distance" type="text" value="0.1" class="dial" data-width="180" data-step="1" data-min="200" data-max="10000" data-cursor=true data-rotation="clockwise" data-angleArc="180" data-angleOffset="180" />
+                    </td>
+                </tr>
+            </table>
         </center>
 
         <script>
@@ -70,6 +82,7 @@
              coordinateSystem: 'spat4Spherical', // [azimuth, elevation, distance]
              sourceCount: 1,
              sourcePositions: [ [0, 0, 1] ], // initial position
+             distAttenuationExponent: 1,
          });
          binauralPanner.connectOutputs(audioContext.destination);
 
@@ -155,18 +168,39 @@
          });
 
          var $elevation = $('#elevation');
-         $elevation.on('input', function(event) {
-             // get current position
-             var position = binauralPanner.getSourcePositionByIndex(0);
+         $elevation.val(0);
+         $elevation.knob({
+             'change': function(value) {
+                 // get current position
+                 var position = binauralPanner.getSourcePositionByIndex(0);
 
-             // update elevation
-             position[1] = event.target.value;
-             binauralPanner.setSourcePositionByIndex(0, position);
+                 // update value
+                 position[1] = value;
+                 binauralPanner.setSourcePositionByIndex(0, position);
 
-             // update filters
-             window.requestAnimationFrame(function() {
-                 binauralPanner.update();
-             });
+                 // update filters
+                 window.requestAnimationFrame(function() {
+                     binauralPanner.update();
+                 });
+             },
+         });
+
+         var $distance = $('#distance');
+         $distance.val(0.1);
+         $distance.knob({
+             'change': function(value) {
+                 // get current position
+                 var position = binauralPanner.getSourcePositionByIndex(0);
+
+                 // update value
+                 position[2] = value / 1000.0;
+                 binauralPanner.setSourcePositionByIndex(0, position);
+
+                 // update filters
+                 window.requestAnimationFrame(function() {
+                     binauralPanner.update();
+                 });
+             },
          });
 
          // HRTF set selection
