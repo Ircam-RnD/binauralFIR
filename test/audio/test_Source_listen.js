@@ -1,11 +1,10 @@
 import test from 'blue-tape';
+import serveSofaHrir from 'serve-sofa-hrir';
 
 import '../../include/AudioContextMonkeyPatch';
 
 import audio from '../../src/audio/utilities';
 import Source from '../../src/audio/Source';
-import HrtfSet from '../../src/sofa/HrtfSet';
-import ServerDataBase from '../../src/sofa/ServerDataBase';
 
 const prefix = 'Listening test for single source';
 
@@ -31,14 +30,14 @@ const testPositionsName = [
   'front-right',
 ];
 
-const hrtfSet = new HrtfSet({
+const hrtfSet = new serveSofaHrir.HrtfSet({
   audioContext,
   filterPositions: testPositions,
   coordinateSystem,
 });
 
 console.log('accessing server');
-const serverDataBase = new ServerDataBase();
+const serverDataBase = new serveSofaHrir.ServerDataBase();
 
 test(`${prefix}`, (assert) => {
   return serverDataBase.loadCatalogue()

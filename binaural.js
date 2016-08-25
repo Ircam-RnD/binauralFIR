@@ -6944,1143 +6944,11 @@ module.exports = {
 }
 
 },{}],12:[function(require,module,exports){
-module.exports={
-  "name": "binaural",
-  "exports": "binaural",
-  "version": "0.4.1",
-  "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
-  "main": "./dist/",
-  "standalone": "binaural",
-  "scripts": {
-    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/",
-    "lint-examples": "eslint -c examples/.eslintrc ./examples/*.html",
-    "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
-    "browserify": "browserify ./src/index.js -t [ babelify ] --standalone binaural > binaural.js",
-    "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
-    "doc": "esdoc -c esdoc.json",
-    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
-    "test-browser": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | testling -u",
-    "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
-    "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
-    "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"
-  },
-  "authors": [
-    "Jean-Philippe.Lambert@ircam.fr",
-    "Arnau Julià <arnau.julia@gmail.com>",
-    "Samuel.Goldszmidt@ircam.fr"
-  ],
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "gl-matrix": "^2.3.1",
-    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Ircam-RnD/binauralFIR"
-  },
-  "engines": {
-    "node": "0.12 || 4",
-    "npm": ">=1.0.0 <3.0.0"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.5.1",
-    "babel-eslint": "^4.1.8",
-    "babel-preset-es2015": "^6.5.0",
-    "babelify": "^7.2.0",
-    "blue-tape": "^0.1.11",
-    "browserify": "^12.0.2",
-    "esdoc": "^0.4.6",
-    "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^1.0.2",
-    "eslint-plugin-html": "^1.4.0",
-    "jscs": "2.11.0",
-    "jscs-jsdoc": "^1.3.1",
-    "tape": "^4.4.0",
-    "tape-run": "^2.1.2",
-    "testling": "^1.7.1",
-    "watch": "^0.17.1"
-  }
-}
-
-},{}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.BinauralPanner = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Multi-source binaural panner.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
-
-var _glMatrix = require('gl-matrix');
-
-var _glMatrix2 = _interopRequireDefault(_glMatrix);
-
-var _coordinates = require('../geometry/coordinates');
-
-var _HrtfSet = require('../sofa/HrtfSet');
-
-var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
-
-var _Source = require('./Source');
-
-var _Source2 = _interopRequireDefault(_Source);
-
-var _Listener = require('../geometry/Listener');
-
-var _Listener2 = _interopRequireDefault(_Listener);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Binaural panner with multiple sources and a listener.
- */
-
-var BinauralPanner = exports.BinauralPanner = function () {
-
-  /**
-   * Constructs an HRTF set. Note that the filter positions are applied
-   * during the load of an HRTF URL.
-   *
-   * @see {@link HrtfSet}
-   * @see {@link BinauralPanner#loadHrtfSet}
-   *
-   * @param {Object} options
-   * @param {AudioContext} options.audioContext mandatory for the creation
-   * of FIR audio buffers
-   * @param {CoordinateSystem} [options.coordinateSystem='gl']
-   * {@link BinauralPanner#coordinateSystem}
-   * @param {Number} [options.sourceCount=1]
-   * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
-   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
-   * @param {Number} [options.crossfadeDuration] in seconds.
-   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
-   * form: 1/(dist^distAttenuationExponent).
-   * {@link BinauralPanner#distAttenuationExponent}
-   * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
-   * {@link BinauralPanner#hrtfSet}
-   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
-   * {@link BinauralPanner#filterCoordinateSystem}
-   * @param {Array.<coordinates>} [options.filterPositions=undefined]
-   * array of positions to filter. Use undefined to use all positions from the HRTF set.
-   * {@link BinauralPanner#filterPositions}
-   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
-   * full load of SOFA file
-   * @param {Listener} [options.listener] refer an external listener.
-   * {@link BinauralPanner#listener}
-   * @param {CoordinateSystem} [options.listenerCoordinateSystem=options.coordinateSystem]
-   * {@link BinauralPanner#listenerCoordinateSystem}
-   * @param {Coordinates} [options.listenerPosition=[0,0,0]]
-   * {@link BinauralPanner#listenerPosition}
-   * @param {Coordinates} [options.listenerUp=[0,1,0]]
-   * {@link BinauralPanner#listenerUp}
-   * @param {Coordinates} [options.listenerView=[0,0,-1]]
-   * {@link BinauralPanner#listenerView}
-   * @param {Boolean} [options.listenerViewIsRelative=false]
-   * {@link Listener#viewIsRelative}
-    */
-
-  function BinauralPanner() {
-    var _this = this;
-
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, BinauralPanner);
-
-    this._audioContext = options.audioContext;
-
-    this.coordinateSystem = options.coordinateSystem;
-
-    var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
-    // allocate first
-    this._listener = typeof options.listener !== 'undefined' ? options.listener : new _Listener2.default();
-
-    // set coordinate system, that defaults to BinauralPanner's own system
-    this.listenerCoordinateSystem = options.listenerCoordinateSystem;
-
-    // use setters for internal or external listener
-    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToSystem)([], [0, 0, 0], this._listener.coordinateSystem);
-
-    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToSystem)([], [0, 0, -1], this._listener.coordinateSystem);
-    // undefined is fine
-    this.listenerViewIsRelative = options.listenerViewIsRelative;
-
-    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToSystem)([], [0, 1, 0], this._listener.coordinateSystem);
-
-    this._sourcesOutdated = new Array(sourceCount).fill(true);
-
-    var distAttenuationExponent = typeof options.distAttenuationExponent !== 'undefined' ? options.distAttenuationExponent : 0;
-
-    this._sources = this._sourcesOutdated.map(function () {
-      return new _Source2.default({
-        audioContext: _this._audioContext,
-        crossfadeDuration: options.crossfadeDuration,
-        distAttenuationExponent: distAttenuationExponent
-      });
-    });
-
-    this._sourcePositionsAbsolute = this._sourcesOutdated.map(function () {
-      return [0, 0, 1]; // allocation and default value
-    });
-
-    this._sourcePositionsRelative = this._sourcesOutdated.map(function () {
-      return [0, 0, 1]; // allocation and default value
-    });
-
-    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
-      audioContext: this._audioContext,
-      coordinateSystem: 'gl'
-    });
-
-    this.filterCoordinateSystem = options.filterCoordinateSystem;
-    this.filterPositions = options.filterPositions;
-    this.filterAfterLoad = options.filterAfterLoad;
-
-    if (typeof options.sourcePositions !== 'undefined') {
-      this.sourcePositions = options.sourcePositions;
-    }
-
-    this.update();
-  }
-
-  // ----------- accessors
-
-  /**
-   * Set coordinate system.
-   *
-   * @param {CoordinateSystem} [system='gl']
-   */
-
-
-  _createClass(BinauralPanner, [{
-    key: 'setSourcePositionByIndex',
-
-
-    /**
-     * Set the position of one source. It will update the corresponding
-     * relative position after a call to the update method.
-     *
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {Number} index
-     * @param {Coordinates} positionRequest
-     * @returns {this}
-     */
-    value: function setSourcePositionByIndex(index, positionRequest) {
-      this._sourcesOutdated[index] = true;
-      (0, _coordinates.systemToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.coordinateSystem);
-
-      return this;
-    }
-
-    /**
-     * Get the position of one source.
-     *
-     * @param {Number} index
-     * @returns {Coordinates}
-     */
-
-  }, {
-    key: 'getSourcePositionByIndex',
-    value: function getSourcePositionByIndex(index) {
-      return (0, _coordinates.glToSystem)([], this._sourcePositionsAbsolute[index], this.coordinateSystem);
-    }
-
-    // ----------- public methods
-
-    /**
-     * Load an HRTF set form an URL, and update sources.
-     *
-     * @see {@link HrtfSet#load}
-     *
-     * @param {String} sourceUrl
-     * @returns {Promise.<this|Error>} resolve when URL successfully
-     * loaded.
-     */
-
-  }, {
-    key: 'loadHrtfSet',
-    value: function loadHrtfSet(sourceUrl) {
-      var _this2 = this;
-
-      return this._hrtfSet.load(sourceUrl).then(function () {
-        _this2._sourcesOutdated.fill(true);
-        _this2.update();
-        return _this2;
-      });
-    }
-
-    /**
-     * Connect the input of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectInputByIndex',
-    value: function connectInputByIndex(index, nodesToConnect, output, input) {
-      this._sources[index].connectInput(nodesToConnect, output, input);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of one source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInputByIndex',
-    value: function disconnectInputByIndex(index, nodesToDisconnect) {
-      this._sources[index].disconnectInput(nodesToDisconnect);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of each source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInputs',
-    value: function disconnectInputs(nodesToDisconnect) {
-      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-      this._sources.forEach(function (source, index) {
-        source.disconnectInput(nodes[index]);
-      });
-
-      return this;
-    }
-
-    /**
-     * Connect the output of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutputByIndex',
-    value: function connectOutputByIndex(index, nodesToConnect, output, input) {
-      this._sources[index].connectOutput(nodesToConnect, output, input);
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of a source.
-     *
-     * @param {Number} index
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutputByIndex',
-    value: function disconnectOutputByIndex(index, nodesToDisconnect) {
-      this._sources[index].disconnectOutput(nodesToDisconnect);
-
-      return this;
-    }
-
-    /**
-     * Connect the output of each source.
-     *
-     * @see {@link BinauralPanner#connectOutputByIndex}
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutputs',
-    value: function connectOutputs(nodesToConnect, output, input) {
-      this._sources.forEach(function (source) {
-        source.connectOutput(nodesToConnect, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of each source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutputs',
-    value: function disconnectOutputs(nodesToDisconnect) {
-      this._sources.forEach(function (source) {
-        source.disconnectOutput(nodesToDisconnect);
-      });
-
-      return this;
-    }
-
-    /**
-     * Update the sources filters, according to pending changes in listener,
-     * and source positions.
-     *
-     * @returns {Boolean} true when at least a change occurred.
-     */
-
-  }, {
-    key: 'update',
-    value: function update() {
-      var _this3 = this;
-
-      var updated = false;
-      if (this._listener.update()) {
-        this._sourcesOutdated.fill(true);
-        updated = true;
-      }
-
-      if (this._hrtfSet.isReady) {
-        this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
-          if (_this3._sourcesOutdated[index]) {
-            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listener.lookAt);
-
-            _this3._sources[index].position = _this3._sourcePositionsRelative[index];
-
-            _this3._sourcesOutdated[index] = false;
-            updated = true;
-          }
-        });
-      }
-
-      return updated;
-    }
-  }, {
-    key: 'coordinateSystem',
-    set: function set(system) {
-      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
-    }
-
-    /**
-     * Get coordinate system.
-     *
-     * @returns {CoordinateSystem}
-     */
-    ,
-    get: function get() {
-      return this._coordinateSystem;
-    }
-
-    /**
-     * Refer an external HRTF set, and update sources. Its positions
-     * coordinate system must be 'gl'.
-     *
-     * @see {@link HrtfSet}
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {HrtfSet} hrtfSet
-     * @throws {Error} when hrtfSet in undefined or hrtfSet.coordinateSystem is
-     * not 'gl'.
-     */
-
-  }, {
-    key: 'hrtfSet',
-    set: function set(hrtfSet) {
-      var _this4 = this;
-
-      if (typeof hrtfSet !== 'undefined') {
-        if (hrtfSet.coordinateSystem !== 'gl') {
-          throw new Error('coordinate system of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.coordinateSystem + '\') ')(_templateObject));
-        }
-        this._hrtfSet = hrtfSet;
-      } else {
-        throw new Error('Undefined HRTF set for BinauralPanner');
-      }
-
-      // update HRTF set references
-      this._sourcesOutdated.fill(true);
-      this._sources.forEach(function (source) {
-        source.hrtfSet = _this4._hrtfSet;
-      });
-
-      this.update();
-    }
-
-    /**
-     * Get the HrtfSet.
-     *
-     * @returns {HrtfSet}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet;
-    }
-
-    // ------------- HRTF set proxies
-
-    /**
-     * Set the filter positions of the HRTF set.
-     *
-     * @see {@link HrtfSet#filterPositions}
-     *
-     * @param {Array.<Coordinates>} positions
-     */
-
-  }, {
-    key: 'filterPositions',
-    set: function set(positions) {
-      this._hrtfSet.filterPositions = positions;
-    }
-
-    /**
-     * Get the filter positions of the HRTF set.
-     *
-     * @see {@link HrtfSet#filterPositions}
-     *
-     * @return {Array.<Coordinates>} positions
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterPositions;
-    }
-
-    /**
-     * Set coordinate system for filter positions.
-     *
-     * @param {CoordinateSystem} [system='gl']
-     */
-
-  }, {
-    key: 'filterCoordinateSystem',
-    set: function set(system) {
-      this._hrtfSet.filterCoordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
-    }
-
-    /**
-     * Get coordinate system for filter positions.
-     *
-     * @returns {CoordinateSystem}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterCoordinateSystem;
-    }
-
-    /**
-     * Set post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @param {Boolean} [post=false]
-     */
-
-  }, {
-    key: 'filterAfterLoad',
-    set: function set(post) {
-      this._hrtfSet.filterAfterLoad = post;
-    }
-
-    /**
-     * Get post-filtering flag. When false, try to load a partial set of
-     * HRTF.
-     *
-     * @returns {Boolean}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet.filterAfterLoad;
-    }
-
-    /**
-     * Refer an external listener, and update sources.
-     *
-     * @see {@link Listener}
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {Listener} listener
-     * @throws {Error} when listener in undefined.
-     */
-
-  }, {
-    key: 'listener',
-    set: function set(listener) {
-      if (typeof listener !== 'undefined') {
-        this._listener = listener;
-      } else {
-        throw new Error('Undefined listener for BinauralPanner');
-      }
-
-      this._sourcesOutdated.fill(true);
-      this.update();
-    }
-
-    // ---------- Listener proxies
-
-    /**
-     * Set coordinate system for listener.
-     *
-     * @see {@link Listener#coordinateSystem}
-     *
-     * @param {CoordinateSystem} [system='gl']
-     */
-
-  }, {
-    key: 'listenerCoordinateSystem',
-    set: function set(system) {
-      this._listener.coordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
-    }
-
-    /**
-     * Get coordinate system for listener.
-     *
-     * @returns {CoordinateSystem}
-     */
-    ,
-    get: function get() {
-      return this._listener.coordinateSystem;
-    }
-
-    /**
-     * Set listener position. It will update the relative positions of the
-     * sources after a call to the update method.
-     *
-     * Default value is [0, 0, 0] in 'gl' coordinates.
-     *
-     * @see {@link Listener#position}
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {Coordinates} positionRequest
-     */
-
-  }, {
-    key: 'listenerPosition',
-    set: function set(positionRequest) {
-      this._listener.position = positionRequest;
-    }
-
-    /**
-     * Get listener position.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return this._listener.position;
-    }
-
-    /**
-     * Set listener up direction (not an absolute position). It will update
-     * the relative positions of the sources after a call to the update
-     * method.
-     *
-     * Default value is [0, 1, 0] in 'gl' coordinates.
-     *
-     * @see {@link Listener#up}
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {Coordinates} upRequest
-     */
-
-  }, {
-    key: 'listenerUp',
-    set: function set(upRequest) {
-      this._listener.up = upRequest;
-    }
-
-    /**
-     * Get listener up direction.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return this._listener.up;
-    }
-
-    /**
-     * Set listener view, as an aiming position or a relative direction, if
-     * viewIsRelative is respectively false or true. It will update the
-     * relative positions of the sources after a call to the update method.
-     *
-     * Default value is [0, 0, -1] in 'gl' coordinates.
-     *
-     * @see {@link Listener#view}
-     * @see {@link Listener#viewIsRelative}
-     * @see {@link BinauralPanner#update}
-     *
-     * @param {Coordinates} viewRequest
-     */
-
-  }, {
-    key: 'listenerView',
-    set: function set(viewRequest) {
-      this._listener.view = viewRequest;
-    }
-
-    /**
-     * Get listener view.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return this._listener.view;
-    }
-
-    /**
-     * Set the type of view: absolute to an aiming position (when false), or
-     * a relative direction (when true). It will update the relative
-     * positions after a call to the update method.
-     *
-     * @see {@link Listener#view}
-     *
-     * @param {Boolean} [relative=false] true when view is a direction, false
-     * when it is an absolute position.
-     */
-
-  }, {
-    key: 'listenerViewIsRelative',
-    set: function set(relative) {
-      this._listener.viewIsRelative = relative;
-    }
-
-    /**
-     * Get the type of view.
-     *
-     * @returns {Boolean}
-     */
-    ,
-    get: function get() {
-      return this._listener.viewIsRelative;
-    }
-
-    /**
-     * Set the sources positions. It will update the relative positions after
-     * a call to the update method.
-     *
-     * @see {@link BinauralPanner#update}
-     * @see {@link BinauralPanner#setSourcePositionByIndex}
-     *
-     * @param {Array.<Coordinates>} positionsRequest
-     * @throws {Error} if the length of positionsRequest is not the same as
-     * the number of sources
-     */
-
-  }, {
-    key: 'sourcePositions',
-    set: function set(positionsRequest) {
-      var _this5 = this;
-
-      if (positionsRequest.length !== this._sources.length) {
-        throw new Error('Bad number of source positions: ' + (positionsRequest.length + ' ') + ('instead of ' + this._sources.length));
-      }
-
-      positionsRequest.forEach(function (position, index) {
-        _this5._sourcesOutdated[index] = true;
-        _this5.setSourcePositionByIndex(index, position);
-      });
-    }
-
-    /**
-     * Get the source positions.
-     *
-     * @returns {Array.<Coordinates>}
-     */
-    ,
-    get: function get() {
-      var _this6 = this;
-
-      return this._sourcePositionsAbsolute.map(function (position) {
-        return (0, _coordinates.glToSystem)([], position, _this6.coordinateSystem);
-      });
-    }
-  }]);
-
-  return BinauralPanner;
-}();
-
-exports.default = BinauralPanner;
-
-},{"../geometry/Listener":20,"../geometry/coordinates":21,"../sofa/HrtfSet":26,"./Source":14,"gl-matrix":1}],14:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @fileOverview Source for binaural processing.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Single source.
- *
- * @see {@link BinauralPanner}
- */
-
-var Source = exports.Source = function () {
-
-  /**
-   * Construct a source, with and AudioContext and an HrtfSet.
-   *
-   * @see {@link HrtfSet}
-   *
-   * @param {Object} options
-   * @param {AudioContext} options.audioContext mandatory for the creation
-   * of FIR audio buffers
-   * @param {HrtfSet} options.hrtfSet {@link Source#hrtfSet}
-   * @param {coordinate} [options.position=[0,0,0]] in 'gl' coordinate system.
-   * {@link Source#position}
-   * @param {Number} [options.crossfadeDuration] in seconds
-   * {@link Source#crossfadeDuration}
-   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
-   * of form: 1/(dist^distAttenuationExponent).
-   * {@link BinauralPanner#distAttenuationExponent}
-   */
-
-  function Source() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, Source);
-
-    this._audioContext = options.audioContext;
-    this._hrtfSet = options.hrtfSet;
-
-    this._convolverCurrent = this._audioContext.createConvolver();
-    this._convolverCurrent.normalize = false;
-
-    this._gainDistCurrent = this._audioContext.createGain();
-    this._gainCurrent = this._audioContext.createGain();
-    this._convolverCurrent.connect(this._gainDistCurrent);
-    this._gainDistCurrent.connect(this._gainCurrent);
-
-    this._convolverNext = this._audioContext.createConvolver();
-    this._convolverNext.normalize = false;
-
-    this._gainDistNext = this._audioContext.createGain();
-    this._gainNext = this._audioContext.createGain();
-    this._convolverNext.connect(this._gainDistNext);
-    this._gainDistNext.connect(this._gainNext);
-
-    this._crossfadeDuration = options.crossfadeDuration;
-    this._distAttenuationExponent = options.distAttenuationExponent;
-
-    this._crossfadeAfterTime = this._audioContext.currentTime;
-    this._crossfadeTimeout = undefined;
-
-    // set position when everything is ready
-    if (typeof options.position !== 'undefined') {
-      this.position = options.position;
-    }
-  }
-
-  // ----------- accessors
-
-  /**
-   * Set the crossfade duration when the position changes.
-   *
-   * @param {Number} [duration=0.02] in seconds
-   */
-
-
-  _createClass(Source, [{
-    key: 'connectInput',
-
-
-    // ----------- public methods
-
-    /**
-     * Connect the input of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-    value: function connectInput(nodesToConnect, output, input) {
-      var _this = this;
-
-      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
-
-      nodes.forEach(function (node) {
-        node.connect(_this._convolverCurrent, output, input);
-        node.connect(_this._convolverNext, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the input of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectInput',
-    value: function disconnectInput(nodesToDisconnect) {
-      var _this2 = this;
-
-      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-      nodes.forEach(function (node) {
-        node.disconnect(_this2._convolverCurrent);
-        node.disconnect(_this2._convolverNext);
-      });
-
-      return this;
-    }
-
-    /**
-     * Connect the output of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
-     * @param {Number} [output=0] output to connect from
-     * @param {Number} [input=0] input to connect to
-     * @returns {this}
-     */
-
-  }, {
-    key: 'connectOutput',
-    value: function connectOutput(nodesToConnect, output, input) {
-      var _this3 = this;
-
-      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
-
-      nodes.forEach(function (node) {
-        _this3._gainCurrent.connect(node, output, input);
-        _this3._gainNext.connect(node, output, input);
-      });
-
-      return this;
-    }
-
-    /**
-     * Disconnect the output of a source.
-     *
-     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
-     * all when undefined.
-     * @returns {this}
-     */
-
-  }, {
-    key: 'disconnectOutput',
-    value: function disconnectOutput(nodesToDisconnect) {
-      var _this4 = this;
-
-      if (typeof nodesToDisconnect === 'undefined') {
-        // disconnect all
-        this._gainCurrent.disconnect();
-        this._gainNext.disconnect();
-      } else {
-        var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
-
-        nodes.forEach(function (node) {
-          _this4._gainCurrent.disconnect(node);
-          _this4._gainNext.disconnect(node);
-        });
-      }
-
-      return this;
-    }
-  }, {
-    key: 'crossfadeDuration',
-    set: function set() {
-      var duration = arguments.length <= 0 || arguments[0] === undefined ? 0.02 : arguments[0];
-
-      this._crossfadeDuration = duration;
-    }
-
-    /**
-     * Get the crossfade duration when the position changes.
-     *
-     * @returns {Number} in seconds
-     */
-    ,
-    get: function get() {
-      return this._crossfadeDuration;
-    }
-
-    /**
-     * Refer an external HRTF set.
-     *
-     * @param {HrtfSet} hrtfSet
-     */
-
-  }, {
-    key: 'hrtfSet',
-    set: function set(hrtfSet) {
-      this._hrtfSet = hrtfSet;
-    }
-
-    /**
-     * Get the HrtfSet.
-     *
-     * @returns {HrtfSet}
-     */
-    ,
-    get: function get() {
-      return this._hrtfSet;
-    }
-
-    /**
-     * Set the distance attenuation exponent
-     *
-     * @param {Number} distAttenuationExponent
-     */
-
-  }, {
-    key: 'distAttenuationExponent',
-    set: function set(distAttenuationExponent) {
-      this._distAttenuationExponent = distAttenuationExponent;
-    }
-
-    /**
-     * Get the distance attenuation exponent
-     *
-     * @returns {Number} distAttenuationExponent
-     */
-    ,
-    get: function get() {
-      return this._distAttenuationExponent;
-    }
-
-    /**
-     * Set the position of the source and updates.
-     *
-     * @param {Coordinates} positionRequest
-     */
-
-  }, {
-    key: 'position',
-    set: function set(positionRequest) {
-      var _this5 = this;
-
-      clearTimeout(this._crossfadeTimeout);
-      var now = this._audioContext.currentTime;
-      if (now >= this._crossfadeAfterTime) {
-        // swap
-        var tmp = this._convolverCurrent;
-        this._convolverCurrent = this._convolverNext;
-        this._convolverNext = tmp;
-
-        tmp = this._gainCurrent;
-        this._gainCurrent = this._gainNext;
-        this._gainNext = tmp;
-
-        this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);
-
-        // reschedule after setting the buffer, as it may take time
-        // (currentTime updates at least on Chrome 48)
-        now = this._audioContext.currentTime;
-        this._crossfadeAfterTime = now + this._crossfadeDuration;
-
-        // fade in next
-        this._gainNext.gain.cancelScheduledValues(now);
-        this._gainNext.gain.setValueAtTime(0, now);
-        this._gainNext.gain.linearRampToValueAtTime(1, now + this._crossfadeDuration);
-
-        // fade out current
-        this._gainCurrent.gain.cancelScheduledValues(now);
-        this._gainCurrent.gain.setValueAtTime(1, now);
-        this._gainCurrent.gain.linearRampToValueAtTime(0, now + this._crossfadeDuration);
-
-        // update distance gain
-        var dist = Math.max(1.0, Math.sqrt(Math.pow(positionRequest[0], 2) + Math.pow(positionRequest[1], 2) + Math.pow(positionRequest[2], 2)));
-        var gainDist = 1.0 / Math.pow(dist, this._distAttenuationExponent);
-
-        this._gainDistCurrent.gain.cancelScheduledValues(now);
-        this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
-        this._gainDistCurrent.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
-
-        this._gainDistNext.gain.cancelScheduledValues(now);
-        this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
-        this._gainDistNext.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
-      } else {
-        // re-schedule later
-        this._crossfadeTimeout = setTimeout(function () {
-          _this5.position = positionRequest;
-        }, 0.02);
-      }
-    }
-  }]);
-
-  return Source;
-}();
-
-exports.default = Source;
-
-},{}],15:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _BinauralPanner = require('./BinauralPanner');
-
-var _BinauralPanner2 = _interopRequireDefault(_BinauralPanner);
-
-var _utilities = require('./utilities');
-
-var _utilities2 = _interopRequireDefault(_utilities);
-
-var _Source = require('./Source');
-
-var _Source2 = _interopRequireDefault(_Source);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  BinauralPanner: _BinauralPanner2.default,
-  Source: _Source2.default,
-  utilities: _utilities2.default
-};
-
-},{"./BinauralPanner":13,"./Source":14,"./utilities":16}],16:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.dBToLin = dBToLin;
-exports.createDiracBuffer = createDiracBuffer;
-exports.createNoiseBuffer = createNoiseBuffer;
 exports.resampleFloat32Array = resampleFloat32Array;
 /**
  * @fileOverview Audio utilities
@@ -8088,81 +6956,6 @@ exports.resampleFloat32Array = resampleFloat32Array;
  * @copyright 2016 IRCAM, Paris, France
  * @license BSD-3-Clause
  */
-
-/**
- * Convert a dB value to a linear amplitude, i.e. -20dB gives 0.1
- *
- * @param {Number} dBValue
- * @returns {Number}
- */
-function dBToLin(dBValue) {
-  var factor = 1 / 20;
-  return Math.pow(10, dBValue * factor);
-}
-
-/**
- * Create a Dirac buffer, zero-padded.
- *
- * Warning: the default length is 2 samples,
- * to by-pass a bug in Safari ≤ 9.
- *
- * @param {Object} options
- * @param {AudioContext} options.audioContext must be defined
- * @param {Number} [options.channelCount=1]
- * @param {Number} [options.gain=0] in dB
- * @param {Number} [options.length=2] in samples
- * @returns {AudioBuffer}
- */
-function createDiracBuffer() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  var context = options.audioContext;
-
-  var length = typeof options.length !== 'undefined' ? options.length : 2; // Safari ≤9 needs one more
-  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : 1;
-  var gain = typeof options.gain !== 'undefined' ? options.gain : 0; // dB
-
-  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
-  var data = buffer.getChannelData(0);
-
-  var amplitude = dBToLin(gain);
-  data[0] = amplitude;
-  // already padded with zeroes
-
-  return buffer;
-}
-
-/**
- * Create a noise buffer.
- *
- * @param {Object} options
- * @param {AudioContext} options.audioContext must be defined
- * @param {Number} [options.channelCount=1]
- * @param {Number} [options.duration=5] in seconds
- * @param {Number} [options.gain=-30] in dB
- * @returns {AudioBuffer}
- */
-function createNoiseBuffer() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-  var context = options.audioContext;
-  var duration = typeof options.duration !== 'undefined' ? options.duration : 5;
-
-  var gain = typeof options.gain !== 'undefined' ? options.gain : -30; // dB
-
-  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : context.destination.channelCount;
-
-  var length = duration * context.sampleRate;
-  var amplitude = dBToLin(gain);
-  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
-  for (var c = 0; c < channelCount; ++c) {
-    var data = buffer.getChannelData(c);
-    for (var i = 0; i < length; ++i) {
-      data[i] = amplitude * (Math.random() * 2 - 1);
-    }
-  }
-  return buffer;
-}
 
 /**
  * Convert an array, typed or not, to a Float32Array, with possible re-sampling.
@@ -8216,80 +7009,9 @@ function resampleFloat32Array() {
 }
 
 exports.default = {
-  dBToLin: dBToLin,
-  createDiracBuffer: createDiracBuffer,
-  createNoiseBuffer: createNoiseBuffer,
   resampleFloat32Array: resampleFloat32Array
 };
-
-},{}],17:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _utilities = require('./utilities');
-
-var _utilities2 = _interopRequireDefault(_utilities);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  utilities: _utilities2.default
-};
-
-},{"./utilities":18}],18:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.almostEquals = almostEquals;
-exports.almostEqualsModulo = almostEqualsModulo;
-/**
- * @fileOverview Common utilities
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-/**
- * Test whether a value is around a reference, given a tolerance.
- *
- * @param {Number} value
- * @param {Number} reference
- * @param {Number} [tolerance=Number.EPSILON]
- * @returns {Number} Math.abs(value - reference) <= tolerance;
- */
-function almostEquals(value, reference) {
-  var tolerance = arguments.length <= 2 || arguments[2] === undefined ? Number.EPSILON : arguments[2];
-
-  return Math.abs(value - reference) <= tolerance;
-}
-
-/**
- * Test whether a value is around a reference, given a tolerance and a
- * modulo.
- *
- * @param {Number} value
- * @param {Number} reference
- * @param {Number} modulo
- * @param {Number} [tolerance=Number.EPSILON]
- * @returns {Number} Math.abs(value - reference) % modulo <= tolerance;
- */
-function almostEqualsModulo(value, reference, modulo) {
-  var tolerance = arguments.length <= 3 || arguments[3] === undefined ? Number.EPSILON : arguments[3];
-
-  return Math.abs(value - reference) % modulo <= tolerance;
-}
-
-exports.default = {
-  almostEquals: almostEquals,
-  almostEqualsModulo: almostEqualsModulo
-};
-
-},{}],19:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8358,262 +7080,7 @@ exports.default = {
   distanceSquared: distanceSquared,
   tree: _kd2.default
 };
-
-},{"kd.tree":11}],20:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Listener = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Listener.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-var _glMatrix = require('gl-matrix');
-
-var _glMatrix2 = _interopRequireDefault(_glMatrix);
-
-var _coordinates = require('../geometry/coordinates');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Camera-like listener. It generates a look-at matrix from a position, a
- * view point, and an up direction.
- *
- */
-
-var Listener = exports.Listener = function () {
-
-  /**
-   * Constructs a listener.
-   *
-   * @param {Object} options
-   * @param {CoordinateSystem} [options.coordinateSystem='gl']
-   * {@link Listener#coordinateSystem}
-   * @param {Coordinates} [options.position=[0,0,0]]
-   * {@link Listener#position}
-   * @param {Coordinates} [options.up=[0,1,0]]
-   * {@link Listener#up}
-   * @param {Coordinates} [options.view=[0,0,-1]]
-   * {@link Listener#view}
-   * @param {Boolean} [options.viewIsRelative=false]
-   * {@link Listener#viewIsRelative}
-   */
-
-  function Listener() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    _classCallCheck(this, Listener);
-
-    this._outdated = true;
-    this._lookAt = [];
-
-    this.coordinateSystem = options.coordinateSystem;
-
-    this._position = [];
-    this.position = typeof options.position !== 'undefined' ? options.position : (0, _coordinates.glToSystem)([], [0, 0, 0], this.coordinateSystem);
-
-    this._up = [];
-    this.up = typeof options.up !== 'undefined' ? options.up : (0, _coordinates.glToSystem)([], [0, 1, 0], this.coordinateSystem);
-
-    this.viewIsRelative = options.viewIsRelative; // undefined is fine
-
-    this._view = [];
-    this.view = typeof options.view !== 'undefined' ? options.view : (0, _coordinates.glToSystem)([], [0, 0, -1], this.coordinateSystem);
-
-    this.update();
-  }
-
-  // ------------- accessors
-
-  /**
-   * Get the current look-at matrix. Note is updated only after a call to
-   * the update method.
-   *
-   * @see {@link Listener#update}
-   *
-   * @returns {mat4} look-at matrix
-   */
-
-
-  _createClass(Listener, [{
-    key: 'update',
-
-
-    // --------- public methods
-
-    /**
-     * Updates the look-at matrix, according to the pending changes in
-     * position, view, viewIsRelative, and up.
-     *
-     * @returns {Boolean} true when at least a change occurred.
-     */
-    value: function update() {
-      var updated = this._outdated;
-      if (this._outdated) {
-        var view = this._viewIsRelative ? _glMatrix2.default.vec3.add([], this._view, this._position) : this._view;
-        _glMatrix2.default.mat4.lookAt(this._lookAt, this._position, view, this._up);
-        this._outdated = false;
-      }
-
-      return updated;
-    }
-  }, {
-    key: 'lookAt',
-    get: function get() {
-      return this._lookAt;
-    }
-
-    /**
-     * Set coordinate system.
-     *
-     * @param {CoordinateSystem} [system='gl']
-     */
-
-  }, {
-    key: 'coordinateSystem',
-    set: function set(system) {
-      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
-    }
-
-    /**
-     * Get coordinate system.
-     *
-     * @returns {CoordinateSystem}
-     */
-    ,
-    get: function get() {
-      return this._coordinateSystem;
-    }
-
-    /**
-     * Set listener position. It will update the look-at matrix after a call
-     * to the update method.
-     *
-     * Default value is [0, 0, 0] in 'gl' coordinates.
-     *
-     * @see {@link Listener#update}
-     *
-     * @param {Coordinates} positionRequest
-     */
-
-  }, {
-    key: 'position',
-    set: function set(positionRequest) {
-      (0, _coordinates.systemToGl)(this._position, positionRequest, this._coordinateSystem);
-      this._outdated = true;
-    }
-
-    /**
-     * Get listener position.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToSystem)([], this._position, this._coordinateSystem);
-    }
-
-    /**
-     * Set listener up direction (not an absolute position). It will update
-     * the look-at matrix after a call to the update method.
-     *
-     * Default value is [0, 1, 0] in 'gl' coordinates.
-     *
-     * @see {@link Listener#update}
-     *
-     * @param {Coordinates} upRequest
-     */
-
-  }, {
-    key: 'up',
-    set: function set(upRequest) {
-      (0, _coordinates.systemToGl)(this._up, upRequest, this._coordinateSystem);
-      this._outdated = true;
-    }
-
-    /**
-     * Get listener up direction.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToSystem)([], this._up, this._coordinateSystem);
-    }
-
-    /**
-     * Set listener view, as an aiming position or a relative direction, if
-     * viewIsRelative is respectively false or true. It will update the
-     * look-at matrix after a call to the update method.
-     *
-     * Default value is [0, 0, -1] in 'gl' coordinates.
-     *
-     * @see {@link Listener#viewIsRelative}
-     * @see {@link Listener#update}
-     *
-     * @param {Coordinates} viewRequest
-     */
-
-  }, {
-    key: 'view',
-    set: function set(viewRequest) {
-      (0, _coordinates.systemToGl)(this._view, viewRequest, this._coordinateSystem);
-      this._outdated = true;
-    }
-
-    /**
-     * Get listener view.
-     *
-     * @returns {Coordinates}
-     */
-    ,
-    get: function get() {
-      return (0, _coordinates.glToSystem)([], this._view, this._coordinateSystem);
-    }
-
-    /**
-     * Set the type of view: absolute to an aiming position (when false), or
-     * a relative direction (when true). It will update the look-at matrix
-     * after a call to the update method.
-     *
-     * @see {@link Listener#view}
-     *
-     * @param {Boolean} [relative=false] true when view is a direction, false
-     * when it is an absolute position.
-     */
-
-  }, {
-    key: 'viewIsRelative',
-    set: function set(relative) {
-      this._viewIsRelative = typeof relative !== 'undefined' ? relative : false;
-    }
-
-    /**
-     * Get the type of view.
-     *
-     * @returns {Boolean}
-     */
-    ,
-    get: function get() {
-      return this._viewIsRelative;
-    }
-  }]);
-
-  return Listener;
-}();
-
-exports.default = Listener;
-
-},{"../geometry/coordinates":21,"gl-matrix":1}],21:[function(require,module,exports){
+},{"kd.tree":11}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9150,8 +7617,7 @@ exports.default = {
   systemToGl: systemToGl,
   systemType: systemType
 };
-
-},{"./degree":22}],22:[function(require,module,exports){
+},{"./degree":15}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9243,83 +7709,50 @@ exports.default = {
   toRadian: toRadian,
   toRadianFactor: toRadianFactor
 };
-
-},{}],23:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.ServerDataBase = exports.HrtfSet = undefined;
 
-var _coordinates = require('./coordinates');
+var _HrtfSet = require('./sofa/HrtfSet');
 
-var _coordinates2 = _interopRequireDefault(_coordinates);
+var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
 
-var _degree = require('./degree');
+var _ServerDataBase = require('./sofa/ServerDataBase');
 
-var _degree2 = _interopRequireDefault(_degree);
-
-var _KdTree = require('./KdTree');
-
-var _KdTree2 = _interopRequireDefault(_KdTree);
-
-var _Listener = require('./Listener');
-
-var _Listener2 = _interopRequireDefault(_Listener);
+var _ServerDataBase2 = _interopRequireDefault(_ServerDataBase);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+exports.HrtfSet = _HrtfSet2.default;
+exports.ServerDataBase = _ServerDataBase2.default;
 exports.default = {
-  coordinates: _coordinates2.default,
-  degree: _degree2.default,
-  KdTree: _KdTree2.default,
-  Listener: _Listener2.default
+  HrtfSet: _HrtfSet2.default,
+  ServerDataBase: _ServerDataBase2.default
 };
 
-},{"./KdTree":19,"./Listener":20,"./coordinates":21,"./degree":22}],24:[function(require,module,exports){
-'use strict';
+// import audio from './audio';
+// export { audio };
+// import common from './common';
+// export { common };
+// import geometry from './geometry';
+// export { geometry };
+// import info from './info';
+// export { info };
+// import sofa from './sofa';
+// export { sofa };
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sofa = exports.info = exports.geometry = exports.common = exports.audio = undefined;
-
-var _audio = require('./audio');
-
-var _audio2 = _interopRequireDefault(_audio);
-
-var _common = require('./common');
-
-var _common2 = _interopRequireDefault(_common);
-
-var _geometry = require('./geometry');
-
-var _geometry2 = _interopRequireDefault(_geometry);
-
-var _info = require('./info');
-
-var _info2 = _interopRequireDefault(_info);
-
-var _sofa = require('./sofa');
-
-var _sofa2 = _interopRequireDefault(_sofa);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.audio = _audio2.default;
-exports.common = _common2.default;
-exports.geometry = _geometry2.default;
-exports.info = _info2.default;
-exports.sofa = _sofa2.default;
-exports.default = {
-  audio: _audio2.default,
-  common: _common2.default,
-  geometry: _geometry2.default,
-  info: _info2.default,
-  sofa: _sofa2.default
-};
-
-},{"./audio":15,"./common":17,"./geometry":23,"./info":25,"./sofa":28}],25:[function(require,module,exports){
+// export default {
+//   audio,
+//   common,
+//   geometry,
+//   info,
+//   sofa,
+// };
+},{"./sofa/HrtfSet":18,"./sofa/ServerDataBase":19}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9384,8 +7817,7 @@ exports.default = {
   name: name,
   version: version
 };
-
-},{"../package.json":12}],26:[function(require,module,exports){
+},{"../package.json":23}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10275,8 +8707,7 @@ var HrtfSet = exports.HrtfSet = function () {
 }();
 
 exports.default = HrtfSet;
-
-},{"../audio/utilities":16,"../geometry/KdTree":19,"../geometry/coordinates":21,"../info":25,"./parseDataSet":29,"./parseSofa":30,"gl-matrix":1}],27:[function(require,module,exports){
+},{"../audio/utilities":12,"../geometry/KdTree":13,"../geometry/coordinates":14,"../info":17,"./parseDataSet":20,"./parseSofa":21,"gl-matrix":1}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10569,38 +9000,7 @@ var ServerDataBase = exports.ServerDataBase = function () {
 }();
 
 exports.default = ServerDataBase;
-
-},{"./parseDataSet":29,"./parseXml":31}],28:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _HrtfSet = require('./HrtfSet');
-
-var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
-
-var _ServerDataBase = require('./ServerDataBase');
-
-var _ServerDataBase2 = _interopRequireDefault(_ServerDataBase);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @fileOverview Utility classes to handle the loading of HRTF files form a
- * SOFA server.
- * @author Jean-Philippe.Lambert@ircam.fr
- * @copyright 2015-2016 IRCAM, Paris, France
- * @license BSD-3-Clause
- */
-
-exports.default = {
-  HrtfSet: _HrtfSet2.default,
-  ServerDataBase: _ServerDataBase2.default
-};
-
-},{"./HrtfSet":26,"./ServerDataBase":27}],29:[function(require,module,exports){
+},{"./parseDataSet":20,"./parseXml":22}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10749,8 +9149,7 @@ function parseDataSet(input) {
 }
 
 exports.default = parseDataSet;
-
-},{}],30:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11010,8 +9409,7 @@ exports.default = {
   parseSofa: parseSofa,
   conformSofaCoordinateSystem: conformSofaCoordinateSystem
 };
-
-},{}],31:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11065,6 +9463,2597 @@ if (typeof window.DOMParser !== 'undefined') {
 }
 
 exports.default = parseXml;
+},{}],23:[function(require,module,exports){
+module.exports={
+  "_args": [
+    [
+      {
+        "raw": "serve-sofa-hrtf@git://github.com/Ircam-RnD/serveSofaHrir.git",
+        "scope": null,
+        "escapedName": "serve-sofa-hrtf",
+        "name": "serve-sofa-hrtf",
+        "rawSpec": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+        "spec": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+        "type": "hosted",
+        "hosted": {
+          "type": "github",
+          "ssh": "git@github.com:Ircam-RnD/serveSofaHrir.git",
+          "sshUrl": "git+ssh://git@github.com/Ircam-RnD/serveSofaHrir.git",
+          "httpsUrl": "git+https://github.com/Ircam-RnD/serveSofaHrir.git",
+          "gitUrl": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+          "shortcut": "github:Ircam-RnD/serveSofaHrir",
+          "directUrl": "https://raw.githubusercontent.com/Ircam-RnD/serveSofaHrir/master/package.json"
+        }
+      },
+      "/Users/davipoir/Projects/Cosima/devs/binauralFIR"
+    ]
+  ],
+  "_from": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+  "_id": "serve-sofa-hrir@0.4.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/serve-sofa-hrir",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "serve-sofa-hrtf@git://github.com/Ircam-RnD/serveSofaHrir.git",
+    "scope": null,
+    "escapedName": "serve-sofa-hrtf",
+    "name": "serve-sofa-hrtf",
+    "rawSpec": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+    "spec": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+    "type": "hosted",
+    "hosted": {
+      "type": "github",
+      "ssh": "git@github.com:Ircam-RnD/serveSofaHrir.git",
+      "sshUrl": "git+ssh://git@github.com/Ircam-RnD/serveSofaHrir.git",
+      "httpsUrl": "git+https://github.com/Ircam-RnD/serveSofaHrir.git",
+      "gitUrl": "git://github.com/Ircam-RnD/serveSofaHrir.git",
+      "shortcut": "github:Ircam-RnD/serveSofaHrir",
+      "directUrl": "https://raw.githubusercontent.com/Ircam-RnD/serveSofaHrir/master/package.json"
+    }
+  },
+  "_requiredBy": [],
+  "_resolved": "git://github.com/Ircam-RnD/serveSofaHrir.git#9f0886840abedf86309b002b5100d4594155dc97",
+  "_shasum": "f58e80eb4641ee143a62aa38d860e6decc219890",
+  "_shrinkwrap": null,
+  "_spec": "serve-sofa-hrtf@git://github.com/Ircam-RnD/serveSofaHrir.git",
+  "_where": "/Users/davipoir/Projects/Cosima/devs/binauralFIR",
+  "authors": [
+    "Jean-Philippe.Lambert@ircam.fr",
+    "Arnau Julià <arnau.julia@gmail.com>",
+    "Samuel.Goldszmidt@ircam.fr",
+    "David.Poirier-Quinot@ircam.fr"
+  ],
+  "bugs": {
+    "url": "https://github.com/Ircam-RnD/serveSofaHrir/issues"
+  },
+  "dependencies": {
+    "gl-matrix": "^2.3.1",
+    "kd.tree": "github:akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6"
+  },
+  "description": "Utility to fetch and shape sofa formated HRIR from server",
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-eslint": "^4.1.8",
+    "babel-preset-es2015": "^6.5.0",
+    "babelify": "^7.2.0",
+    "blue-tape": "^0.1.11",
+    "browserify": "^12.0.2",
+    "esdoc": "^0.4.6",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^1.0.2",
+    "eslint-plugin-html": "^1.4.0",
+    "jscs": "2.11.0",
+    "jscs-jsdoc": "^1.3.1",
+    "tape": "^4.4.0",
+    "tape-run": "^2.1.2",
+    "testling": "^1.7.1",
+    "watch": "^0.17.1"
+  },
+  "engines": {
+    "node": "0.12 || 4",
+    "npm": ">=1.0.0 <3.0.0"
+  },
+  "exports": "serveSofaHrir",
+  "gitHead": "9f0886840abedf86309b002b5100d4594155dc97",
+  "homepage": "https://github.com/Ircam-RnD/serveSofaHrir#readme",
+  "license": "BSD-3-Clause",
+  "main": "./dist/",
+  "name": "serve-sofa-hrir",
+  "optionalDependencies": {},
+  "readme": "# Binaural #\n\nThis library permits to render sources in three-dimensional space with\nbinaural audio.\n\nThis library provides an access to a server, in order to load a set of\nHead-related transfer functions ([HRTF]). The set of filters applies to any\nnumber of sources, given their position, and a listener.\n\nThis library is compatible with the [Web Audio API]. The novelty of this\nlibrary is that it permits to use a custom [HRTF] dataset (see\n[T. Carpentier article]).\n\nIt is possible to use it without a server, with a direct URL to an [HRTF]\nset.\n\n## Documentation ##\n\nYou can consult the [API documentation] for the complete documentation.\n\n### BinauralPanner ###\n\nA `BinauralPanner` is a panner for use with the [Web Audio API]. It\nspatialises multiple audio sources, given a set of head-related transfer\nfunctions [HRTF]s, and a listener.\n\n### ServerDataBase ###\n\n**The public server that hosts a database of individual [HRTF]s is available\nfor beta-testers only and will open to public in 2016.**\n\nThe `ServerDataBase` retrieves a catalogue from a [SOFA] server. From the\ncatalogue, it get URLs matching optional filters: data-base, sample-rate,\nand any free pattern.\n\n### HRTF dataset ###\n\nYou can use any [HRTF] data-set that follows the [SOFA] standard, in JSON\nformat, using finite impulse responses (FIR). Second-order sections (SOS)\nare not supported, yet. See the [examples HRTF directory] for a few samples.\n\n### Coordinate system types ###\n\nSee the files in [src/geometry], for conversions:\n- OpenGL, [SOFA], and Spat4 (Ircam) conventions\n- cartesian and spherical coordinates\n- radian and degree angles\n\n\n## Examples ##\n\nPlease see the [examples directory] for complete code (on branch\n`gh-pages`), and the [examples online].\n\nSee also the [API documentation] for the complete options.\n\n### BinauralPanner ###\nGiven an audio element, and a global binaural module,\n\n```html\n<html>\n    <head>\n        <script src=\"../binaural.js\"></script>\n    </head>\n    <body>\n        <audio id=\"source\" src=\"./snd/breakbeat.wav\" controls loop></audio>\n    </body>\n</html>\n```\n\ncreate a source audio node,\n\n```js\nvar audioContext = new AudioContext();\nvar $mediaElement = document.querySelector('#source');\nvar player = audioContext.createMediaElementSource($mediaElement);\n```\n\ninstantiate a `BinauralPanner` and connect it.\n\n```js\nvar binauralPanner = new binaural.audio.BinauralPanner({\n    audioContext,\n    crossfadeDuration: 0.05, // in seconds\n    coordinateSystem: 'sofaSpherical', // [azimuth, elevation, distance]\n    sourceCount: 1,\n    sourcePositions: [ [0, 0, 1] ], // initial position\n});\nbinauralPanner.connectOutputs(audioContext.destination);\nbinauralPanner.connectInputByIndex(0, player);\n\n```\n\nLoad an HRTF set (this returns a [Promise]).\n\n```js\nbinauralPanner.loadHrtfSet(url)\n    .then(function () {\n        console.log('loaded');\n    })\n    .catch(function (error) {\n        console.log('Error while loading ' + url + error.message);\n    });\n```\n\nThen, any source can move:\n\n```js\n$azimuth.on(\"input\", function(event) {\n    // get current position\n    var position = binauralPanner.getSourcePositionByIndex(0);\n\n    // update azimuth\n    position[0] = event.target.value;\n    binauralPanner.setSourcePositionByIndex(0, position);\n\n    // update filters\n    window.requestAnimationFrame(function () {\n        binauralPanner.update();\n    });\n});\n```\n\nNote that a call to the `update` method actually updates the filters.\n\n### ServerDataBase ###\n\nInstantiate a `ServerDataBase`\n\n```js\nvar serverDataBase = new binaural.sofa.ServerDataBase();\n```\n\nand load the catalogue from the server. This returns a promise.\n\n```js\nvar catalogLoaded = serverDataBase.loadCatalogue();\n```\n\nFind URLs with `HRIR` convention, `COMPENSATED` equalisation, and a\nsample-rate matching the one of the audio context.\n\n```js\nvar urlsFound = catalogLoaded.then(function () {\n    var urls = serverDataBase.getUrls({\n        convention: 'HRIR',\n        equalisation: 'COMPENSATED',\n        sampleRate: audioContext.sampleRate,\n    });\n    return urls;\n})\n.catch(function(error) {\n    console.log('Error accessing HRTF server. ' + error.message);\n});\n```\n\nThen, a `BinauralPanner` can load one of these URLs.\n\n```js\nurlsFound.then(function(urls) {\n    binauralPanner.loadHrtfSet(urls[0])\n        .then(function () {\n            console.log('loaded');\n        })\n        .catch(function (error) {\n            console.log('Error while loading ' + url\n                + error.message);\n        });\n});\n```\n\n## Issues ##\n\n- re-sampling is broken on full set (Chrome 48 issue): too many parallel\n  audio contexts?\n- clicks on Firefox 44-45 (during update of `convolver.buffer`, because\n  `AudioContext.currentTime` does not advance)\n- ServerDataBase: avoid server with free pattern filter?\n\n## To do ##\n\n- attenuation with distance\n- dry/wet outputs for (shared) reverberation\n- support for infinite impulse responses, once [IIRFilterNode] is\n  implemented.\n\n## Developers ##\n\nThe source code is in the [src directory], in [ES2015] standard. `npm run\ncompile` with [Babel] to the [dist directory]. Note that there is a\n[.babelrc] file. `npm run bundle` runs the linters, the tests,\ngenerates the documentation, and compiles the code.\n\nCommit the source files to the branch `develop`, and update the version in\n[package.json] if this is intended to be a release.\n\nOn the `master` branch, merge from the `develop` branch. Generate and\ncommit the documentation and the distribution files. Put a release tag that\ncorresponds to the version in [package.json].\n\nOn the `gh-pages` branch, merge from the `master` branch. Commit the\nexamples, and the extra files (audio and HRTF set files).\n\n### Style ###\n\n`npm run lint` to check that the code conforms with [.eslintrc] and\n[.jscsrc] files. The rules derive from [AirBnB] with these\nmajor points:\n- [ES2015]\n- no `'use strict'` globally (already there via babel)\n- enforce curly braces (`if`, `for`, etc.)\n- allow spaces and new lines, with fewer requirements: use them for clarity\n\n### Test ###\n\nFor any function or method, there is at least a test. The hierarchy in the\n[test directory] is the same as in the [src directory].\n\n- `npm run test` for all automated tests\n- `npm run test-listen` for supervised listening tests. The test files must\n  end with `_listen.js`\n- `npm run test-issues` for unsolved issues. The issues may depend on the\n  host: operating system, user-agent, sound-device, sample-rate, etc. The\n  test files must end with `_issues.js`. Once an issue is solved, the\n  corresponding tests are added to the automated test set.\n- `npm run test-browser` starts a server for running the tests in any browser.\n\nExamples for specific testing, when developing or resolving an issue:\n- `browserify test/geometry/test_Listener.js -t babelify | tape-run` in a\n  headless browser\n- `browserify test/geometry/test_Listener.js -t babelify | testling -u`\n  for an URL to open in any browser\n\n### Documentation ###\n\nDocument any public function and method with [JSDoc], and generate the HTML\npages with `npm run doc`. At this point, neither\n[jsdoc](https://www.npmjs.com/package/jsdoc) nor\n[esdoc](https://www.npmjs.com/package/esdoc) gives perfect\ntranscription. (See the [jsdoc.json] and [esdoc.json] files.)\n\n## License\n\nThis module is released under the [BSD-3-Clause] license.\n\n## Acknowledgements\n\nThis research was developped by both [Acoustic And Cognitive Spaces] and\n[Analysis of Musical Practices] IRCAM research teams. A previous version\nwas part of the WAVE project, funded by ANR (French National Research\nAgency). The current version, supporting multiple sources and a listener,\nthe SOFA standard, and the access to a server, is part of the [CoSiMa]\nproject, funded by ANR.\n\n[//]: # (Avoid relative links for use with https://github.com/README.md)\n[//]: # (and http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/doc/index.html)\n\n[//]: # (Use relative links after the release, and drop rawgit.com)\n[//]: # (next-develop => develop)\n[//]: # (next-master => master)\n[//]: # (next-gh-pages => gh-pages)\n\n[.babelrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.babelrc\n[.eslintrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.eslintrc\n[.jscsrc]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/.jscsrc\n[Acoustic And Cognitive Spaces]: http://recherche.ircam.fr/equipes/salles/\n[AirBnB]: https://github.com/airbnb/javascript/\n[Analysis of Musical Practices]: http://apm.ircam.fr/\n[API documentation directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-master/doc/\n[API documentation]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-master/doc/index.html\n[Babel]: https://babeljs.io/\n[BSD-3-Clause]: http://opensource.org/licenses/BSD-3-Clause\n[CoSiMa]: http://cosima.ircam.fr/\n[doc directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next-master/doc/\n[dist directory]:  https://github.com/Ircam-RnD/binauralFIR/tree/next-master/dist/\n[documentation]: #documentation\n[ES2015]: https://babeljs.io/docs/learn-es2015/\n[esdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/esdoc.json\n[examples directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/\n[examples HRTF directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-gh-pages/examples/hrtf/\n[examples online]: http://cdn.rawgit.com/Ircam-RnD/binauralFIR/next-gh-pages/examples/index.html\n[HRTF]: http://en.wikipedia.org/wiki/Head-related_transfer_function\n[IIRFilterNode]: https://webaudio.github.io/web-audio-api/#idl-def-IIRFilterNode\n[jsdoc.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/jsdoc.json\n[JSDoc]: http://usejsdoc.org/\n[package.json]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/package.json\n[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\n[SOFA]: http://www.aes.org/publications/standards/search.cfm?docID=99\n[src directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/\n[src/geometry]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/src/geometry/\n[T. Carpentier article]: http://wac.ircam.fr/pdf/demo/wac15_submission_16.pdf\n[test directory]: https://github.com/Ircam-RnD/binauralFIR/tree/next-develop/test/\n[Web Audio API]: https://webaudio.github.io/web-audio-api/\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ircam-RnD/serveSofaHrir.git"
+  },
+  "scripts": {
+    "browserify": "browserify ./src/index.js -t [ babelify ] --standalone serveSofaHrir > serveSofaHrir.js",
+    "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
+    "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
+    "doc": "esdoc -c esdoc.json",
+    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/",
+    "lint-examples": "eslint -c examples/.eslintrc ./examples/*.html",
+    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
+    "test-browser": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | testling -u",
+    "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
+    "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
+    "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"
+  },
+  "standalone": "serveSofaHrir",
+  "version": "0.4.2",
+  "warnings": [
+    {
+      "code": "ENOTSUP",
+      "required": {
+        "node": "0.12 || 4",
+        "npm": ">=1.0.0 <3.0.0"
+      },
+      "pkgid": "serve-sofa-hrir@0.4.2"
+    }
+  ]
+}
 
-},{}]},{},[24])(24)
+},{}],24:[function(require,module,exports){
+module.exports={
+  "name": "binaural",
+  "exports": "binaural",
+  "version": "0.4.2",
+  "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
+  "main": "./dist/",
+  "standalone": "binaural",
+  "scripts": {
+    "lint": "eslint ./src/ ./test/ && jscs --verbose ./src/ ./test/",
+    "lint-examples": "eslint -c examples/.eslintrc ./examples/*.html",
+    "compile": "rm -rf ./dist && babel ./src/ --out-dir ./dist/",
+    "browserify": "browserify ./src/index.js -t [ babelify ] --standalone binaural > binaural.js",
+    "bundle": "npm run lint && npm run test && npm run doc && npm run compile && npm run browserify",
+    "doc": "esdoc -c esdoc.json",
+    "test": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | tape-run",
+    "test-browser": "browserify test/*/*.js -t [ babelify ] --exclude 'test/*/*_listen.js*' --exclude 'test/*/*_issues.js' | testling -u",
+    "test-listen": "browserify test/*/*_listen.js -t [ babelify ] | tape-run",
+    "test-issues": "browserify test/*/*_issues.js -t [ babelify ] | tape-run",
+    "watch": "watch 'npm run browserify && echo $( date ): browserified' ./src/"
+  },
+  "authors": [
+    "Jean-Philippe.Lambert@ircam.fr",
+    "Arnau Julià <arnau.julia@gmail.com>",
+    "Samuel.Goldszmidt@ircam.fr"
+  ],
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "gl-matrix": "^2.3.1",
+    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6",
+    "serve-sofa-hrtf": "git://github.com/Ircam-RnD/serveSofaHrir"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ircam-RnD/binauralFIR"
+  },
+  "engines": {
+    "node": "0.12 || 4",
+    "npm": ">=1.0.0 <3.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-eslint": "^4.1.8",
+    "babel-preset-es2015": "^6.5.0",
+    "babelify": "^7.2.0",
+    "blue-tape": "^0.1.11",
+    "browserify": "^12.0.2",
+    "esdoc": "^0.4.6",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^1.0.2",
+    "eslint-plugin-html": "^1.4.0",
+    "jscs": "2.11.0",
+    "jscs-jsdoc": "^1.3.1",
+    "tape": "^4.4.0",
+    "tape-run": "^2.1.2",
+    "testling": "^1.7.1",
+    "watch": "^0.17.1"
+  }
+}
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BinauralPanner = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Multi-source binaural panner.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _templateObject = _taggedTemplateLiteral(['for use with BinauralPannerNode'], ['for use with BinauralPannerNode']);
+
+var _glMatrix = require('gl-matrix');
+
+var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+var _serveSofaHrir = require('serve-sofa-hrir');
+
+var _coordinates = require('../geometry/coordinates');
+
+var _Source = require('./Source');
+
+var _Source2 = _interopRequireDefault(_Source);
+
+var _Listener = require('../geometry/Listener');
+
+var _Listener2 = _interopRequireDefault(_Listener);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Binaural panner with multiple sources and a listener.
+ */
+
+var BinauralPanner = exports.BinauralPanner = function () {
+
+  /**
+   * Constructs an HRTF set. Note that the filter positions are applied
+   * during the load of an HRTF URL.
+   *
+   * @see {@link HrtfSet}
+   * @see {@link BinauralPanner#loadHrtfSet}
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link BinauralPanner#coordinateSystem}
+   * @param {Number} [options.sourceCount=1]
+   * @param {Array.<coordinates>} [options.sourcePositions=undefined] must
+   * be of length options.sourceCount {@link BinauralPanner#sourcePositions}
+   * @param {Number} [options.crossfadeDuration] in seconds.
+   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
+   * form: 1/(dist^distAttenuationExponent).
+   * {@link BinauralPanner#distAttenuationExponent}
+   * @param {HrtfSet} [options.hrtfSet] refer an external HRTF set.
+   * {@link BinauralPanner#hrtfSet}
+   * @param {CoordinateSystem} [options.filterCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#filterCoordinateSystem}
+   * @param {Array.<coordinates>} [options.filterPositions=undefined]
+   * array of positions to filter. Use undefined to use all positions from the HRTF set.
+   * {@link BinauralPanner#filterPositions}
+   * @param {Boolean} [options.filterAfterLoad=false] true to filter after
+   * full load of SOFA file
+   * @param {Listener} [options.listener] refer an external listener.
+   * {@link BinauralPanner#listener}
+   * @param {CoordinateSystem} [options.listenerCoordinateSystem=options.coordinateSystem]
+   * {@link BinauralPanner#listenerCoordinateSystem}
+   * @param {Coordinates} [options.listenerPosition=[0,0,0]]
+   * {@link BinauralPanner#listenerPosition}
+   * @param {Coordinates} [options.listenerUp=[0,1,0]]
+   * {@link BinauralPanner#listenerUp}
+   * @param {Coordinates} [options.listenerView=[0,0,-1]]
+   * {@link BinauralPanner#listenerView}
+   * @param {Boolean} [options.listenerViewIsRelative=false]
+   * {@link Listener#viewIsRelative}
+    */
+
+  function BinauralPanner() {
+    var _this = this;
+
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, BinauralPanner);
+
+    this._audioContext = options.audioContext;
+
+    this.coordinateSystem = options.coordinateSystem;
+
+    var sourceCount = typeof options.sourceCount !== 'undefined' ? options.sourceCount : 1;
+    // allocate first
+    this._listener = typeof options.listener !== 'undefined' ? options.listener : new _Listener2.default();
+
+    // set coordinate system, that defaults to BinauralPanner's own system
+    this.listenerCoordinateSystem = options.listenerCoordinateSystem;
+
+    // use setters for internal or external listener
+    this.listenerPosition = typeof options.listenerPosition !== 'undefined' ? options.listenerPosition : (0, _coordinates.glToSystem)([], [0, 0, 0], this._listener.coordinateSystem);
+
+    this.listenerView = typeof options.listenerView !== 'undefined' ? options.listenerView : (0, _coordinates.glToSystem)([], [0, 0, -1], this._listener.coordinateSystem);
+    // undefined is fine
+    this.listenerViewIsRelative = options.listenerViewIsRelative;
+
+    this.listenerUp = typeof options.listenerUp !== 'undefined' ? options.listenerUp : (0, _coordinates.glToSystem)([], [0, 1, 0], this._listener.coordinateSystem);
+
+    this._sourcesOutdated = new Array(sourceCount).fill(true);
+
+    var distAttenuationExponent = typeof options.distAttenuationExponent !== 'undefined' ? options.distAttenuationExponent : 0;
+
+    this._sources = this._sourcesOutdated.map(function () {
+      return new _Source2.default({
+        audioContext: _this._audioContext,
+        crossfadeDuration: options.crossfadeDuration,
+        distAttenuationExponent: distAttenuationExponent
+      });
+    });
+
+    this._sourcePositionsAbsolute = this._sourcesOutdated.map(function () {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this._sourcePositionsRelative = this._sourcesOutdated.map(function () {
+      return [0, 0, 1]; // allocation and default value
+    });
+
+    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _serveSofaHrir.HrtfSet({
+      audioContext: this._audioContext,
+      coordinateSystem: 'gl'
+    });
+
+    this.filterCoordinateSystem = options.filterCoordinateSystem;
+    this.filterPositions = options.filterPositions;
+    this.filterAfterLoad = options.filterAfterLoad;
+
+    if (typeof options.sourcePositions !== 'undefined') {
+      this.sourcePositions = options.sourcePositions;
+    }
+
+    this.update();
+  }
+
+  // ----------- accessors
+
+  /**
+   * Set coordinate system.
+   *
+   * @param {CoordinateSystem} [system='gl']
+   */
+
+
+  _createClass(BinauralPanner, [{
+    key: 'setSourcePositionByIndex',
+
+
+    /**
+     * Set the position of one source. It will update the corresponding
+     * relative position after a call to the update method.
+     *
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {Number} index
+     * @param {Coordinates} positionRequest
+     * @returns {this}
+     */
+    value: function setSourcePositionByIndex(index, positionRequest) {
+      this._sourcesOutdated[index] = true;
+      (0, _coordinates.systemToGl)(this._sourcePositionsAbsolute[index], positionRequest, this.coordinateSystem);
+
+      return this;
+    }
+
+    /**
+     * Get the position of one source.
+     *
+     * @param {Number} index
+     * @returns {Coordinates}
+     */
+
+  }, {
+    key: 'getSourcePositionByIndex',
+    value: function getSourcePositionByIndex(index) {
+      return (0, _coordinates.glToSystem)([], this._sourcePositionsAbsolute[index], this.coordinateSystem);
+    }
+
+    // ----------- public methods
+
+    /**
+     * Load an HRTF set form an URL, and update sources.
+     *
+     * @see {@link HrtfSet#load}
+     *
+     * @param {String} sourceUrl
+     * @returns {Promise.<this|Error>} resolve when URL successfully
+     * loaded.
+     */
+
+  }, {
+    key: 'loadHrtfSet',
+    value: function loadHrtfSet(sourceUrl) {
+      var _this2 = this;
+
+      return this._hrtfSet.load(sourceUrl).then(function () {
+        _this2._sourcesOutdated.fill(true);
+        _this2.update();
+        return _this2;
+      });
+    }
+
+    /**
+     * Connect the input of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectInputByIndex',
+    value: function connectInputByIndex(index, nodesToConnect, output, input) {
+      this._sources[index].connectInput(nodesToConnect, output, input);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of one source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInputByIndex',
+    value: function disconnectInputByIndex(index, nodesToDisconnect) {
+      this._sources[index].disconnectInput(nodesToDisconnect);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInputs',
+    value: function disconnectInputs(nodesToDisconnect) {
+      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+      this._sources.forEach(function (source, index) {
+        source.disconnectInput(nodes[index]);
+      });
+
+      return this;
+    }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutputByIndex',
+    value: function connectOutputByIndex(index, nodesToConnect, output, input) {
+      this._sources[index].connectOutput(nodesToConnect, output, input);
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {Number} index
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutputByIndex',
+    value: function disconnectOutputByIndex(index, nodesToDisconnect) {
+      this._sources[index].disconnectOutput(nodesToDisconnect);
+
+      return this;
+    }
+
+    /**
+     * Connect the output of each source.
+     *
+     * @see {@link BinauralPanner#connectOutputByIndex}
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutputs',
+    value: function connectOutputs(nodesToConnect, output, input) {
+      this._sources.forEach(function (source) {
+        source.connectOutput(nodesToConnect, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of each source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutputs',
+    value: function disconnectOutputs(nodesToDisconnect) {
+      this._sources.forEach(function (source) {
+        source.disconnectOutput(nodesToDisconnect);
+      });
+
+      return this;
+    }
+
+    /**
+     * Update the sources filters, according to pending changes in listener,
+     * and source positions.
+     *
+     * @returns {Boolean} true when at least a change occurred.
+     */
+
+  }, {
+    key: 'update',
+    value: function update() {
+      var _this3 = this;
+
+      var updated = false;
+      if (this._listener.update()) {
+        this._sourcesOutdated.fill(true);
+        updated = true;
+      }
+
+      if (this._hrtfSet.isReady) {
+        this._sourcePositionsAbsolute.forEach(function (positionAbsolute, index) {
+          if (_this3._sourcesOutdated[index]) {
+            _glMatrix2.default.vec3.transformMat4(_this3._sourcePositionsRelative[index], positionAbsolute, _this3._listener.lookAt);
+
+            _this3._sources[index].position = _this3._sourcePositionsRelative[index];
+
+            _this3._sourcesOutdated[index] = false;
+            updated = true;
+          }
+        });
+      }
+
+      return updated;
+    }
+  }, {
+    key: 'coordinateSystem',
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
+    }
+
+    /**
+     * Get coordinate system.
+     *
+     * @returns {CoordinateSystem}
+     */
+    ,
+    get: function get() {
+      return this._coordinateSystem;
+    }
+
+    /**
+     * Refer an external HRTF set, and update sources. Its positions
+     * coordinate system must be 'gl'.
+     *
+     * @see {@link HrtfSet}
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {HrtfSet} hrtfSet
+     * @throws {Error} when hrtfSet in undefined or hrtfSet.coordinateSystem is
+     * not 'gl'.
+     */
+
+  }, {
+    key: 'hrtfSet',
+    set: function set(hrtfSet) {
+      var _this4 = this;
+
+      if (typeof hrtfSet !== 'undefined') {
+        if (hrtfSet.coordinateSystem !== 'gl') {
+          throw new Error('coordinate system of HRTF set must be \'gl\' ' + ('(and not \'' + hrtfSet.coordinateSystem + '\') ')(_templateObject));
+        }
+        this._hrtfSet = hrtfSet;
+      } else {
+        throw new Error('Undefined HRTF set for BinauralPanner');
+      }
+
+      // update HRTF set references
+      this._sourcesOutdated.fill(true);
+      this._sources.forEach(function (source) {
+        source.hrtfSet = _this4._hrtfSet;
+      });
+
+      this.update();
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet;
+    }
+
+    // ------------- HRTF set proxies
+
+    /**
+     * Set the filter positions of the HRTF set.
+     *
+     * @see {@link HrtfSet#filterPositions}
+     *
+     * @param {Array.<Coordinates>} positions
+     */
+
+  }, {
+    key: 'filterPositions',
+    set: function set(positions) {
+      this._hrtfSet.filterPositions = positions;
+    }
+
+    /**
+     * Get the filter positions of the HRTF set.
+     *
+     * @see {@link HrtfSet#filterPositions}
+     *
+     * @return {Array.<Coordinates>} positions
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterPositions;
+    }
+
+    /**
+     * Set coordinate system for filter positions.
+     *
+     * @param {CoordinateSystem} [system='gl']
+     */
+
+  }, {
+    key: 'filterCoordinateSystem',
+    set: function set(system) {
+      this._hrtfSet.filterCoordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
+    }
+
+    /**
+     * Get coordinate system for filter positions.
+     *
+     * @returns {CoordinateSystem}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterCoordinateSystem;
+    }
+
+    /**
+     * Set post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @param {Boolean} [post=false]
+     */
+
+  }, {
+    key: 'filterAfterLoad',
+    set: function set(post) {
+      this._hrtfSet.filterAfterLoad = post;
+    }
+
+    /**
+     * Get post-filtering flag. When false, try to load a partial set of
+     * HRTF.
+     *
+     * @returns {Boolean}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet.filterAfterLoad;
+    }
+
+    /**
+     * Refer an external listener, and update sources.
+     *
+     * @see {@link Listener}
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {Listener} listener
+     * @throws {Error} when listener in undefined.
+     */
+
+  }, {
+    key: 'listener',
+    set: function set(listener) {
+      if (typeof listener !== 'undefined') {
+        this._listener = listener;
+      } else {
+        throw new Error('Undefined listener for BinauralPanner');
+      }
+
+      this._sourcesOutdated.fill(true);
+      this.update();
+    }
+
+    // ---------- Listener proxies
+
+    /**
+     * Set coordinate system for listener.
+     *
+     * @see {@link Listener#coordinateSystem}
+     *
+     * @param {CoordinateSystem} [system='gl']
+     */
+
+  }, {
+    key: 'listenerCoordinateSystem',
+    set: function set(system) {
+      this._listener.coordinateSystem = typeof system !== 'undefined' ? system : this.coordinateSystem;
+    }
+
+    /**
+     * Get coordinate system for listener.
+     *
+     * @returns {CoordinateSystem}
+     */
+    ,
+    get: function get() {
+      return this._listener.coordinateSystem;
+    }
+
+    /**
+     * Set listener position. It will update the relative positions of the
+     * sources after a call to the update method.
+     *
+     * Default value is [0, 0, 0] in 'gl' coordinates.
+     *
+     * @see {@link Listener#position}
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {Coordinates} positionRequest
+     */
+
+  }, {
+    key: 'listenerPosition',
+    set: function set(positionRequest) {
+      this._listener.position = positionRequest;
+    }
+
+    /**
+     * Get listener position.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return this._listener.position;
+    }
+
+    /**
+     * Set listener up direction (not an absolute position). It will update
+     * the relative positions of the sources after a call to the update
+     * method.
+     *
+     * Default value is [0, 1, 0] in 'gl' coordinates.
+     *
+     * @see {@link Listener#up}
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {Coordinates} upRequest
+     */
+
+  }, {
+    key: 'listenerUp',
+    set: function set(upRequest) {
+      this._listener.up = upRequest;
+    }
+
+    /**
+     * Get listener up direction.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return this._listener.up;
+    }
+
+    /**
+     * Set listener view, as an aiming position or a relative direction, if
+     * viewIsRelative is respectively false or true. It will update the
+     * relative positions of the sources after a call to the update method.
+     *
+     * Default value is [0, 0, -1] in 'gl' coordinates.
+     *
+     * @see {@link Listener#view}
+     * @see {@link Listener#viewIsRelative}
+     * @see {@link BinauralPanner#update}
+     *
+     * @param {Coordinates} viewRequest
+     */
+
+  }, {
+    key: 'listenerView',
+    set: function set(viewRequest) {
+      this._listener.view = viewRequest;
+    }
+
+    /**
+     * Get listener view.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return this._listener.view;
+    }
+
+    /**
+     * Set the type of view: absolute to an aiming position (when false), or
+     * a relative direction (when true). It will update the relative
+     * positions after a call to the update method.
+     *
+     * @see {@link Listener#view}
+     *
+     * @param {Boolean} [relative=false] true when view is a direction, false
+     * when it is an absolute position.
+     */
+
+  }, {
+    key: 'listenerViewIsRelative',
+    set: function set(relative) {
+      this._listener.viewIsRelative = relative;
+    }
+
+    /**
+     * Get the type of view.
+     *
+     * @returns {Boolean}
+     */
+    ,
+    get: function get() {
+      return this._listener.viewIsRelative;
+    }
+
+    /**
+     * Set the sources positions. It will update the relative positions after
+     * a call to the update method.
+     *
+     * @see {@link BinauralPanner#update}
+     * @see {@link BinauralPanner#setSourcePositionByIndex}
+     *
+     * @param {Array.<Coordinates>} positionsRequest
+     * @throws {Error} if the length of positionsRequest is not the same as
+     * the number of sources
+     */
+
+  }, {
+    key: 'sourcePositions',
+    set: function set(positionsRequest) {
+      var _this5 = this;
+
+      if (positionsRequest.length !== this._sources.length) {
+        throw new Error('Bad number of source positions: ' + (positionsRequest.length + ' ') + ('instead of ' + this._sources.length));
+      }
+
+      positionsRequest.forEach(function (position, index) {
+        _this5._sourcesOutdated[index] = true;
+        _this5.setSourcePositionByIndex(index, position);
+      });
+    }
+
+    /**
+     * Get the source positions.
+     *
+     * @returns {Array.<Coordinates>}
+     */
+    ,
+    get: function get() {
+      var _this6 = this;
+
+      return this._sourcePositionsAbsolute.map(function (position) {
+        return (0, _coordinates.glToSystem)([], position, _this6.coordinateSystem);
+      });
+    }
+  }]);
+
+  return BinauralPanner;
+}();
+
+exports.default = BinauralPanner;
+
+},{"../geometry/Listener":32,"../geometry/coordinates":33,"./Source":26,"gl-matrix":1,"serve-sofa-hrir":16}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @fileOverview Source for binaural processing.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Single source.
+ *
+ * @see {@link BinauralPanner}
+ */
+
+var Source = exports.Source = function () {
+
+  /**
+   * Construct a source, with and AudioContext and an HrtfSet.
+   *
+   * @see {@link HrtfSet}
+   *
+   * @param {Object} options
+   * @param {AudioContext} options.audioContext mandatory for the creation
+   * of FIR audio buffers
+   * @param {HrtfSet} options.hrtfSet {@link Source#hrtfSet}
+   * @param {coordinate} [options.position=[0,0,0]] in 'gl' coordinate system.
+   * {@link Source#position}
+   * @param {Number} [options.crossfadeDuration] in seconds
+   * {@link Source#crossfadeDuration}
+   * @param {Number} [options.distAttenuationExponent] used for distance attenuation law
+   * of form: 1/(dist^distAttenuationExponent).
+   * {@link BinauralPanner#distAttenuationExponent}
+   */
+
+  function Source() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, Source);
+
+    this._audioContext = options.audioContext;
+    this._hrtfSet = options.hrtfSet;
+
+    this._convolverCurrent = this._audioContext.createConvolver();
+    this._convolverCurrent.normalize = false;
+
+    this._gainDistCurrent = this._audioContext.createGain();
+    this._gainCurrent = this._audioContext.createGain();
+    this._convolverCurrent.connect(this._gainDistCurrent);
+    this._gainDistCurrent.connect(this._gainCurrent);
+
+    this._convolverNext = this._audioContext.createConvolver();
+    this._convolverNext.normalize = false;
+
+    this._gainDistNext = this._audioContext.createGain();
+    this._gainNext = this._audioContext.createGain();
+    this._convolverNext.connect(this._gainDistNext);
+    this._gainDistNext.connect(this._gainNext);
+
+    this._crossfadeDuration = options.crossfadeDuration;
+    this._distAttenuationExponent = options.distAttenuationExponent;
+
+    this._crossfadeAfterTime = this._audioContext.currentTime;
+    this._crossfadeTimeout = undefined;
+
+    // set position when everything is ready
+    if (typeof options.position !== 'undefined') {
+      this.position = options.position;
+    }
+  }
+
+  // ----------- accessors
+
+  /**
+   * Set the crossfade duration when the position changes.
+   *
+   * @param {Number} [duration=0.02] in seconds
+   */
+
+
+  _createClass(Source, [{
+    key: 'connectInput',
+
+
+    // ----------- public methods
+
+    /**
+     * Connect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+    value: function connectInput(nodesToConnect, output, input) {
+      var _this = this;
+
+      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
+
+      nodes.forEach(function (node) {
+        node.connect(_this._convolverCurrent, output, input);
+        node.connect(_this._convolverNext, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the input of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectInput',
+    value: function disconnectInput(nodesToDisconnect) {
+      var _this2 = this;
+
+      var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+      nodes.forEach(function (node) {
+        node.disconnect(_this2._convolverCurrent);
+        node.disconnect(_this2._convolverNext);
+      });
+
+      return this;
+    }
+
+    /**
+     * Connect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToConnect
+     * @param {Number} [output=0] output to connect from
+     * @param {Number} [input=0] input to connect to
+     * @returns {this}
+     */
+
+  }, {
+    key: 'connectOutput',
+    value: function connectOutput(nodesToConnect, output, input) {
+      var _this3 = this;
+
+      var nodes = Array.isArray(nodesToConnect) ? nodesToConnect : [nodesToConnect]; // make array
+
+      nodes.forEach(function (node) {
+        _this3._gainCurrent.connect(node, output, input);
+        _this3._gainNext.connect(node, output, input);
+      });
+
+      return this;
+    }
+
+    /**
+     * Disconnect the output of a source.
+     *
+     * @param {(AudioNode|Array.<AudioNode>)} nodesToDisconnect disconnect
+     * all when undefined.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'disconnectOutput',
+    value: function disconnectOutput(nodesToDisconnect) {
+      var _this4 = this;
+
+      if (typeof nodesToDisconnect === 'undefined') {
+        // disconnect all
+        this._gainCurrent.disconnect();
+        this._gainNext.disconnect();
+      } else {
+        var nodes = Array.isArray(nodesToDisconnect) ? nodesToDisconnect : [nodesToDisconnect]; // make array
+
+        nodes.forEach(function (node) {
+          _this4._gainCurrent.disconnect(node);
+          _this4._gainNext.disconnect(node);
+        });
+      }
+
+      return this;
+    }
+  }, {
+    key: 'crossfadeDuration',
+    set: function set() {
+      var duration = arguments.length <= 0 || arguments[0] === undefined ? 0.02 : arguments[0];
+
+      this._crossfadeDuration = duration;
+    }
+
+    /**
+     * Get the crossfade duration when the position changes.
+     *
+     * @returns {Number} in seconds
+     */
+    ,
+    get: function get() {
+      return this._crossfadeDuration;
+    }
+
+    /**
+     * Refer an external HRTF set.
+     *
+     * @param {HrtfSet} hrtfSet
+     */
+
+  }, {
+    key: 'hrtfSet',
+    set: function set(hrtfSet) {
+      this._hrtfSet = hrtfSet;
+    }
+
+    /**
+     * Get the HrtfSet.
+     *
+     * @returns {HrtfSet}
+     */
+    ,
+    get: function get() {
+      return this._hrtfSet;
+    }
+
+    /**
+     * Set the distance attenuation exponent
+     *
+     * @param {Number} distAttenuationExponent
+     */
+
+  }, {
+    key: 'distAttenuationExponent',
+    set: function set(distAttenuationExponent) {
+      this._distAttenuationExponent = distAttenuationExponent;
+    }
+
+    /**
+     * Get the distance attenuation exponent
+     *
+     * @returns {Number} distAttenuationExponent
+     */
+    ,
+    get: function get() {
+      return this._distAttenuationExponent;
+    }
+
+    /**
+     * Set the position of the source and updates.
+     *
+     * @param {Coordinates} positionRequest
+     */
+
+  }, {
+    key: 'position',
+    set: function set(positionRequest) {
+      var _this5 = this;
+
+      clearTimeout(this._crossfadeTimeout);
+      var now = this._audioContext.currentTime;
+      if (now >= this._crossfadeAfterTime) {
+        // swap
+        var tmp = this._convolverCurrent;
+        this._convolverCurrent = this._convolverNext;
+        this._convolverNext = tmp;
+
+        tmp = this._gainCurrent;
+        this._gainCurrent = this._gainNext;
+        this._gainNext = tmp;
+
+        this._convolverNext.buffer = this._hrtfSet.nearestFir(positionRequest);
+
+        // reschedule after setting the buffer, as it may take time
+        // (currentTime updates at least on Chrome 48)
+        now = this._audioContext.currentTime;
+        this._crossfadeAfterTime = now + this._crossfadeDuration;
+
+        // fade in next
+        this._gainNext.gain.cancelScheduledValues(now);
+        this._gainNext.gain.setValueAtTime(0, now);
+        this._gainNext.gain.linearRampToValueAtTime(1, now + this._crossfadeDuration);
+
+        // fade out current
+        this._gainCurrent.gain.cancelScheduledValues(now);
+        this._gainCurrent.gain.setValueAtTime(1, now);
+        this._gainCurrent.gain.linearRampToValueAtTime(0, now + this._crossfadeDuration);
+
+        // update distance gain
+        var dist = Math.max(1.0, Math.sqrt(Math.pow(positionRequest[0], 2) + Math.pow(positionRequest[1], 2) + Math.pow(positionRequest[2], 2)));
+        var gainDist = 1.0 / Math.pow(dist, this._distAttenuationExponent);
+
+        this._gainDistCurrent.gain.cancelScheduledValues(now);
+        this._gainDistCurrent.gain.setValueAtTime(this._gainDistCurrent.gain.value, now);
+        this._gainDistCurrent.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
+
+        this._gainDistNext.gain.cancelScheduledValues(now);
+        this._gainDistNext.gain.setValueAtTime(this._gainDistNext.gain.value, now);
+        this._gainDistNext.gain.linearRampToValueAtTime(gainDist, now + this._crossfadeDuration);
+      } else {
+        // re-schedule later
+        this._crossfadeTimeout = setTimeout(function () {
+          _this5.position = positionRequest;
+        }, 0.02);
+      }
+    }
+  }]);
+
+  return Source;
+}();
+
+exports.default = Source;
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _BinauralPanner = require('./BinauralPanner');
+
+var _BinauralPanner2 = _interopRequireDefault(_BinauralPanner);
+
+var _utilities = require('./utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+var _Source = require('./Source');
+
+var _Source2 = _interopRequireDefault(_Source);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  BinauralPanner: _BinauralPanner2.default,
+  Source: _Source2.default,
+  utilities: _utilities2.default
+};
+
+},{"./BinauralPanner":25,"./Source":26,"./utilities":28}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.dBToLin = dBToLin;
+exports.createDiracBuffer = createDiracBuffer;
+exports.createNoiseBuffer = createNoiseBuffer;
+exports.resampleFloat32Array = resampleFloat32Array;
+/**
+ * @fileOverview Audio utilities
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Convert a dB value to a linear amplitude, i.e. -20dB gives 0.1
+ *
+ * @param {Number} dBValue
+ * @returns {Number}
+ */
+function dBToLin(dBValue) {
+  var factor = 1 / 20;
+  return Math.pow(10, dBValue * factor);
+}
+
+/**
+ * Create a Dirac buffer, zero-padded.
+ *
+ * Warning: the default length is 2 samples,
+ * to by-pass a bug in Safari ≤ 9.
+ *
+ * @param {Object} options
+ * @param {AudioContext} options.audioContext must be defined
+ * @param {Number} [options.channelCount=1]
+ * @param {Number} [options.gain=0] in dB
+ * @param {Number} [options.length=2] in samples
+ * @returns {AudioBuffer}
+ */
+function createDiracBuffer() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var context = options.audioContext;
+
+  var length = typeof options.length !== 'undefined' ? options.length : 2; // Safari ≤9 needs one more
+  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : 1;
+  var gain = typeof options.gain !== 'undefined' ? options.gain : 0; // dB
+
+  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
+  var data = buffer.getChannelData(0);
+
+  var amplitude = dBToLin(gain);
+  data[0] = amplitude;
+  // already padded with zeroes
+
+  return buffer;
+}
+
+/**
+ * Create a noise buffer.
+ *
+ * @param {Object} options
+ * @param {AudioContext} options.audioContext must be defined
+ * @param {Number} [options.channelCount=1]
+ * @param {Number} [options.duration=5] in seconds
+ * @param {Number} [options.gain=-30] in dB
+ * @returns {AudioBuffer}
+ */
+function createNoiseBuffer() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var context = options.audioContext;
+  var duration = typeof options.duration !== 'undefined' ? options.duration : 5;
+
+  var gain = typeof options.gain !== 'undefined' ? options.gain : -30; // dB
+
+  var channelCount = typeof options.channelCount !== 'undefined' ? options.channelCount : context.destination.channelCount;
+
+  var length = duration * context.sampleRate;
+  var amplitude = dBToLin(gain);
+  var buffer = context.createBuffer(channelCount, length, context.sampleRate);
+  for (var c = 0; c < channelCount; ++c) {
+    var data = buffer.getChannelData(c);
+    for (var i = 0; i < length; ++i) {
+      data[i] = amplitude * (Math.random() * 2 - 1);
+    }
+  }
+  return buffer;
+}
+
+/**
+ * Convert an array, typed or not, to a Float32Array, with possible re-sampling.
+ *
+ * @param {Object} options
+ * @param {Array} options.inputSamples input array
+ * @param {Number} options.inputSampleRate in Hertz
+ * @param {Number} [options.outputSampleRate=options.inputSampleRate]
+ * @returns {Promise.<Float32Array|Error>}
+ */
+function resampleFloat32Array() {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var promise = new Promise(function (resolve, reject) {
+    var inputSamples = options.inputSamples;
+    var inputSampleRate = options.inputSampleRate;
+
+    var outputSampleRate = typeof options.outputSampleRate !== 'undefined' ? options.outputSampleRate : inputSampleRate;
+
+    if (inputSampleRate === outputSampleRate) {
+      resolve(new Float32Array(inputSamples));
+    } else {
+      try {
+        var outputSamplesNb = Math.ceil(inputSamples.length * outputSampleRate / inputSampleRate);
+
+        var context = new window.OfflineAudioContext(1, outputSamplesNb, outputSampleRate);
+
+        var inputBuffer = context.createBuffer(1, inputSamples.length, inputSampleRate);
+
+        inputBuffer.getChannelData(0).set(inputSamples);
+
+        var source = context.createBufferSource();
+        source.buffer = inputBuffer;
+        source.connect(context.destination);
+
+        source.start(); // will start with offline context
+
+        context.oncomplete = function (event) {
+          var outputSamples = event.renderedBuffer.getChannelData(0);
+          resolve(outputSamples);
+        };
+
+        context.startRendering();
+      } catch (error) {
+        reject(new Error('Unable to re-sample Float32Array. ' + error.message));
+      }
+    }
+  });
+
+  return promise;
+}
+
+exports.default = {
+  dBToLin: dBToLin,
+  createDiracBuffer: createDiracBuffer,
+  createNoiseBuffer: createNoiseBuffer,
+  resampleFloat32Array: resampleFloat32Array
+};
+
+},{}],29:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _utilities = require('./utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  utilities: _utilities2.default
+};
+
+},{"./utilities":30}],30:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.almostEquals = almostEquals;
+exports.almostEqualsModulo = almostEqualsModulo;
+/**
+ * @fileOverview Common utilities
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Test whether a value is around a reference, given a tolerance.
+ *
+ * @param {Number} value
+ * @param {Number} reference
+ * @param {Number} [tolerance=Number.EPSILON]
+ * @returns {Number} Math.abs(value - reference) <= tolerance;
+ */
+function almostEquals(value, reference) {
+  var tolerance = arguments.length <= 2 || arguments[2] === undefined ? Number.EPSILON : arguments[2];
+
+  return Math.abs(value - reference) <= tolerance;
+}
+
+/**
+ * Test whether a value is around a reference, given a tolerance and a
+ * modulo.
+ *
+ * @param {Number} value
+ * @param {Number} reference
+ * @param {Number} modulo
+ * @param {Number} [tolerance=Number.EPSILON]
+ * @returns {Number} Math.abs(value - reference) % modulo <= tolerance;
+ */
+function almostEqualsModulo(value, reference, modulo) {
+  var tolerance = arguments.length <= 3 || arguments[3] === undefined ? Number.EPSILON : arguments[3];
+
+  return Math.abs(value - reference) % modulo <= tolerance;
+}
+
+exports.default = {
+  almostEquals: almostEquals,
+  almostEqualsModulo: almostEqualsModulo
+};
+
+},{}],31:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tree = undefined;
+exports.distanceSquared = distanceSquared;
+exports.distance = distance;
+
+var _kd = require('kd.tree');
+
+var _kd2 = _interopRequireDefault(_kd);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.tree = _kd2.default;
+
+/**
+ * Get the squared distance between to points.
+ *
+ * (Avoid computing the square-root when unnecessary.)
+ *
+ * @param {Object} a in cartesian coordinates.
+ * @param {Number} a.x
+ * @param {Number} a.y
+ * @param {Number} a.z
+ * @param {Object} b in cartesian coordinates.
+ * @param {Number} b.x
+ * @param {Number} b.y
+ * @param {Number} b.z
+ * @returns {Number}
+ */
+/**
+ * @fileOverview Helpers for k-d tree.
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+function distanceSquared(a, b) {
+  var x = b.x - a.x;
+  var y = b.y - a.y;
+  var z = b.z - a.z;
+  return x * x + y * y + z * z;
+}
+
+/**
+ * Get the distance between to points.
+ *
+ * @param {Object} a in cartesian coordinates.
+ * @param {Number} a.x
+ * @param {Number} a.y
+ * @param {Number} a.z
+ * @param {Object} b in cartesian coordinates.
+ * @param {Number} b.x
+ * @param {Number} b.y
+ * @param {Number} b.z
+ * @returns {Number}
+ */
+function distance(a, b) {
+  return Math.sqrt(this.distanceSquared(a, b));
+}
+
+exports.default = {
+  distance: distance,
+  distanceSquared: distanceSquared,
+  tree: _kd2.default
+};
+
+},{"kd.tree":11}],32:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Listener = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @fileOverview Listener.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author Jean-Philippe.Lambert@ircam.fr
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright 2016 IRCAM, Paris, France
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license BSD-3-Clause
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _glMatrix = require('gl-matrix');
+
+var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+var _coordinates = require('../geometry/coordinates');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Camera-like listener. It generates a look-at matrix from a position, a
+ * view point, and an up direction.
+ *
+ */
+
+var Listener = exports.Listener = function () {
+
+  /**
+   * Constructs a listener.
+   *
+   * @param {Object} options
+   * @param {CoordinateSystem} [options.coordinateSystem='gl']
+   * {@link Listener#coordinateSystem}
+   * @param {Coordinates} [options.position=[0,0,0]]
+   * {@link Listener#position}
+   * @param {Coordinates} [options.up=[0,1,0]]
+   * {@link Listener#up}
+   * @param {Coordinates} [options.view=[0,0,-1]]
+   * {@link Listener#view}
+   * @param {Boolean} [options.viewIsRelative=false]
+   * {@link Listener#viewIsRelative}
+   */
+
+  function Listener() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _classCallCheck(this, Listener);
+
+    this._outdated = true;
+    this._lookAt = [];
+
+    this.coordinateSystem = options.coordinateSystem;
+
+    this._position = [];
+    this.position = typeof options.position !== 'undefined' ? options.position : (0, _coordinates.glToSystem)([], [0, 0, 0], this.coordinateSystem);
+
+    this._up = [];
+    this.up = typeof options.up !== 'undefined' ? options.up : (0, _coordinates.glToSystem)([], [0, 1, 0], this.coordinateSystem);
+
+    this.viewIsRelative = options.viewIsRelative; // undefined is fine
+
+    this._view = [];
+    this.view = typeof options.view !== 'undefined' ? options.view : (0, _coordinates.glToSystem)([], [0, 0, -1], this.coordinateSystem);
+
+    this.update();
+  }
+
+  // ------------- accessors
+
+  /**
+   * Get the current look-at matrix. Note is updated only after a call to
+   * the update method.
+   *
+   * @see {@link Listener#update}
+   *
+   * @returns {mat4} look-at matrix
+   */
+
+
+  _createClass(Listener, [{
+    key: 'update',
+
+
+    // --------- public methods
+
+    /**
+     * Updates the look-at matrix, according to the pending changes in
+     * position, view, viewIsRelative, and up.
+     *
+     * @returns {Boolean} true when at least a change occurred.
+     */
+    value: function update() {
+      var updated = this._outdated;
+      if (this._outdated) {
+        var view = this._viewIsRelative ? _glMatrix2.default.vec3.add([], this._view, this._position) : this._view;
+        _glMatrix2.default.mat4.lookAt(this._lookAt, this._position, view, this._up);
+        this._outdated = false;
+      }
+
+      return updated;
+    }
+  }, {
+    key: 'lookAt',
+    get: function get() {
+      return this._lookAt;
+    }
+
+    /**
+     * Set coordinate system.
+     *
+     * @param {CoordinateSystem} [system='gl']
+     */
+
+  }, {
+    key: 'coordinateSystem',
+    set: function set(system) {
+      this._coordinateSystem = typeof system !== 'undefined' ? system : 'gl';
+    }
+
+    /**
+     * Get coordinate system.
+     *
+     * @returns {CoordinateSystem}
+     */
+    ,
+    get: function get() {
+      return this._coordinateSystem;
+    }
+
+    /**
+     * Set listener position. It will update the look-at matrix after a call
+     * to the update method.
+     *
+     * Default value is [0, 0, 0] in 'gl' coordinates.
+     *
+     * @see {@link Listener#update}
+     *
+     * @param {Coordinates} positionRequest
+     */
+
+  }, {
+    key: 'position',
+    set: function set(positionRequest) {
+      (0, _coordinates.systemToGl)(this._position, positionRequest, this._coordinateSystem);
+      this._outdated = true;
+    }
+
+    /**
+     * Get listener position.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToSystem)([], this._position, this._coordinateSystem);
+    }
+
+    /**
+     * Set listener up direction (not an absolute position). It will update
+     * the look-at matrix after a call to the update method.
+     *
+     * Default value is [0, 1, 0] in 'gl' coordinates.
+     *
+     * @see {@link Listener#update}
+     *
+     * @param {Coordinates} upRequest
+     */
+
+  }, {
+    key: 'up',
+    set: function set(upRequest) {
+      (0, _coordinates.systemToGl)(this._up, upRequest, this._coordinateSystem);
+      this._outdated = true;
+    }
+
+    /**
+     * Get listener up direction.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToSystem)([], this._up, this._coordinateSystem);
+    }
+
+    /**
+     * Set listener view, as an aiming position or a relative direction, if
+     * viewIsRelative is respectively false or true. It will update the
+     * look-at matrix after a call to the update method.
+     *
+     * Default value is [0, 0, -1] in 'gl' coordinates.
+     *
+     * @see {@link Listener#viewIsRelative}
+     * @see {@link Listener#update}
+     *
+     * @param {Coordinates} viewRequest
+     */
+
+  }, {
+    key: 'view',
+    set: function set(viewRequest) {
+      (0, _coordinates.systemToGl)(this._view, viewRequest, this._coordinateSystem);
+      this._outdated = true;
+    }
+
+    /**
+     * Get listener view.
+     *
+     * @returns {Coordinates}
+     */
+    ,
+    get: function get() {
+      return (0, _coordinates.glToSystem)([], this._view, this._coordinateSystem);
+    }
+
+    /**
+     * Set the type of view: absolute to an aiming position (when false), or
+     * a relative direction (when true). It will update the look-at matrix
+     * after a call to the update method.
+     *
+     * @see {@link Listener#view}
+     *
+     * @param {Boolean} [relative=false] true when view is a direction, false
+     * when it is an absolute position.
+     */
+
+  }, {
+    key: 'viewIsRelative',
+    set: function set(relative) {
+      this._viewIsRelative = typeof relative !== 'undefined' ? relative : false;
+    }
+
+    /**
+     * Get the type of view.
+     *
+     * @returns {Boolean}
+     */
+    ,
+    get: function get() {
+      return this._viewIsRelative;
+    }
+  }]);
+
+  return Listener;
+}();
+
+exports.default = Listener;
+
+},{"../geometry/coordinates":33,"gl-matrix":1}],33:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sofaCartesianToGl = sofaCartesianToGl;
+exports.glToSofaCartesian = glToSofaCartesian;
+exports.sofaCartesianToSofaSpherical = sofaCartesianToSofaSpherical;
+exports.sofaSphericalToSofaCartesian = sofaSphericalToSofaCartesian;
+exports.sofaSphericalToGl = sofaSphericalToGl;
+exports.glToSofaSpherical = glToSofaSpherical;
+exports.sofaToSofaCartesian = sofaToSofaCartesian;
+exports.spat4CartesianToGl = spat4CartesianToGl;
+exports.glToSpat4Cartesian = glToSpat4Cartesian;
+exports.spat4CartesianToSpat4Spherical = spat4CartesianToSpat4Spherical;
+exports.spat4SphericalToSpat4Cartesian = spat4SphericalToSpat4Cartesian;
+exports.spat4SphericalToGl = spat4SphericalToGl;
+exports.glToSpat4Spherical = glToSpat4Spherical;
+exports.systemType = systemType;
+exports.systemToGl = systemToGl;
+exports.glToSystem = glToSystem;
+
+var _degree = require('./degree');
+
+var _degree2 = _interopRequireDefault(_degree);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Coordinates as an array of 3 values:
+ * [x, y, z] or [azimuth, elevation, distance], depending on system
+ *
+ * @typedef {vec3} Coordinates
+ */
+
+/**
+ * Coordinate system: `gl`, `sofaCartesian`, `sofaSpherical`,
+ * `spat4Cartesian`, or `spat4Spherical`.
+ *
+ * @typedef {String} CoordinateSystem
+ */
+
+// ----------------------------- SOFA
+
+/**
+ * SOFA cartesian coordinate system: `sofaCartesian`.
+ *
+ * SOFA distances are in metres.
+ *
+ * <pre>
+ *
+ * SOFA          +z  +x             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *         +y ----o                            o---- +x
+ *                                            /
+ *                                           /
+ *                                          +z
+ *
+ * SOFA.x = -openGL.z               openGL.x = -SOFA.y
+ * SOFA.y = -openGL.x               openGL.y =  SOFA.z
+ * SOFA.z =  openGL.y               openGL.z = -SOFA.x
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} SofaCartesian
+ */
+
+/**
+ * SOFA spherical coordinate system:  `sofaSpherical`.
+ *
+ * SOFA angles are in degrees.
+ *
+ * <pre>
+ *
+ * SOFA.azimuth = atan2(SOFA.y, SOFA.x)
+ * SOFA.elevation = atan2(SOFA.z, sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y) );
+ * SOFA.distance = sqrt(SOFA.x * SOFA.x + SOFA.y * SOFA.y + SOFA.z * SOFA.z)
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} SofaSpherical
+ */
+
+/**
+ * Convert SOFA cartesian coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function sofaCartesianToGl(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = 0 - y;
+  out[1] = z;
+  out[2] = 0 - x;
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to SOFA cartesian.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+/**
+ * @fileOverview Coordinate systems conversions. openGL, SOFA, and Spat4 (Ircam).
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+function glToSofaCartesian(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = 0 - z;
+  out[1] = 0 - x;
+  out[2] = y;
+
+  return out;
+}
+
+/**
+ * Convert SOFA cartesian coordinates to SOFA spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function sofaCartesianToSofaSpherical(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  var x2y2 = x * x + y * y;
+
+  // from [-180, 180] to [0, 360);
+  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
+
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert SOFA spherical coordinates to SOFA spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function sofaSphericalToSofaCartesian(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.cos(azimuth); // SOFA.x
+  out[1] = distance * cosE * _degree2.default.sin(azimuth); // SOFA.y
+  out[2] = distance * _degree2.default.sin(elevation); // SOFA.z
+
+  return out;
+}
+
+/**
+ * Convert SOFA spherical coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function sofaSphericalToGl(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = 0 - distance * cosE * _degree2.default.sin(azimuth); // -SOFA.y
+  out[1] = distance * _degree2.default.sin(elevation); // SOFA.z
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -SOFA.x
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to SOFA spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function glToSofaSpherical(out, a) {
+  // copy to handle in-place
+  // difference to avoid generating -0 out of 0
+  var x = 0 - a[2]; // -openGL.z
+  var y = 0 - a[0]; // -openGL.x
+  var z = a[1]; // openGL.y
+
+  var x2y2 = x * x + y * y;
+
+  // from [-180, 180] to [0, 360);
+  out[0] = (_degree2.default.atan2(y, x) + 360) % 360;
+
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert coordinates to SOFA cartesian.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
+ */
+function sofaToSofaCartesian(out, a, system) {
+  switch (system) {
+    case 'sofaCartesian':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaSpherical':
+      sofaSphericalToSofaCartesian(out, a);
+      break;
+
+    default:
+      throw new Error('Bad coordinate system');
+  }
+  return out;
+}
+
+// ---------------- Spat4
+
+/**
+ * Spat4 cartesian coordinate system: `spat4Cartesian`.
+ *
+ * Spat4 distances are in metres.
+ *
+ * <pre>
+ *
+ * Spat4         +z  +y             openGL    +y
+ *                | /                          |
+ *                |/                           |
+ *                o---- +x                     o---- +x
+ *                                            /
+ *                                           /
+ *                                         +z
+ *
+ * Spat4.x =  openGL.x               openGL.x =  Spat4.x
+ * Spat4.y = -openGL.z               openGL.y =  Spat4.z
+ * Spat4.z =  openGL.y               openGL.z = -Spat4.y
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} Spat4Cartesian
+ */
+
+/**
+ * Spat4 spherical coordinate system: `spat4Spherical`.
+ *
+ * Spat4 angles are in degrees.
+ *
+ * <pre>
+ *
+ * Spat4.azimuth = atan2(Spat4.x, Spat4.y)
+ * Spat4.elevation = atan2(Spat4.z, sqrt(Spat4.x * Spat4.x + Spat4.y * Spat4.y) );
+ * Spat4.distance = sqrt(Spat4.x * Spat4.x + Spat4.y * Spat4.y + Spat4.z * Spat4.z)
+ *
+ * </pre>
+ *
+ * @typedef {Coordinates} Spat4Spherical
+ */
+
+/**
+ * Convert Spat4 cartesian coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4CartesianToGl(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = x;
+  out[1] = z;
+  out[2] = 0 - y;
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to Spat4 cartesian.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function glToSpat4Cartesian(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  out[0] = x;
+  out[1] = 0 - z;
+  out[2] = y;
+
+  return out;
+}
+
+/**
+ * Convert Spat4 cartesian coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4CartesianToSpat4Spherical(out, a) {
+  // copy to handle in-place
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+
+  var x2y2 = x * x + y * y;
+
+  out[0] = _degree2.default.atan2(x, y);
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+/**
+ * Convert Spat4 spherical coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4SphericalToSpat4Cartesian(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
+  out[1] = distance * cosE * _degree2.default.cos(azimuth); // Spat4.y
+  out[2] = distance * _degree2.default.sin(elevation); // Spat4.z
+
+  return out;
+}
+
+/**
+ * Convert Spat4 spherical coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function spat4SphericalToGl(out, a) {
+  // copy to handle in-place
+  var azimuth = a[0];
+  var elevation = a[1];
+  var distance = a[2];
+
+  var cosE = _degree2.default.cos(elevation);
+  out[0] = distance * cosE * _degree2.default.sin(azimuth); // Spat4.x
+  out[1] = distance * _degree2.default.sin(elevation); // Spat4.z
+  out[2] = 0 - distance * cosE * _degree2.default.cos(azimuth); // -Spat4.y
+
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to Spat4 spherical.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @returns {Coordinates} out
+ */
+function glToSpat4Spherical(out, a) {
+  // copy to handle in-place
+  // difference to avoid generating -0 out of 0
+  var x = a[0]; // openGL.x
+  var y = 0 - a[2]; // -openGL.z
+  var z = a[1]; // openGL.y
+
+  var x2y2 = x * x + y * y;
+
+  out[0] = _degree2.default.atan2(x, y);
+  out[1] = _degree2.default.atan2(z, Math.sqrt(x2y2));
+  out[2] = Math.sqrt(x2y2 + z * z);
+
+  return out;
+}
+
+// ---------------- named coordinate systems
+
+/**
+ * Get the coordinate system general type (cartesian or spherical).
+ *
+ * @param {String} system
+ * @returns {String} 'cartesian' or 'spherical', if `system` if of cartesian
+ * or spherical type.
+ */
+function systemType(system) {
+  var type = void 0;
+  if (system === 'sofaCartesian' || system === 'spat4Cartesian' || system === 'gl') {
+    type = 'cartesian';
+  } else if (system === 'sofaSpherical' || system === 'spat4Spherical') {
+    type = 'spherical';
+  } else {
+    throw new Error('Unknown coordinate system type ' + system);
+  }
+  return type;
+}
+
+/**
+ * Convert coordinates to openGL.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
+ */
+function systemToGl(out, a, system) {
+  switch (system) {
+    case 'gl':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaCartesian':
+      sofaCartesianToGl(out, a);
+      break;
+
+    case 'sofaSpherical':
+      sofaSphericalToGl(out, a);
+      break;
+
+    case 'spat4Cartesian':
+      spat4CartesianToGl(out, a);
+      break;
+
+    case 'spat4Spherical':
+      spat4SphericalToGl(out, a);
+      break;
+
+    default:
+      throw new Error('Bad coordinate system');
+  }
+  return out;
+}
+
+/**
+ * Convert openGL coordinates to other system.
+ *
+ * @param {Coordinates} out in-place if out === a.
+ * @param {Coordinates} a
+ * @param {CoordinateSystem} system
+ * @returns {Coordinates} out
+ * @throws {Error} when the system is unknown.
+ */
+function glToSystem(out, a, system) {
+  switch (system) {
+    case 'gl':
+      out[0] = a[0];
+      out[1] = a[1];
+      out[2] = a[2];
+      break;
+
+    case 'sofaCartesian':
+      glToSofaCartesian(out, a);
+      break;
+
+    case 'sofaSpherical':
+      glToSofaSpherical(out, a);
+      break;
+
+    case 'spat4Cartesian':
+      glToSpat4Cartesian(out, a);
+      break;
+
+    case 'spat4Spherical':
+      glToSpat4Spherical(out, a);
+      break;
+
+    default:
+      throw new Error('Bad coordinate system');
+  }
+  return out;
+}
+
+exports.default = {
+  glToSofaCartesian: glToSofaCartesian,
+  glToSofaSpherical: glToSofaSpherical,
+  glToSpat4Cartesian: glToSpat4Cartesian,
+  glToSpat4Spherical: glToSpat4Spherical,
+  glToSystem: glToSystem,
+  sofaCartesianToGl: sofaCartesianToGl,
+  sofaCartesianToSofaSpherical: sofaCartesianToSofaSpherical,
+  sofaSphericalToGl: sofaSphericalToGl,
+  sofaSphericalToSofaCartesian: sofaSphericalToSofaCartesian,
+  sofaToSofaCartesian: sofaToSofaCartesian,
+  spat4CartesianToGl: spat4CartesianToGl,
+  spat4CartesianToSpat4Spherical: spat4CartesianToSpat4Spherical,
+  spat4SphericalToGl: spat4SphericalToGl,
+  spat4SphericalToSpat4Cartesian: spat4SphericalToSpat4Cartesian,
+  systemToGl: systemToGl,
+  systemType: systemType
+};
+
+},{"./degree":34}],34:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.toRadian = toRadian;
+exports.fromRadian = fromRadian;
+exports.cos = cos;
+exports.sin = sin;
+exports.atan2 = atan2;
+/**
+ * @fileOverview Convert to and from degree
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2015-2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+/**
+ * Degree to radian multiplication factor.
+ *
+ * @type {Number}
+ */
+var toRadianFactor = exports.toRadianFactor = Math.PI / 180;
+
+/**
+ * Radian to degree multiplication factor.
+ *
+ * @type {Number}
+ */
+var fromRadianFactor = exports.fromRadianFactor = 1 / toRadianFactor;
+
+/**
+ * Convert an angle in degrees to radians.
+ *
+ * @param {Number} angle in degrees
+ * @returns {Number} angle in radians
+ */
+function toRadian(angle) {
+  return angle * toRadianFactor;
+}
+
+/**
+ * Convert an angle in radians to degrees.
+ *
+ * @param {Number} angle in radians
+ * @returns {Number} angle in degrees
+ */
+function fromRadian(angle) {
+  return angle * fromRadianFactor;
+}
+
+/**
+ * Get the cosinus of an angle in degrees.
+ *
+ * @param {Number} angle
+ * @returns {Number}
+ */
+function cos(angle) {
+  return Math.cos(angle * toRadianFactor);
+}
+
+/**
+ * Get the sinus of an angle in degrees.
+ *
+ * @param {Number} angle
+ * @returns {Number}
+ */
+function sin(angle) {
+  return Math.sin(angle * toRadianFactor);
+}
+
+/**
+ * Get the arc-tangent (2 arguments) of 2 angles in degrees.
+ *
+ * @param {Number} y
+ * @param {Number} x
+ * @returns {Number}
+ */
+function atan2(y, x) {
+  return Math.atan2(y, x) * fromRadianFactor;
+}
+
+exports.default = {
+  atan2: atan2,
+  cos: cos,
+  fromRadian: fromRadian,
+  fromRadianFactor: fromRadianFactor,
+  sin: sin,
+  toRadian: toRadian,
+  toRadianFactor: toRadianFactor
+};
+
+},{}],35:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _coordinates = require('./coordinates');
+
+var _coordinates2 = _interopRequireDefault(_coordinates);
+
+var _degree = require('./degree');
+
+var _degree2 = _interopRequireDefault(_degree);
+
+var _KdTree = require('./KdTree');
+
+var _KdTree2 = _interopRequireDefault(_KdTree);
+
+var _Listener = require('./Listener');
+
+var _Listener2 = _interopRequireDefault(_Listener);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+  coordinates: _coordinates2.default,
+  degree: _degree2.default,
+  KdTree: _KdTree2.default,
+  Listener: _Listener2.default
+};
+
+},{"./KdTree":31,"./Listener":32,"./coordinates":33,"./degree":34}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sofa = exports.info = exports.geometry = exports.common = exports.audio = undefined;
+
+var _audio = require('./audio');
+
+var _audio2 = _interopRequireDefault(_audio);
+
+var _common = require('./common');
+
+var _common2 = _interopRequireDefault(_common);
+
+var _geometry = require('./geometry');
+
+var _geometry2 = _interopRequireDefault(_geometry);
+
+var _info = require('./info');
+
+var _info2 = _interopRequireDefault(_info);
+
+var _sofa = require('./sofa');
+
+var _sofa2 = _interopRequireDefault(_sofa);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.audio = _audio2.default;
+exports.common = _common2.default;
+exports.geometry = _geometry2.default;
+exports.info = _info2.default;
+exports.sofa = _sofa2.default;
+exports.default = {
+  audio: _audio2.default,
+  common: _common2.default,
+  geometry: _geometry2.default,
+  info: _info2.default,
+  sofa: _sofa2.default
+};
+
+},{"./audio":27,"./common":29,"./geometry":35,"./info":37,"./sofa":38}],37:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.version = exports.name = exports.license = exports.description = undefined;
+
+var _package = require('../package.json');
+
+var _package2 = _interopRequireDefault(_package);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @module info
+ */
+
+/**
+ * Short description of the library.
+ *
+ * @type {String}
+ */
+var description = _package2.default.description;
+
+/**
+ * License of the library.
+ *
+ * @type {String}
+ */
+/**
+ * @fileOverview Information on the library, from the `package.json` file.
+ *
+ * @author Jean-Philippe.Lambert@ircam.fr
+ * @copyright 2016 IRCAM, Paris, France
+ * @license BSD-3-Clause
+ */
+
+exports.description = description;
+var license = _package2.default.license;
+
+/**
+ * Name of the library.
+ *
+ * @type {String}
+ */
+
+exports.license = license;
+var name = _package2.default.name;
+
+/**
+ * Semantic version of the library.
+ *
+ * @type {String}
+ */
+
+exports.name = name;
+var version = _package2.default.version;
+exports.version = version;
+exports.default = {
+  description: description,
+  license: license,
+  name: name,
+  version: version
+};
+
+},{"../package.json":24}],38:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _serveSofaHrir = require('serve-sofa-hrir');
+
+exports.default = {
+  HrtfSet: _serveSofaHrir.HrtfSet,
+  ServerDataBase: _serveSofaHrir.ServerDataBase
+}; /**
+    * @fileOverview Utility classes to handle the loading of HRTF files form a
+    * SOFA server.
+    * @author Jean-Philippe.Lambert@ircam.fr
+    * @copyright 2015-2016 IRCAM, Paris, France
+    * @license BSD-3-Clause
+    */
+
+},{"serve-sofa-hrir":16}]},{},[36])(36)
 });

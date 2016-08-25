@@ -1,26 +1,16 @@
 {
   "coverage": "100%",
-  "expectCount": 128,
-  "actualCount": 128,
+  "expectCount": 98,
+  "actualCount": 98,
   "files": {
     "src/audio/BinauralPanner.js": {
       "expectCount": 36,
       "actualCount": 36,
       "undocumentLines": []
     },
-    "src/sofa/HrtfSet.js": {
-      "expectCount": 20,
-      "actualCount": 20,
-      "undocumentLines": []
-    },
     "src/geometry/Listener.js": {
       "expectCount": 14,
       "actualCount": 14,
-      "undocumentLines": []
-    },
-    "src/sofa/ServerDataBase.js": {
-      "expectCount": 6,
-      "actualCount": 6,
       "undocumentLines": []
     },
     "src/audio/Source.js": {
@@ -36,11 +26,6 @@
     "src/geometry/degree.js": {
       "expectCount": 7,
       "actualCount": 7,
-      "undocumentLines": []
-    },
-    "src/sofa/parseSofa.js": {
-      "expectCount": 3,
-      "actualCount": 3,
       "undocumentLines": []
     },
     "src/audio/utilities.js": {
@@ -61,11 +46,6 @@
     "src/geometry/coordinates.js": {
       "expectCount": 16,
       "actualCount": 16,
-      "undocumentLines": []
-    },
-    "src/sofa/parseDataSet.js": {
-      "expectCount": 1,
-      "actualCount": 1,
       "undocumentLines": []
     }
   }

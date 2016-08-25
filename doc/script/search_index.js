@@ -6,21 +6,9 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "binaural/src/sofa/hrtfset.js~hrtfset",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html",
-    "<span>HrtfSet</span> <span class=\"search-result-import-path\">binaural/src/sofa/HrtfSet.js</span>",
-    "class"
-  ],
-  [
     "binaural/src/geometry/listener.js~listener",
     "class/src/geometry/Listener.js~Listener.html",
     "<span>Listener</span> <span class=\"search-result-import-path\">binaural/src/geometry/Listener.js</span>",
-    "class"
-  ],
-  [
-    "binaural/src/sofa/serverdatabase.js~serverdatabase",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html",
-    "<span>ServerDataBase</span> <span class=\"search-result-import-path\">binaural/src/sofa/ServerDataBase.js</span>",
     "class"
   ],
   [
@@ -45,12 +33,6 @@ window.esdocSearchIndex = [
     "binaural/src/geometry/degree.js~atan2",
     "function/index.html#static-function-atan2",
     "<span>atan2</span> <span class=\"search-result-import-path\">binaural/src/geometry/degree.js</span>",
-    "function"
-  ],
-  [
-    "binaural/src/sofa/parsesofa.js~conformsofacoordinatesystem",
-    "function/index.html#static-function-conformSofaCoordinateSystem",
-    "<span>conformSofaCoordinateSystem</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
     "function"
   ],
   [
@@ -150,18 +132,6 @@ window.esdocSearchIndex = [
     "variable"
   ],
   [
-    "binaural/src/sofa/parsedataset.js~parsedataset",
-    "function/index.html#static-function-parseDataSet",
-    "<span>parseDataSet</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseDataSet.js</span>",
-    "function"
-  ],
-  [
-    "binaural/src/sofa/parsesofa.js~parsesofa",
-    "function/index.html#static-function-parseSofa",
-    "<span>parseSofa</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
-    "function"
-  ],
-  [
     "binaural/src/audio/utilities.js~resamplefloat32array",
     "function/index.html#static-function-resampleFloat32Array",
     "<span>resampleFloat32Array</span> <span class=\"search-result-import-path\">binaural/src/audio/utilities.js</span>",
@@ -225,12 +195,6 @@ window.esdocSearchIndex = [
     "binaural/src/geometry/coordinates.js~spat4sphericaltospat4cartesian",
     "function/index.html#static-function-spat4SphericalToSpat4Cartesian",
     "<span>spat4SphericalToSpat4Cartesian</span> <span class=\"search-result-import-path\">binaural/src/geometry/coordinates.js</span>",
-    "function"
-  ],
-  [
-    "binaural/src/sofa/parsesofa.js~stringifysofa",
-    "function/index.html#static-function-stringifySofa",
-    "<span>stringifySofa</span> <span class=\"search-result-import-path\">binaural/src/sofa/parseSofa.js</span>",
     "function"
   ],
   [
@@ -661,25 +625,25 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filterafterload",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
-    "member"
-  ],
-  [
-    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterAfterLoad",
     "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
-    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem",
-    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
+    "src/audio/binauralpanner.js~binauralpanner#filterafterload",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterAfterLoad",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterAfterLoad",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
     "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-filterCoordinateSystem",
+    "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
+    "member"
+  ],
+  [
+    "src/audio/binauralpanner.js~binauralpanner#filtercoordinatesystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-filterCoordinateSystem",
     "src/audio/BinauralPanner.js~BinauralPanner#filterCoordinateSystem",
     "member"
   ],
@@ -703,13 +667,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#hrtfset",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-hrtfSet",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-hrtfSet",
     "src/audio/BinauralPanner.js~BinauralPanner#hrtfSet",
     "member"
   ],
@@ -721,13 +685,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerCoordinateSystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerCoordinateSystem",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerCoordinateSystem",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenercoordinatesystem",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerCoordinateSystem",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerCoordinateSystem",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerCoordinateSystem",
     "member"
   ],
@@ -745,13 +709,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerup",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerup",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerUp",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerUp",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerUp",
     "member"
   ],
@@ -769,13 +733,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerviewisrelative",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerViewIsRelative",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerViewIsRelative",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerViewIsRelative",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#listenerviewisrelative",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-listenerViewIsRelative",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-listenerViewIsRelative",
     "src/audio/BinauralPanner.js~BinauralPanner#listenerViewIsRelative",
     "member"
   ],
@@ -793,13 +757,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
   [
     "src/audio/binauralpanner.js~binauralpanner#sourcepositions",
-    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-get-sourcePositions",
+    "class/src/audio/BinauralPanner.js~BinauralPanner.html#instance-set-sourcePositions",
     "src/audio/BinauralPanner.js~BinauralPanner#sourcePositions",
     "member"
   ],
@@ -871,13 +835,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/audio/source.js~source#hrtfset",
-    "class/src/audio/Source.js~Source.html#instance-set-hrtfSet",
+    "class/src/audio/Source.js~Source.html#instance-get-hrtfSet",
     "src/audio/Source.js~Source#hrtfSet",
     "member"
   ],
   [
     "src/audio/source.js~source#hrtfset",
-    "class/src/audio/Source.js~Source.html#instance-get-hrtfSet",
+    "class/src/audio/Source.js~Source.html#instance-set-hrtfSet",
     "src/audio/Source.js~Source#hrtfSet",
     "member"
   ],
@@ -949,13 +913,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/geometry/listener.js~listener#position",
-    "class/src/geometry/Listener.js~Listener.html#instance-set-position",
+    "class/src/geometry/Listener.js~Listener.html#instance-get-position",
     "src/geometry/Listener.js~Listener#position",
     "member"
   ],
   [
     "src/geometry/listener.js~listener#position",
-    "class/src/geometry/Listener.js~Listener.html#instance-get-position",
+    "class/src/geometry/Listener.js~Listener.html#instance-set-position",
     "src/geometry/Listener.js~Listener#position",
     "member"
   ],
@@ -1068,189 +1032,9 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "src/sofa/hrtfset.js",
-    "file/src/sofa/HrtfSet.js.html",
-    "src/sofa/HrtfSet.js",
-    "file"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#applyfilterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-applyFilterPositions",
-    "src/sofa/HrtfSet.js~HrtfSet#applyFilterPositions",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#constructor",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-constructor-constructor",
-    "src/sofa/HrtfSet.js~HrtfSet#constructor",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#coordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-coordinateSystem",
-    "src/sofa/HrtfSet.js~HrtfSet#coordinateSystem",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#coordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-coordinateSystem",
-    "src/sofa/HrtfSet.js~HrtfSet#coordinateSystem",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#export",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-export",
-    "src/sofa/HrtfSet.js~HrtfSet#export",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filterafterload",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterAfterLoad",
-    "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filterafterload",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterAfterLoad",
-    "src/sofa/HrtfSet.js~HrtfSet#filterAfterLoad",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filtercoordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterCoordinateSystem",
-    "src/sofa/HrtfSet.js~HrtfSet#filterCoordinateSystem",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filtercoordinatesystem",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterCoordinateSystem",
-    "src/sofa/HrtfSet.js~HrtfSet#filterCoordinateSystem",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-filterPositions",
-    "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#filterpositions",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-set-filterPositions",
-    "src/sofa/HrtfSet.js~HrtfSet#filterPositions",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#isready",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-isReady",
-    "src/sofa/HrtfSet.js~HrtfSet#isReady",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#load",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-load",
-    "src/sofa/HrtfSet.js~HrtfSet#load",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#nearest",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearest",
-    "src/sofa/HrtfSet.js~HrtfSet#nearest",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#nearestfir",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-method-nearestFir",
-    "src/sofa/HrtfSet.js~HrtfSet#nearestFir",
-    "method"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#sofametadata",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaMetaData",
-    "src/sofa/HrtfSet.js~HrtfSet#sofaMetaData",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#sofaname",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaName",
-    "src/sofa/HrtfSet.js~HrtfSet#sofaName",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#sofasamplerate",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaSampleRate",
-    "src/sofa/HrtfSet.js~HrtfSet#sofaSampleRate",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset#sofaurl",
-    "class/src/sofa/HrtfSet.js~HrtfSet.html#instance-get-sofaUrl",
-    "src/sofa/HrtfSet.js~HrtfSet#sofaUrl",
-    "member"
-  ],
-  [
-    "src/sofa/hrtfset.js~hrtfset.hrtfset.nearesttype",
-    "typedef/index.html#static-typedef-HrtfSet.nearestType",
-    "src/sofa/HrtfSet.js~HrtfSet.HrtfSet.nearestType",
-    "typedef"
-  ],
-  [
-    "src/sofa/serverdatabase.js",
-    "file/src/sofa/ServerDataBase.js.html",
-    "src/sofa/ServerDataBase.js",
-    "file"
-  ],
-  [
-    "src/sofa/serverdatabase.js~serverdatabase#constructor",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html#instance-constructor-constructor",
-    "src/sofa/ServerDataBase.js~ServerDataBase#constructor",
-    "method"
-  ],
-  [
-    "src/sofa/serverdatabase.js~serverdatabase#getdatasetdefinitions",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html#instance-method-getDataSetDefinitions",
-    "src/sofa/ServerDataBase.js~ServerDataBase#getDataSetDefinitions",
-    "method"
-  ],
-  [
-    "src/sofa/serverdatabase.js~serverdatabase#getsourcepositions",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html#instance-method-getSourcePositions",
-    "src/sofa/ServerDataBase.js~ServerDataBase#getSourcePositions",
-    "method"
-  ],
-  [
-    "src/sofa/serverdatabase.js~serverdatabase#geturls",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html#instance-method-getUrls",
-    "src/sofa/ServerDataBase.js~ServerDataBase#getUrls",
-    "method"
-  ],
-  [
-    "src/sofa/serverdatabase.js~serverdatabase#loadcatalogue",
-    "class/src/sofa/ServerDataBase.js~ServerDataBase.html#instance-method-loadCatalogue",
-    "src/sofa/ServerDataBase.js~ServerDataBase#loadCatalogue",
-    "method"
-  ],
-  [
     "src/sofa/index.js",
     "file/src/sofa/index.js.html",
     "src/sofa/index.js",
-    "file"
-  ],
-  [
-    "src/sofa/parsedataset.js",
-    "file/src/sofa/parseDataSet.js.html",
-    "src/sofa/parseDataSet.js",
-    "file"
-  ],
-  [
-    "src/sofa/parsesofa.js",
-    "file/src/sofa/parseSofa.js.html",
-    "src/sofa/parseSofa.js",
-    "file"
-  ],
-  [
-    "src/sofa/parsexml.js",
-    "file/src/sofa/parseXml.js.html",
-    "src/sofa/parseXml.js",
     "file"
   ]
 ]

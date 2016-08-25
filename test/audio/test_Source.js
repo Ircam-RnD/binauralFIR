@@ -1,11 +1,10 @@
 import test from 'blue-tape';
+import serveSofaHrir from 'serve-sofa-hrir';
 
 import '../../include/AudioContextMonkeyPatch';
 
 import audio from '../../src/audio/utilities';
 import Source from '../../src/audio/Source';
-import HrtfSet from '../../src/sofa/HrtfSet';
-import ServerDataBase from '../../src/sofa/ServerDataBase';
 
 import { almostEquals } from '../../src/common/utilities';
 const epsilon = 10e-7; // Float32
@@ -27,7 +26,7 @@ const testPositionsName = [
   'front-right',
 ];
 
-const serverDataBase = new ServerDataBase();
+const serverDataBase = new serveSofaHrir.ServerDataBase();
 
 test(`${prefix}`, (assert) => {
   return serverDataBase.loadCatalogue()
@@ -51,7 +50,7 @@ test(`${prefix}`, (assert) => {
                                                  1 * sampleRate, // 1 second
                                                  sampleRate);
 
-        const hrtfSet = new HrtfSet({
+        const hrtfSet = new serveSofaHrir.HrtfSet({
           audioContext,
           filterPositions: [position],
           coordinateSystem,

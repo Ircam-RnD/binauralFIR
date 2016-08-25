@@ -1,11 +1,10 @@
 import test from 'blue-tape';
+import serveSofaHrir from 'serve-sofa-hrir';
 
 import '../../include/AudioContextMonkeyPatch';
 
 import audio from '../../src/audio/utilities';
 import BinauralPanner from '../../src/audio/BinauralPanner';
-import HrtfSet from '../../src/sofa/HrtfSet';
-import ServerDataBase from '../../src/sofa/ServerDataBase';
 import coordinates from '../../src/geometry/coordinates';
 
 import { almostEquals } from '../../src/common/utilities';
@@ -32,7 +31,7 @@ const testPositionsName = [
   'rear-left',
 ];
 
-const serverDataBase = new ServerDataBase();
+const serverDataBase = new serveSofaHrir.ServerDataBase();
 const serverDataBaseLoaded = serverDataBase.loadCatalogue();
 serverDataBaseLoaded.catch( (error) => {
   throw new Error(`Error while loading catalogue. ${error.message}`);
@@ -61,7 +60,7 @@ test(`${prefix} with an external HRTF set`, (assert) => {
                   sampleRate, // 1 second
                   sampleRate);
 
-        const hrtfSet = new HrtfSet({
+        const hrtfSet = new serveSofaHrir.HrtfSet({
           audioContext,
           filterPositions: testPositions,
           filterCoordinateSystem: coordinateSystem,

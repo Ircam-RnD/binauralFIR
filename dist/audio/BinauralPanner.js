@@ -18,11 +18,9 @@ var _glMatrix = require('gl-matrix');
 
 var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
+var _serveSofaHrir = require('serve-sofa-hrir');
+
 var _coordinates = require('../geometry/coordinates');
-
-var _HrtfSet = require('../sofa/HrtfSet');
-
-var _HrtfSet2 = _interopRequireDefault(_HrtfSet);
 
 var _Source = require('./Source');
 
@@ -133,7 +131,7 @@ var BinauralPanner = exports.BinauralPanner = function () {
       return [0, 0, 1]; // allocation and default value
     });
 
-    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _HrtfSet2.default({
+    this.hrtfSet = typeof options.hrtfSet !== 'undefined' ? options.hrtfSet : new _serveSofaHrir.HrtfSet({
       audioContext: this._audioContext,
       coordinateSystem: 'gl'
     });

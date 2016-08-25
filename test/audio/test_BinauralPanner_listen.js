@@ -1,11 +1,10 @@
 import test from 'blue-tape';
+import serveSofaHrir from 'serve-sofa-hrir';
 
 import '../../include/AudioContextMonkeyPatch';
 
 import audio from '../../src/audio/utilities';
 import BinauralPanner from '../../src/audio/BinauralPanner';
-import HrtfSet from '../../src/sofa/HrtfSet';
-import ServerDataBase from '../../src/sofa/ServerDataBase';
 
 const prefix = 'Listening test for BinauralPanner';
 
@@ -35,7 +34,7 @@ const testPositionsName = [
   'rear-left',
 ];
 
-const hrtfSet = new HrtfSet({
+const hrtfSet = new serveSofaHrir.HrtfSet({
   audioContext,
   filterPositions: testPositions,
   filterCoordinateSystem: coordinateSystem,
@@ -43,7 +42,7 @@ const hrtfSet = new HrtfSet({
 });
 
 console.log('accessing server');
-const serverDataBase = new ServerDataBase();
+const serverDataBase = new serveSofaHrir.ServerDataBase();
 
 test(`${prefix}`, (assert) => {
   return serverDataBase.loadCatalogue()

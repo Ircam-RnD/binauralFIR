@@ -1,7 +1,7 @@
 {
   "name": "binaural",
   "exports": "binaural",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Processing audio node which spatializes an incoming audio stream in three-dimensional space for binaural audio",
   "main": "./dist/",
   "standalone": "binaural",
@@ -26,7 +26,8 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "gl-matrix": "^2.3.1",
-    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6"
+    "kd.tree": "akshaylive/node-kdt#39bc780704a324393bca68a17cf7bc71be8544c6",
+    "serve-sofa-hrtf": "git://github.com/Ircam-RnD/serveSofaHrir"
   },
   "repository": {
     "type": "git",

@@ -6,10 +6,9 @@
  */
 
 import glMatrix from 'gl-matrix';
-
+import { HrtfSet } from 'serve-sofa-hrir';
 import { glToSystem, systemToGl } from '../geometry/coordinates';
 
-import HrtfSet from '../sofa/HrtfSet';
 import Source from './Source';
 import Listener from '../geometry/Listener';
 

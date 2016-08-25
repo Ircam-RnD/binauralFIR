@@ -76,13 +76,6 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-SofaSpherical">SofaSpherical</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Spat4Cartesian">Spat4Cartesian</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Spat4Spherical">Spat4Spherical</a></span></span></li>
-<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sofa</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/HrtfSet.js~HrtfSet.html">HrtfSet</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sofa/ServerDataBase.js~ServerDataBase.html">ServerDataBase</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDataSet">parseDataSet</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-conformSofaCoordinateSystem">conformSofaCoordinateSystem</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSofa">parseSofa</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-stringifySofa">stringifySofa</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HrtfSet.nearestType">HrtfSet.nearestType</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -96,10 +89,9 @@
  */
 
 import glMatrix from &apos;gl-matrix&apos;;
-
+import { HrtfSet } from &apos;serve-sofa-hrir&apos;;
 import { glToSystem, systemToGl } from &apos;../geometry/coordinates&apos;;
 
-import HrtfSet from &apos;../sofa/HrtfSet&apos;;
 import Source from &apos;./Source&apos;;
 import Listener from &apos;../geometry/Listener&apos;;
 
